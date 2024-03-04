@@ -200,11 +200,7 @@ const config = {
               {
                 label: 'Telegram',
                 href: 'https://t.me/subspace_network',
-              },
-              {
-                label: 'Reddit',
-                href: 'https://reddit.com/r/sub',
-              },
+              }
             ],
           },
           {
