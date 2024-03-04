@@ -204,10 +204,8 @@ An epoch transition occurs after every `StakeEpochDuration` blocks (or when forc
     - Each operator will get a cut of `nomination_tax * current_epoch_fees` of all rewards issued to their pool as per `nomination_tax` specified in the operator’s config.
     - The operator’s cut will be automatically re-staked to the operator’s nomination as a deposit. Operator’s `shares`, `current_total_shares` and `current_total_stake` will be updated with the corresponding deposit later when deposits are processed.
     - The `current_epoch_fees` is temporarily updated to `current_epoch_fees*(1-nomination_tax)` for the rest of the calculations during the epoch transitions. It will be reset to 0 for the new epoch.
-2. Finalize domain operator switches to new domain. 
-The operator is added to the `next_operators` of the new domain. This operator can start operating for this new domain once the new domain’s current epoch is finished.
-3. Slash the operators: remove their stake from the VRF election, transfer the whole pool stake and pending withdrawals to the treasury
-4. Finalize domain’s staking summary.
+2. Slash the operators: remove their stake from the VRF election, transfer the whole pool stake and pending withdrawals to the treasury
+3. Finalize domain’s staking summary.
     
     For each operator operating on the next epoch (existing and new operators), do the following:
     

@@ -89,14 +89,6 @@ Instantiates a new domain in the `DomainRegistry` based on a `runtime_id` (exist
 
 This permissionless operation allows anyone to create their instance of a domain runtime based on a desired config.
 
-### switch_domain
-
-`switch_domain(operator_id, current_domain_id, new_domain_id)`
-
-Allows operators to re-allocate their entire staking pool from one domain to another. Changes the operator's `current_domain_id` in the `OperatorsRegistry` to the `new_domain_id` and applies the stake change to `stake_summary` fields of both `current_domain_id`  and `new_domain_id` in the `DomainRegistry`. 
-
-This permissionless operation does not require any lockups or withdrawal periods since the operator is still staked. This does not require approval from nominators. On execution, the current domain is debited by the pool balance, and the next domain is credited with the pool balance, with these changes being applied at the next epoch transition, transferring the operator’s pool balance from the current domain to the new domain.
-
 ### deregister_operator
 
 `deregister_operator(operator_id)`
@@ -201,7 +193,7 @@ This operation can only be initiated by a root user. It is used to ensure domain
 - `Operator`:
     - `signing_key`: the public key used to sign bundles for the VRF election
     - `current_domain_id`: the domain this operator is staked on
-    - `next_domain_id`: the domain this operator is going to be staked on next when (if) they decide to switch
+    - `next_domain_id`: the domain this operator is going to be staked on next when (if) they decide to switch (currently unused)
     - `minimum_nominator_stake`: the minimum stake needed to participate as a nominator for this pool, as determined by the operator in their config. Default is 1 SSC.
     - `nomination_tax`: the tax rate for withdrawals from the pool by nominators, as determined by the operator in their config. Default is 5%.
     - `current_total_stake`: the total active stake for this operator’s pool for the current epoch. Used for calculating and verifying the VRF election for the chosen domain.
