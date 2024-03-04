@@ -57,9 +57,9 @@ The `domain_config` contains:
 2. `runtime_id`: domain runtime type that exists in `RuntimeRegistry`.
 3. `domain_id`: identifier assigned to an instance of the domain.
 4. specific configuration items, such as:
-    - `max_block_size`: the max block size for this domain; may not exceed the system-wide `MaxDomainBlockSize` limit.
-    - `max_block_weight`: the max block weight for this domain; may not exceed the system-wide `MaxDomainBlockWeight`
-    - `target_bundles_per_slot`: the probability of successful bundle in a slot (active slots coefficient); defines the expected bundle production rate, which must be `> 0` .
+    - `max_block_size`: the max block size for this domain; may not exceed the system-wide `MaxDomainBlockSize` limit; used to compute [bundle size limit](bundles_blocks.md#bundle-limits).
+    - `max_block_weight`: the max block weight for this domain; may not exceed the system-wide `MaxDomainBlockWeight` limit; used to compute [bundle weight limit](bundles_blocks.md#bundle-limits).
+    - `bundle_slot_probability`: the probability of successful bundle in a slot (active slots coefficient); defines the expected bundle production rate, which must be `> 0` .
 5. `allowlist`: list of addresses allowed to run operators on this domain
 6. `initial_balances`: list of initial balances on domain accounts
 7. Any further genesis config details can be included as required and be passed down. These specific genesis details ensure the `genesis_state_root` is unique for each instantiated domain and thereby making `genesis_er_hash` unique across different instances of the same domain runtime. 
@@ -128,6 +128,8 @@ When an operator is elected to produce a bundle, they must select transactions t
 1. Compute `slot_vrf_hash` for this slot as `hash(vrf_signature.output)`
 2. Identify txs for inclusion into the bundle for this slot by looking into the transaction pool and identify all transactions whose senders `account_id` (as integer), is within the range as `bidirectional_distance(slot_vrf_hash, public_key_hash) <= TX_RANGE/2`
 
+The operator may only include as many transactions within this range as fit within the bundle `max_bundle_weight` and `max_bundle_size` [limits](bundles_blocks.md#bundle-limits) for this domain.
+
 ## Initial Domain Bundle Verification by Consensus Nodes
 
 All consensus nodes will perform the following verification when a new bundle is received over the network. All valid bundles are added to the local extrinsics pool and propagated to all peers on the network. Any invalid bundles are not added to the pool (no fraud proofs for invalid bundles received, only fraud proofs for invalid bundles that are included in a block).
@@ -135,7 +137,7 @@ All consensus nodes will perform the following verification when a new bundle is
 1. Verify the `domain_id` is in the `DomainRegistry`.
 2. Verify the `ProofOfElection` for this domain and operator.
 3. Verify the bundle header `signature` for the registered domain operator.
-4. Ensure the bundle does not exceed the `MaxDomainBlockSize` or `MaxDomainBlockWeight` for this domain.
+4. Ensure the bundle does not exceed the bundle `max_bundle_weight` and `max_bundle_size` [limits](bundles_blocks.md#bundle-limits) for this domain.
 5. Ensure the bundle is well-formed:
     1. Verify the `execution_trace_root` is correctly computed for the `execution_trace`.
     2. Verify the `bundle_extrinsics_root` is correctly computed for all included extrinsics.
