@@ -115,10 +115,6 @@ Existing nominators may choose to add more stake to the same operator’s pool t
 
 See the corresponding `deregister_operator` [extrinsic](interfaces.md/#deregister_operator). 
 
-## Switching Domains
-
-See the corresponding `switch_domain` [extrinsic](interfaces.md/#switch_domain).
-
 ## Slashing Stake
 
 If any `submit_fraud_proof` [extrinsic](interfaces.md/#submit_fraud_proof) is accepted by the chain, the operator’s entire pool is slashed.
