@@ -35,6 +35,14 @@ The bundle body is largely an “opaque blob” for consensus nodes. They only c
 - `extrinsics` 
 an ordered list of all new extrinsics being proposed by this operator for the next domain block.
 
+### Bundle Limits
+
+The size of bundle body in bytes and it's `estimated_bundle_weight` are limited by the `max_block_size` and `max_block_weight` [domain configuration](workflow.md#domain-genesis-config) items as well as the consensus block size and weight limits based on the expected number of bundles `bundle_slot_probability/SLOT_PROBABILITY` in a single block.
+
+`DomainBundleLimit` is a struct that contains the maximum bundle size and weight:
+- `max_bundle_weight = max_block_weight/(bundle_slot_probability/SLOT_PROBABILITY + 2*Sqrt(bundle_slot_probability/SLOT_PROBABILITY)+1)`
+- `max_bundle_size = max_block_size/(bundle_slot_probability/SLOT_PROBABILITY + 2*Sqrt(bundle_slot_probability/SLOT_PROBABILITY)+1)`
+
 ## Domain Blocks
 
 Domain block follows the standard [Substrate block format](https://github.com/paritytech/substrate/blob/689da495a0c0c0c2466fe90a9ea187ce56760f2d/primitives/runtime/src/generic/block.rs#L82). It consists of a Header and a list of extrinsics that are compiled from the bundles contained within the consensus block.
