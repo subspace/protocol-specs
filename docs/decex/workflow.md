@@ -136,6 +136,10 @@ All consensus nodes will perform the following verification when a new bundle is
 
 1. Verify the `domain_id` is in the `DomainRegistry`.
 2. Verify the `ProofOfElection` for this domain and operator.
+    1. Ensure the `slot_number` is no older than the slot of the block `current_block_number - BundleLongevity`.
+    2. Verify the `slot_number` and the `proof_of_time` is correctly computed.
+    3. Verify the `vrf_signature` based on the operator signing key and the global challenge that is derived from the `slot_number` and the `proof_of_time`.
+    4. Verify the `vrf_signature` is below the threshold that is derived from the `operator_stake / total_domain_stake` and the `bundle_slot_probability`.
 3. Verify the bundle header `signature` for the registered domain operator.
 4. Ensure the bundle does not exceed the bundle `max_bundle_weight` and `max_bundle_size` [limits](bundles_blocks.md#bundle-limits) for this domain.
 5. Ensure the bundle is well-formed:
