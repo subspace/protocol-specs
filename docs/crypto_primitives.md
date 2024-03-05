@@ -18,7 +18,9 @@ Hashes provide succinct commitments to arbitrary data.
 
 `keyed_hash(key, message)` denotes keyed BLAKE2b-256 hash.
 
-Substrate primitives (i.e., block hashing) use BLAKE2b-256 as well. Proof-of-Space primitives use BLAKE3.
+Substrate primitives (i.e., block hashing) use BLAKE2b-256 as well. 
+
+Proof-of-Space primitives use BLAKE3.
 
 ## Merkle Tree
 
@@ -66,10 +68,10 @@ Splits `vrf_signature` into `output` and `proof` and verifies `proof` for an inp
 
 ## Kate-Zaverucha-Goldberg (KZG) Polynomial Commitment
 
-[KZG polynomial commitment scheme](https://dankradfeist.de/ethereum/2020/06/16/kate-polynomial-commitments.html) allows for *constant-*sized inclusion proofs for arbitrary-sized data sets. Specifically:
+[KZG polynomial commitment scheme](https://dankradfeist.de/ethereum/2020/06/16/kate-polynomial-commitments.html) allows for *constant*-sized inclusion proofs for arbitrary-sized data sets. Specifically:
 
 - The commitment size is *constant* and equal to one group element of an elliptic group that admits pairings. With BLS12-381, that is 48 bytes
-- The proof size is *constant* and **equal to one group element (48 bytes)
+- The proof size is *constant* and **equal** to one group element (48 bytes)
 - Verification time is *constant* and requires two group multiplications and two pairings
 - Proving time (commitment and proof generation) is *linear* in the degree of the underlying polynomial (length of committed data)
 
@@ -186,12 +188,18 @@ Currently, the space parameter `k` is set to 20 with resulting in 160-byte *proo
 
 The plot seed is obtained from farmer public key, current sector and piece offset within the sector.
 
-<!--
+<div align="center">
+    <img src="/img/PoS_Table-light.svg#gh-light-mode-only" alt="PoS_Table" />
+    <img src="/img/PoS_Table-dark.svg#gh-dark-mode-only" alt="PoS_Table" />
+</div>
+
+<center>Figure 1: Structure of Chia PoS table</center>
+<!-- 
 TODO: Pull figure from Subnomicon
  ![Figure 1: Structure of Chia PoS table](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/86273655-3697-440d-9313-135513abc658/Subspace_v2_Master_-_Plotting_(31).png)
 
-Figure 1: Structure of Chia PoS table
--->
+ -->
+
 
 ### find_proof
 
@@ -199,6 +207,12 @@ Figure 1: Structure of Chia PoS table
 
 For a given `challenge_index` samples the `pos_table` for a valid full *proof-of-space* if the corresponding proof exists at this index, returns `None` otherwise.
 
+<div align="center">
+    <img src="/img/PoS_Lookup-light.svg#gh-light-mode-only" alt="PoS_Lookup" />
+    <img src="/img/PoS_Lookup-dark.svg#gh-dark-mode-only" alt="PoS_Lookup" />
+</div>
+
+<center>Figure 2: Querying the PoS table at a challenge index. On average 37% of indices are missing a proof.</center>
 <!-- 
 TODO: Pull figure from Subnomicon
 ![Figure 2: Querying the PoS table at a challenge index. On average 37% of indices are missing a proof.](https://prod-files-secure.s3.us-west-2.amazonaws.com/562415b3-26fd-44e9-a7cf-40b1a8253627/1a0139da-0686-4fce-9195-27d723353c86/Subspace_v2_Master_-_Plotting.png)
