@@ -8,6 +8,9 @@ last_update:
   date: 02/14/2024
   author: Dariia Porechna
 ---
+
+import Collapsible from '@site/src/components/Collapsible/Collapsible';
+
 The following primitives are used in various parts of the protocol.
 
 ## Hash
@@ -157,6 +160,9 @@ Recovers the `polynomial` in coefficient form, which evaluates to `data`, withou
 
 The resulting `polynomial` is suitable for use with the KZG primitives `commit` and `create_witness`.
 
+    <Collapsible title="Implementation Note">
+    - (Optimization, Implemented) The output of this function matches `KZG::Poly(Recover(partial_data))` but it is faster due to computing 2 less FFTs, which saves time during time-sensitive Proving phase where we do not need to recover the source record data, but need to recover the corresponding polynomial coefficients to compute the KZG witness for winning chunk.
+    </Collapsible>
 <!-- 
 TODO: Toggle for the following:
 *Implementation Note*
