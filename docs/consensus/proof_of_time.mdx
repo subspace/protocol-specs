@@ -34,11 +34,10 @@ We construct a PoT function by iterating AES-128 a large number of times. The pr
 
 - `BLOCK_AUTHORING_DELAY`: number of slots between when the new global randomness value is revealed at slot `t` and when the farmer can claim block with that randomness at slot `t + BLOCK_AUTHORING_DELAY`, currently set to the maximum time needed to produce a PoS solution (4 slots, ~4 seconds)
 - `POT_ENTROPY_INJECTION_INTERVAL`: number of blocks after which the proof-of-time chain input is updated with consensus chain entropy, currently 50 blocks, roughly equal to ~5 minutes at the expected block production rate
-<!-- 
-    TODO: toggle
-    Note
-        
-        This parameter is $c$ in security analysis. -->
+
+<Collapsible title="Note">
+This parameter is $c$ in security analysis.
+</Collapsible>
         
 - `POT_ENTROPY_INJECTION_LOOKBACK_DEPTH`: depth at which the injected block is taken, measured in multiples of `POT_ENTROPY_INJECTION_INTERVAL`s, currently `2` *(equal to 100 blocks, the archiving depth)*
 - `POT_ENTROPY_INJECTION_DELAY`: number of slots between when the injection condition is met at slot `t` and when the injection into the PoT chain happens at slot `t + POT_ENTROPY_INJECTION_DELAY`, currently equal to 15 slots
@@ -65,9 +64,8 @@ Takes a `seed` and number of iterations `pot_iterations` and repeatedly evaluate
     3. Set `input = output`. The `key` stays the same.
 5. Output `checkpoints`
 
-<!-- 
-TODO: replace diagram
-![Screenshot 2023-06-01 at 13.48.06.png](Dilithium%20PoT%20Specification%204e17a6d5b03a4abea864ba2d0b97970e/Screenshot_2023-06-01_at_13.48.06.png) -->
+![Screenshot 2023-06-01 at 13.48.06.png](/img/PoT_Evaluator_time_in_iter.png)
+
 
 ### output
 `output(checkpoints: PotCheckpoints)` → `PotOutput`
@@ -96,17 +94,17 @@ Verifies that the `proof_of_time` was computed correctly for `pot_iterations` nu
 4. Iterate through `checkpoints` in `proof_of_time` in steps of 2. The first checkpoint is `seed`.
 5. For each pair of `checkpoints[i]` and `checkpoints[i+1]`run:
     
-    <!-- 
-    TODO : replace diagram
-    ![Subspace v2 Master - Consensus (2).png](Dilithium%20PoT%20Specification%204e17a6d5b03a4abea864ba2d0b97970e/Subspace_v2_Master_-_Consensus_(2).png) -->
+    
+    ![Subspace v2 Master - Consensus (2).png](/img/PoT_Verification.png)
     
     1. Loop evaluation of `aes_encrypt(key, checkpoints[i])` encryption routine for `checkpoint_iterations/2` iterations.
     2. Loop evaluation of `aes_decrypt(key, checkpoint[i+1])` decryption routine for `checkpoint_iterations/2` iterations.
 6. If all pairs are correct, return `True`, otherwise, return `False`
-<!-- 
-TODO: toggle
-Implementation Notes
-    - Doing encryption for iterations/2 and decryption for iterations/2 allows as to achieve same level of parallelism as if we had 16 checkpoints while only explicitly including 8. We take a pair of consecutive checkpoints, start encryption from one side and decryption from the other, and see if they meet in the middle. We can do so because key is the same for all checkpoints. -->
+
+<Collapsible title="Implementation Notes">
+- Doing encryption for $iterations/2$ and decryption for $iterations/2$ allows as to achieve same level of parallelism as if we had 16 checkpoints while only explicitly including 8. We take a pair of consecutive checkpoints, start encryption from one side and decryption from the other, and see if they meet in the middle. We can do so because key is the same for all checkpoints.
+</Collapsible>
+
 
 ## Building the PoT chain
 
@@ -125,10 +123,11 @@ There are three ways a node may get the proofs to extend its local view of the P
 4. Process the received gossip PoT proofs and extend the local PoT chain with each new slot proof verified as per [PoT Gossip Processing](#pot-gossip-processing).
 5. As soon as local best proof is up-to-date with observed gossip, Timekeepers should start evaluating on top of it.
 6. The `slot_number` in the best valid proof known to this node becomes the tip of the PoT chain in the view of this node for all intents and purposes.
-- Implementation note about Timekeeper transition
-    
-    When Chain reorg happens or when the new potential tip is received via Gossip, Timekeeper should be able to jump in ASAP and start building on the new tip even though it may not yet be verified in case of Gossip. If Gossiped message ends up being invalid Timekeeper instance will be stopped. This implies it must be possible to run more than one concurrent Timekeeper in order to minimize transition latency.
-    
+
+<Collapsible title="Implementation note about Timekeeper transition">
+When Chain reorg happens or when the new potential tip is received via Gossip, Timekeeper should be able to jump in ASAP and start building on the new tip even though it may not yet be verified in case of Gossip. If Gossiped message ends up being invalid Timekeeper instance will be stopped. This implies it must be possible to run more than one concurrent Timekeeper in order to minimize transition latency.
+</Collapsible>
+
 
 ## Timekeeper Algorithms
 
@@ -164,7 +163,9 @@ Occasionally, we may update the number of iterations per slot, which will take e
 1. Compute `checkpoints = prove(seed, pot_slot_iterations)`
 2. Gossip the `ProofOfTime:{slot_number, seed, pot_slot_iterations, checkpoints}`  ([definition](#pot-gossipping)) to other nodes.
 
-<!-- TODO replace image![Subspace v2 Master - Consensus.png](Dilithium%20PoT%20Specification%204e17a6d5b03a4abea864ba2d0b97970e/Subspace_v2_Master_-_Consensus.png) -->
+
+![Subspace v2 Master - Consensus.png](/img/PoT_Evaluation.png)
+
 
 Note for [Randomness Updates](proof_of_archival_storage.md#randomness-updates): The `global_randomness` that farmers will use for the slot `next_slot` is computed as `derive_global_randomness(new_proof_of_time.output())`
 
@@ -271,41 +272,33 @@ Depending on how far `block_number` is from the `target` we define a few thresho
 
 Generate a random number `n` in the range `0..=(diff)` and if `n<sample_size` return `true`, otherwise return `false`. 
 
-<!-- 
-TODO: toggle
-Explanation
+<Collapsible title="Explanation">
+    Base sample size computed as $n=\frac{Z^2\ p\ (1−p)}{E^2}$, where $Z$ is the $Z$-score, which is 2.58 for a 99% confidence level, $*p*$ is the expected proportion of correct proofs 0.95, $E$ is the margin of error, which is 0.01 for 1% results in $n=3162$ under the assumption of infinitely large population $N$ (number of blocks to sync). However, quite often that is not the case, so we have to adjust the sample size for each of the bins. Usually that is done via finite population correction $FPC = \sqrt\frac{N-n}{N-1}$ and $n'=n*FPC^2$, however that doesn’t help in cases  $N\approx n$ and $N<n$
     
-    Base sample size computed as $n=\frac{Z^2\ p\ (1−p)}{E^2}$, where $*Z*$ is the $Z$-score, which is 2.58 for a 99% confidence level, $*p*$ is the expected proportion of correct proofs 0.95, $*E*$ is the margin of error, which is 0.01 for 1% results in $n=3162$ under the assumption of infinitely large population $N$ (number of blocks to sync). However, quite often that is not the case, so we have to adjust the sample size for each of the bins. Usually that is done via finite population correction $FPC = \sqrt\frac{N-n}{N-1}$ and $n'=n*FPC^2$, however that doesn’t help in cases  $N\approx n$ and $N<n$
+To simplify the implementation, I define the following bins with boundaries that personally make sense:
+
+- for $N≤1581$, verify all blocks as they are recent enough (~2.5 hrs) and may also have checkpoints available
+- for $N≤2n=6234$, I cut off the FPC at $n'=0.5n = 1581$ which results in >25% verification probability for blocks that are ~10hr old under normal operation
+- for $N ≤ 20n = 63240$, $n'=n*\frac{N-n}{N-1}$, which results in 25 to 4.7% verification for newer to older blocks
+- for $20n<N\leq 1000n$, sample estimate stays  $n'=n$
+- for $N>1000n$, I set a lower limit of $n'=N/1000$ to make sure older block are at least minimally verified
+
+Here’s a plot of verification probability of each block until example target 500 000 (Sep 19 2023 Gemini3f)
+
+![PoT_Explanation_SC_1.png](/img/PoT_Explanation_SC_1.png) 
+
+
+Close-up to last 15k blocks
+
+![PoT_Explanation_SC_2.png](/img/PoT_Explanation_SC_2.png)
+
     
-    To simplify the implementation, I define the following bins with boundaries that personally make sense:
-    
-    - for $N≤1581$, verify all blocks as they are recent enough (~2.5 hrs) and may also have checkpoints available
-    - for $N≤2n=6234$, I cut off the FPC at $n'=0.5n = 1581$ which results in >25% verification probability for blocks that are ~10hr old under normal operation
-    - for $N ≤ 20n = 63240$, $n'=n*\frac{N-n}{N-1}$, which results in 25 to 4.7% verification for newer to older blocks
-    - for $20n<N\leq 1000n$, sample estimate stays  $n'=n$
-    - for $N>1000n$, I set a lower limit of $n'=N/1000$ to make sure older block are at least minimally verified
-    
-    
-    TODO: replace diagram
-     Here’s a plot of verification probability of each block until example target 500 000 (Sep 19 2023 Gemini3f)
-    
-    ![Screenshot 2023-09-20 at 17.23.12.png](Dilithium%20PoT%20Specification%204e17a6d5b03a4abea864ba2d0b97970e/Screenshot_2023-09-20_at_17.23.12.png) 
-    
-    
-    TODO : replace diagram
-    Close-up to last 15k blocks
-    
-    ![Screenshot 2023-09-20 at 17.24.37.png](Dilithium%20PoT%20Specification%204e17a6d5b03a4abea864ba2d0b97970e/Screenshot_2023-09-20_at_17.24.37.png)
-     
-     
--->
+</Collapsible>
+
 
     <Collapsible title="Note">
     we may want to accept the fork after this probabilistic verification passes, but eventually and asynchronously verify it fully. See discussion on time [here](https://forum.subspace.network/t/pot-verification-during-genesis-sync/1606). We don’t know if it’s [implementable](https://www.notion.so/Dilithium-PoT-Specification-4e17a6d5b03a4abea864ba2d0b97970e?pvs=21)
     </Collapsible>
-<!-- 
-TODO: toggle
-Note: we may want to accept the fork after this probabilistic verification passes, but eventually and asynchronously verify it fully. See discussion on time [here](https://forum.subspace.network/t/pot-verification-during-genesis-sync/1606). We don’t know if it’s [implementable](https://www.notion.so/Dilithium-PoT-Specification-4e17a6d5b03a4abea864ba2d0b97970e?pvs=21) -->
 
 ### New Blocks
 
