@@ -11,6 +11,9 @@ last_update:
   author: Dariia Porechna
 ---
 
+import Collapsible from '@site/src/components/Collapsible/Collapsible';
+
+
 This specification defines a secure proof-of-time randomness beacon construction for [Farming](proof_of_archival_storage.md#farming) sub-protocol of the Dilithium consensus and bundle proposer election among operators.
 
 ## Terminology
@@ -297,6 +300,9 @@ Explanation
      
 -->
 
+    <Collapsible title="Note">
+    we may want to accept the fork after this probabilistic verification passes, but eventually and asynchronously verify it fully. See discussion on time [here](https://forum.subspace.network/t/pot-verification-during-genesis-sync/1606). We don’t know if it’s [implementable](https://www.notion.so/Dilithium-PoT-Specification-4e17a6d5b03a4abea864ba2d0b97970e?pvs=21)
+    </Collapsible>
 <!-- 
 TODO: toggle
 Note: we may want to accept the fork after this probabilistic verification passes, but eventually and asynchronously verify it fully. See discussion on time [here](https://forum.subspace.network/t/pot-verification-during-genesis-sync/1606). We don’t know if it’s [implementable](https://www.notion.so/Dilithium-PoT-Specification-4e17a6d5b03a4abea864ba2d0b97970e?pvs=21) -->
