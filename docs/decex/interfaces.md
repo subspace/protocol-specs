@@ -27,7 +27,10 @@ last_update:
 - `StakeEpochDuration`: The duration, in domain blocks, for each stake allocation re-adjustment period. To amortize the load of epoch transitions, each domain should have its epoch transition start point set as the block where it is registered, though the duration would be the same for all domains. At epoch transition, the stake distribution for the VRF election is recalculated, and any of the shares for each operator pool are recalculated if there have been any new deposits or withdrawals. Currently, 100 blocks.
 - `StakeWithdrawalLockingPeriod`: The number of consensus chain blocks after a staking withdrawal has been submitted and cleared before it will be transferred back to owner balances. Currently, 14400 domain blocks *(Value TBD)*
 - `BlockTreePruningDepth`: The confirmation depth at which domain blocks are pruned from the `BlockTree`*, de-facto challenge period.* Currently, 14400 domain blocks.
-- `BundleLongevity`: How long the bundle is consider as not stale, defined in the number of consensus blocks. Currently, 5 consensus blocks.
+
+:::warning `MaxFraudProofSize`
+    The maximum size of a fraud proof, as enforced by the fraud proof storage metering scheme. This ensures that fraud proof size is not unbounded. The default is 1 MiB.
+:::
 <!-- - `MaxFraudProofSize`: The maximum size of a fraud proof, as enforced by the fraud proof storage metering scheme. This ensures that fraud proof size is not unbounded. The default is 1 MiB. -->
 - `DomainInstantiationDeposit`: The amount of funds to be locked up for the domain instance creator. The initial value is 100 SSC *(Value TBD)*
 - `MaxDomainNameLength`: The maximum domain name length limit for all domains. The default is 32 bytes.
@@ -161,11 +164,11 @@ This operation can only be initiated by a root user. It is used to ensure domain
     - `genesis_receipt_hash`: the hash of the genesis block execution receipt for this domain
     - `domain_runtime_info`: domain runtime-specific information to create domain raw genesis. (e.g. EVM chain id)
     - `domain_config`:
-        - `domain_name`: user-defined name for this domain (string)
-        - `runtime_id`: a pointer to the `RuntimeRegistry` entry for this domain
-        - `max_block_size`: the max block size for this domain; may not exceed the system-wide `MaxDomainBlockSize` limit.
-        - `max_block_weight`: the max block weight for this domain, may not exceed the system-wide `MaxDomainBlockWeight` limit
-        - `target_bundles_per_slot`: the expected number of a successful bundles in a slot. This defines the expected bundle production rate; must be `> 0`. A value `<1` means not all slots will have a bundle. Recommended value: 1.
+    - `domain_name`: user-defined name for this domain (string)
+    - `runtime_id`: a pointer to the `RuntimeRegistry` entry for this domain
+    - `max_block_size`: the max block size for this domain; may not exceed the system-wide `MaxDomainBlockSize` limit.
+    - `max_block_weight`: the max block weight for this domain, may not exceed the system-wide `MaxDomainBlockWeight` limit
+    - `target_bundles_per_slot`: the expected number of a successful bundles in a slot. This defines the expected bundle production rate; must be `> 0`. A value `<1` means not all slots will have a bundle. Recommended value: 1.
 
 ### Domain Staking Summary
 
