@@ -6,8 +6,8 @@ keywords:
     - execution
     - decex
 last_update:
-  date: 03/04/2024
-  author: Dariia Porechna
+  date: 03/06/2024
+  author: Ning Lin
 ---
 
 ## Global Parameters
@@ -164,11 +164,11 @@ This operation can only be initiated by a root user. It is used to ensure domain
     - `genesis_receipt_hash`: the hash of the genesis block execution receipt for this domain
     - `domain_runtime_info`: domain runtime-specific information to create domain raw genesis. (e.g. EVM chain id)
     - `domain_config`:
-        - `domain_name`: user-defined name for this domain (string)
-        - `runtime_id`: a pointer to the `RuntimeRegistry` entry for this domain
-        - `max_block_size`: the max block size for this domain; may not exceed the system-wide `MaxDomainBlockSize` limit.
-        - `max_block_weight`: the max block weight for this domain, may not exceed the system-wide `MaxDomainBlockWeight` limit
-        - `target_bundles_per_slot`: the expected number of a successful bundles in a slot. This defines the expected bundle production rate; must be `> 0`. A value `<1` means not all slots will have a bundle. Recommended value: 1.
+    - `domain_name`: user-defined name for this domain (string)
+    - `runtime_id`: a pointer to the `RuntimeRegistry` entry for this domain
+    - `max_block_size`: the max block size for this domain; may not exceed the system-wide `MaxDomainBlockSize` limit.
+    - `max_block_weight`: the max block weight for this domain, may not exceed the system-wide `MaxDomainBlockWeight` limit
+    - `target_bundles_per_slot`: the expected number of a successful bundles in a slot. This defines the expected bundle production rate; must be `> 0`. A value `<1` means not all slots will have a bundle. Recommended value: 1.
 
 ### Domain Staking Summary
 
