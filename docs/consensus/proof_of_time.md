@@ -64,7 +64,7 @@ Takes a `seed` and number of iterations `pot_iterations` and repeatedly evaluate
     3. Set `input = output`. The `key` stays the same.
 5. Output `checkpoints`
 
-![Screenshot 2023-06-01 at 13.48.06.png](/img/PoT_Evaluator_time_in_iter.png)
+![PoT Evaluator time in iteration.png](/img/PoT_Evaluator_time_in_iter.png)
 
 
 ### output
