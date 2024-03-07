@@ -12,6 +12,9 @@ last_update:
   author: Dariia Porechna
 ---
 
+import Collapsible from '@site/src/components/Collapsible/Collapsible';
+
+
 Every domain operator executes the domain block ([as described](workflow.md#domain-block-execution-on-the-operator-node)), derived deterministically from the consensus block, and submits this computational result to the consensus chain as an execution receipt within the next bundle this operator produces, thereby committing to the execution result. By default, the computation result is optimistically assumed correct until challenged by a fraud proof during the challenge period of `BlockTreePruningDepth` blocks. All domain nodes scrutinize the submitted execution results, and upon detecting any discrepancies, they challenge the execution by submitting a fraud proof to the consensus chain as an unsigned extrinsic. This fraud proof includes or calls from a host function all necessary data and the state of the domain required for the verification process, which can be executed by a node on the consensus chain (has access to the consensus state but not the domain). If the node who detected fraud is also a registered operator of this domain, they can submit a new execution receipt to the consensus chain with their next bundle, which will override the fraudulent one in the [block tree](interfaces.md#block_tree) once the fraud proof is accepted by the consensus chain.
 
 Any domain node (a node that has an up-to-date state of domain A) can submit fraud proofs for domain A. Whether the node is acting honestly or not in this particular instance is determined by the validity of the fraud proof. The node does not have to stake or run operator (produce bundles) to report fraud.
@@ -98,14 +101,17 @@ A class of fraudulent behaviors to be caught by honest operators within bundles 
 
 A dishonest operator may include incorrect info on fees extracted from the executed block, causing an incorrect `ER::block_fees` field.
 
-<!-- TODO toggle - Note
+<Collapsible title="Note">
+    Initially, a naive approach was to include an additional trace in the receipt that tracks the reward differences in each transaction, similar to the execution trace for the state difference. However, it was discovered that the multiple traces shares one pattern: every state transition, such as InitializeBlock, ApplyExtinsic, and FinalizeBlock, essentially follows a process of taking the input and pre_state and producing an output \{ input, pre_state ⇒ output }\. 
     
-    Initially, a naive approach was to include an additional trace in the receipt that tracks the reward differences in each transaction, similar to the execution trace for the state difference. However, it was discovered that the multiple traces shares one pattern: every state transition, such as InitializeBlock, ApplyExtinsic, and FinalizeBlock, essentially follows a process of taking the input and pre_state and producing an output { input, pre_state ⇒ output }. Moreover, the state itself can undergo changes during this process. The post_state_root, in essence, represents the most condensed expression of the output, and we can extend it to encompass reward changes as well since they are part of the output.
-    
+    Moreover, the state itself can undergo changes during this process. The post_state_root, in essence, represents the most condensed expression of the output, and we can extend it to encompass reward changes as well since they are part of the output.
+
     A proposed solution is to enhance the current trace from a list of intermediate state roots to a more comprehensive list of intermediate outputs that include reward information after each transaction. By incorporating reward information into the trace, we can detect the correctness of rewards after each transaction and generate a fraud proof if any discrepancies arise.
-    
+
     - Before: the trace is a list of post_state_root
-    - Proposition: the trace is a list of TraceDetails { post_state_root, rewards_info } -->
+    - Proposition: the trace is a list of TraceDetails \{ post_state_root, rewards_info }\.
+</Collapsible>
+
 
 Detect if the external ER has a different `block_fees` field, if so the operator will need to construct a fraud proof that includes the correct `block_fees` field and data that prove the integrity of this correct `block_fees`.
 

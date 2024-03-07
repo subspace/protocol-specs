@@ -42,10 +42,6 @@ These parameters are fixed at the beginning of the protocol and used by all clie
     In a piece, the chunks should be full 32 bytes, because after performing field operations (i.e. erasure coding) the resulting field elements are not guaranteed to fit into 31 bytes anymore.
     </Collapsible>
 
-<!-- TODO: toggle for the note -- DONE -- Need to review
- *Implementation* *Note*
-        
-        In a piece, the chunks should be full 32 bytes, because after performing field operations (i.e. erasure coding) the resulting field elements are not guaranteed to fit into 31 bytes anymore.-->
 - `ERASURE_CODING_RATE`: parameter of erasure code operation, specifies what portion of data is enough to recover it fully in case of loss, currently 1/2
 - `NUM_PIECES` is 256: the number of pieces in an Archived History Segment after erasure coding (`NUM_RAW_RECORDS/ERASURE_CODING_RATE`)
 - `K`: space parameter (memory hardness) for *proof-of-space*, currently 20
@@ -103,23 +99,13 @@ This extra data is added to the end of the [SCALE-encoded](https://docs.substrat
     <Collapsible title="Note">
     By doing this step we can effectively save almost half of the record commitment time in archival. Instead of directly committing to parity records we erasure code the commitments here, which should match the parity record commitments, but being much faster to compute.
     </Collapsible>
-    <!---
-    TODO: toggle
-    *Note*
-        
-        By doing this step we can effectively save almost half of the record commitment time in archival. Instead of directly committing to parity records we erasure code the commitments here, which should match the parity record commitments, but being much faster to compute.
-         --->
+
 10. Hash each `record_commitment`, both source and parity, into 254-bit scalar `record_commitment_hash`es values $h_0…h_{2n}$. 
    
     <Collapsible title="Note">
      Commitments are hashed to 254 bits (we hash it as usual and set last 2 bits to 0) to bring them back down to field elements so it becomes possible to KZG commit to them (at cost of losing homomorphic properties). There is no direct way to commit to 48-byte KZG commitments without greatly increasing proof size and computation time (i.e. by using IPP proofs). Committing to the hashes effectively makes a one level Verkle tree.
     </Collapsible>
-    <!---
-    TODO: toggle
-    *Note*
-        
-        Commitments are hashed to 254 bits (we hash it as usual and set last 2 bits to 0) to bring them back down to field elements so it becomes possible to KZG commit to them (at cost of losing homomorphic properties). There is no direct way to commit to 48-byte KZG commitments without greatly increasing proof size and computation time (i.e. by using IPP proofs). Committing to the hashes effectively makes a one level Verkle tree.
-         --->
+
 11. Interpolate a polynomial `segment_polynomial` over these hashes and commit to it under KZG to get the `segment_commitment` $C_s$ as `commit(Poly(record_commitment_hashes))`.
 12. For each `record_commitment_hashes[i]` $h_i$, compute a `record_witness` $\pi_i$ to the `segment_commitment` $C_s$ as `create_witness(segment_polynomial, i)`. 
     
@@ -135,9 +121,7 @@ This extra data is added to the end of the [SCALE-encoded](https://docs.substrat
 ![Figure 3: Piece Building Process corresponds to steps 5-12 of Archiving.](/img/Archiving_Process.png)
 
 <center>Figure 3: Piece Building Process corresponds to steps 5-12 of Archiving.</center>
-<!--- 
-TODO: replace figure
-![Figure 3: Piece Building Process corresponds to steps 5-12 of Archiving.](Subspace%20Dilithium%20Consensus%20Specification%20(v2%203)%20274a730b53eb4c93a8d879b90de532ce/Subspace_v2_Master_-_Archiving_(1).png)
+
 
 Figure 3: Piece Building Process corresponds to steps 5-12 of Archiving. --->
 
@@ -174,12 +158,6 @@ Figure 3: Piece Building Process corresponds to steps 5-12 of Archiving. --->
 
 <center>Figure 4: Verifiable Sector Construction.</center><br />
 
-<!--- 
-TODO: replace figure
-![Figure 4: Verifiable Sector Construction](Subspace%20Dilithium%20Consensus%20Specification%20(v2%203)%20274a730b53eb4c93a8d879b90de532ce/Subspace_v2_Master_-_Plotting_(30).png)
-
-Figure 4: Verifiable Sector Construction --->
-
 
 8. For each synced sector, proceed to [Plotting](#plotting) phase.
 
@@ -196,13 +174,9 @@ For each piece in the sector:
 3. Erasure code the record with `extended_chunks = extend(record_chunks, ERASURE_CODING_RATE)`  
 
     <Collapsible title="Implementation Note">
-    (Optimization, Implemented) It is faster to do FFT over domain $2^{16}$ with `extend` and throw away all values that are not in `proven_indices` then evaluate at proven indices. FFT complexity is expected at $O(2nlog(2n)) \approx 2^{16}*16 = 2^{20}$ while direct evaluation is $O(n^2)\approx (2^{15})^2 = 2^{30}$
+        - (Optimization, Implemented) It is faster to do FFT over domain $2^{16}$ with `extend` and throw away all values that are not in `proven_indices` then evaluate at proven indices. FFT complexity is expected at $O(2nlog(2n)) \approx 2^{16}*16 = 2^{20}$ while direct evaluation is $O(n^2)\approx (2^{15})^2 = 2^{30}$
     </Collapsible>
 
-    <!--- 
-    TODO: toggle
-    *Implementation Note*
-        - (Optimization, Implemented) It is faster to do FFT over domain $2^{16}$ with `extend` and throw away all values that are not in `proven_indices` then evaluate at proven indices. FFT complexity is expected at $O(2nlog(2n)) \approx 2^{16}*16 = 2^{20}$ while direct evaluation is $O(n^2)\approx (2^{15})^2 = 2^{30}$ --->
 4. Derive an `evaluation_seed` from `sector_id` and `piece_offset` within this sector as `evaluation_seed = hash(sector_id || piece_offset || history_size)`
 5. Derive a Chia proof-of-space table `pos_table = generate(K, evaluation_seed)`
 6. Initialize `num_successfully_encoded_chunks = 0` to indicate how many chunks were encoded so far.
@@ -212,29 +186,19 @@ For each piece in the sector:
     3. Place the encoded chunk into a corresponding s-bucket for given index `s_bucket` and set corresponding bit in the `encoded_chunks_used` bitfield to `1`.
     
     <Collapsible title="Implementation Note">
-    There is one `encoded_chunks_used` bitfield per record  which indicates which s-buckets contain its encoded chunks.
+        There is one `encoded_chunks_used` bitfield per record  which indicates which s-buckets contain its encoded chunks.
     </Collapsible>
     
-        <!--- 
-        TODO: toggle
-        *Implementation Note*
-            There is one `encoded_chunks_used` bitfield per record  which indicates which s-buckets contain its encoded chunks. --->
-            
-            
+
 8. If `num_successfully_encoded_chunks >= NUM_CHUNKS` all chunks were encoded successfully, take the necessary `NUM_CHUNKS` and  proceed to the next record.
 9. Else, if `num_successfully_encoded_chunks < NUM_CHUNKS`, select extra chunks to store at the end after encoded chunks:
     1. Compute `num_unproven = NUM_CHUNKS - num_successfully_encoded_chunks`
     2. Save as `extra_chunks` the first `num_unproven` chunks of the source record corresponding to the indices where `encoded_chunks_used` is not set.
 
     <Collapsible title="Note">
-    Testing with k=17 showed that the event when `pos_table` did not contain $2^{15}$ proofs within $2^{16}$ possible bucket indices, and thus `encoded_chunks_used` has less than $2^{15}$ bits set, happened for ~0.8% records we should retain necessary amount of source chunks for the record to be recoverable and provable. These extra chunks cannot participate in farming though.
+        Testing with k=17 showed that the event when `pos_table` did not contain $2^{15}$ proofs within $2^{16}$ possible bucket indices, and thus `encoded_chunks_used` has less than $2^{15}$ bits set, happened for ~0.8% records we should retain necessary amount of source chunks for the record to be recoverable and provable. These extra chunks cannot participate in farming though.
     </Collapsible>
-    <!--- 
-    TODO: toggle
-    Note
-        
-        Testing with k=17 showed that the event when `pos_table` did not contain $2^{15}$ proofs within $2^{16}$ possible bucket indices, and thus `encoded_chunks_used` has less than $2^{15}$ bits set, happened for ~0.8% records we should retain necessary amount of source chunks for the record to be recoverable and provable. These extra chunks cannot participate in farming though. --->
-        
+
 10. Once all records are encoded, write the sector to disk, one s-bucket at time in order of the index, each followed by `encoded_chunks_used` bitfield corresponding to selected chunks.
 11. The final plotted sector consists of `max_pieces_in_sector` many `encoded_chunks_used` bitfields of size `NUM_S_BUCKETS` each,  `NUM_S_BUCKETS` s-buckets and commitments and witnesses of pieces in this sector.
     
@@ -245,21 +209,11 @@ For each piece in the sector:
 
 <center>Figure 5: Complete Plotting process for an example sector of 4 pieces</center>
 
-<!--- 
-TODO: replace figures
-![Figure 5: Complete Plotting process for an example sector of 4 pieces](Subspace%20Dilithium%20Consensus%20Specification%20(v2%203)%20274a730b53eb4c93a8d879b90de532ce/Subspace_v2_Master_-_Plotting_(5).png)
-
-Figure 5: Complete Plotting process for an example sector of 4 pieces --->
 
 <Collapsible title="Implementation Note">
-1. Plotting consists of transforming raw sectors into encoded sectors, which can be viewed as converting a row-wise matrix of raw records into a row-wise matrix of encoded records and viewing that as a column-wise matrix of s-buckets. 
-2. Sectors are written to disk in a manner that is optimized for sector audits (as opposed to efficient recovery of pieces).
-</Collapsible>
-<!--- 
-TODO: toggle
-*Implementation Notes*
     1. Plotting consists of transforming raw sectors into encoded sectors, which can be viewed as converting a row-wise matrix of raw records into a row-wise matrix of encoded records and viewing that as a column-wise matrix of s-buckets. 
-    2. Sectors are written to disk in a manner that is optimized for sector audits (as opposed to efficient recovery of pieces).  --->
+    2. Sectors are written to disk in a manner that is optimized for sector audits (as opposed to efficient recovery of pieces).
+</Collapsible>
 
 ### Sector Expiration
 

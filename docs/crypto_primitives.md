@@ -163,10 +163,6 @@ The resulting `polynomial` is suitable for use with the KZG primitives `commit` 
     <Collapsible title="Implementation Note">
     - (Optimization, Implemented) The output of this function matches `KZG::Poly(Recover(partial_data))` but it is faster due to computing 2 less FFTs, which saves time during time-sensitive Proving phase where we do not need to recover the source record data, but need to recover the corresponding polynomial coefficients to compute the KZG witness for winning chunk.
     </Collapsible>
-<!-- 
-TODO: Toggle for the following:
-*Implementation Note*
-    - (Optimization, Implemented) The output of this function matches `KZG::Poly(Recover(partial_data))` but it is faster due to computing 2 less FFTs, which saves time during time-sensitive Proving phase where we do not need to recover the source record data, but need to recover the corresponding polynomial coefficients to compute the KZG witness for winning chunk. -->
 
 ## Encoding Mapping
 

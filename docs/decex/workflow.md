@@ -11,6 +11,9 @@ last_update:
   author: Dariia Porechna
 ---
 
+import Collapsible from '@site/src/components/Collapsible/Collapsible';
+
+
 ## Domain Instantiation & Upgrades
 
 When a new domain is instantiated, the consensus runtime generates a genesis ER hash using the `genesis_config` and `domain_config` for that domain. 
@@ -44,10 +47,10 @@ The bootstrapper listens to the consensus node block import event, skips the blo
 
 Uses the `domain_config` and `runtime_obj.domain_runtime_code` to generate a `RuntimeGenesisConfig` in the same way as [the host function](#domain-instance-genesis-block-generation), and uses that to construct `sc_service::Configuration` (which includes the `chain_spec`) then use `runtime_obj.runtime_type` to determine and build the desired domain service with `sc_service::Configuration` as input. After this step the domain service is up and the bootstrap is finished.
 
-<!-- TODO toggle - Note
-    
-    The domain service included a native runtime that may have a newer runtime version than the wasm runtime `domain_runtime_code` as the user may use a newer release of `subspace-node` to bootstrap the domain instance, in this case we should prioritize the wasm runtime execution result. And also recommend the user use sync mode when possible. -->
-    
+<Collapsible title="Note">
+The domain service included a native runtime that may have a newer runtime version than the wasm runtime `domain_runtime_code` as the user may use a newer release of `subspace-node` to bootstrap the domain instance, in this case we should prioritize the wasm runtime execution result. And also recommend the user use sync mode when possible.
+</Collapsible>
+
 
 ## Domain Genesis Config
 
@@ -117,11 +120,12 @@ If, for this time slot, this operator was successfully elected a slot leader, th
 
 ## Transaction Selection for Bundle Production
 
-<!-- TODO toggle- Note
-    
+<Collapsible title="Note">
     There are `n = 2^256 = U256::MAX` possible values for tx sender. Let `x` be the size of the range chosen by each operator. The probability of a random tx being outside the range of an operator at any given slot is $(n-x)/n$. The probability of that happening for 10 slots is $((n-x)/n)^{10}$.  If we set $x=n/3$, the probability of a tx not being included within 10 slots is $((n - n/3)/n)^{10} \approx 0.017$. Thus, setting the tx range to `U256::MAX/3` gives ~98.2% probability of tx being included within 10 slots.
-    
-    If we want it cleared within 6 slots (with a probability of 98.4%), we should set the range to `U256::MAX/2` -->
+
+    If we want it cleared within 6 slots (with a probability of 98.4%), we should set the range to `U256::MAX/2`
+</Collapsible>
+
     
 When an operator is elected to produce a bundle, they must select transactions to be included in that bundle according to their transaction pool range (`TX_RANGE`), as follows:
 
@@ -157,10 +161,11 @@ On execution of a new consensus block, all included bundles will be applied to t
 
 For each new bundle, each consensus node will: 
 
-<!-- TODO toggle - Only accept the bundles pointing to the last consensus block number from which a domain block is derived.
-    
-    All bundles included in a consensus block may be invalid due to the network delay. In such a scenario, the fraud proof from the honest operator may not have arrived yet, allowing the malicious operator to continue building the domain chain and submitting bad bundles. This constraint implies that they cannot submit bundles once the honest operators detect the receipt disagreement. Instead, they can only submit a fraud proof to challenge the bad receipt. During this period, the dishonest operator may continue extending the fraudulent branch until they are pruned by the fraud proof provided by the honest operator.
-     -->
+<Collapsible title="Only accept the bundles pointing to the last consensus block number from which a domain block is derived.">
+     All bundles included in a consensus block may be invalid due to the network delay. In such a scenario, the fraud proof from the honest operator may not have arrived yet, allowing the malicious operator to continue building the domain chain and submitting bad bundles. This constraint implies that they cannot submit bundles once the honest operators detect the receipt disagreement. Instead, they can only submit a fraud proof to challenge the bad receipt. During this period, the dishonest operator may continue extending the fraudulent branch until they are pruned by the fraud proof provided by the honest operator.
+</Collapsible>
+
+
 1. Extract the `ExecutionReceipt`
 2. Retrieve the `parent_domain_block` from the `BlockTree` and conditionally update the tree. If the parent does not exist within the tree, this `ExecutionReceipt` has just expired (rare event) and is simply ignored.
 3. If this is a new ER, we will extend the `BlockTree`. If no fraud has occurred, it will extend the tip of the longest branch.
@@ -183,13 +188,13 @@ For each new bundle, each consensus node will:
             - Add the `bundle_extrinsics_root` to the `execution_inbox`
             - Add the `operator_id` to the `operator_ids`
         2. If this is not the tip of the block tree, we have a stale ER. We don’t allow stale bundles to be added to the `execution_inbox`, but we still track them for purposes of measuring the bundle production rate.
-            <!-- TODO toggle - Note
-                
+            <Collapsible title="Note">
                 Possible reasons a stale ER may occur:
                 
                 - *Network Latency*: Farmer produces a new consensus block, requiring execution of a new domain block. Operator A receives the new consensus block before Operator B, allowing it to execute faster (assuming static operators hardware). Assuming Operator A and B both produce a bundle at about the same time, and Operator A’s bundle is included first by the consensus chain, then Operator B’s bundle will be stale, since it points to an ER that is not part of the parent chain. This event should be rare, meaning that we could ignore applying the contents of these bundles from the point of view of the `execution_inbox`. Ideally we would still be able track rewards and confirmation time for these bundles, as long as they are still *recent* (i.e. within the confirmation depth of the block tree) to be fair and to properly handle execution time tracking.
                 - *Execution Delays:* If we remove the static hardware assumption for operators (i.e. some operators can execute blocks faster than others), then the case above will be compounded and can even occur if we remove the concept of latency from the network. We have already discussed this at length, which is why we have the dynamic bundle sortition sector size to account for operators that are slow to execute blocks. The takeaways is that we still need to track these stale bundles so that we can set the dynamic sortition size appropriately.
-                - *Execution Liveness Attack*: An operator intentionally submitted a stale ER to attempt to stall the apparent liveness of execution, as witnessed by the consensus chain. This may be done proportional to the amount of stake controlled by malicious operators. This can be mitigated by adding a rule that each operator must extend the last ER they submitted, perhaps by caching the last ER for an operator in the `OperatorRegistry`. This would instead force operators to simply withhold bundles to engage in an execution liveness attack. -->
+                - *Execution Liveness Attack*: An operator intentionally submitted a stale ER to attempt to stall the apparent liveness of execution, as witnessed by the consensus chain. This may be done proportional to the amount of stake controlled by malicious operators. This can be mitigated by adding a rule that each operator must extend the last ER they submitted, perhaps by caching the last ER for an operator in the `OperatorRegistry`. This would instead force operators to simply withhold bundles to engage in an execution liveness attack.
+            </Collapsible>
 
 ## Domain Epoch Transition
 
