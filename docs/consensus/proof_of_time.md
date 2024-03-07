@@ -275,29 +275,29 @@ Generate a random number `n` in the range `0..=(diff)` and if `n<sample_size` re
 <Collapsible title="Explanation">
     Base sample size computed as $n=\frac{Z^2\ p\ (1−p)}{E^2}$, where $Z$ is the $Z$-score, which is 2.58 for a 99% confidence level, $*p*$ is the expected proportion of correct proofs 0.95, $E$ is the margin of error, which is 0.01 for 1% results in $n=3162$ under the assumption of infinitely large population $N$ (number of blocks to sync). However, quite often that is not the case, so we have to adjust the sample size for each of the bins. Usually that is done via finite population correction $FPC = \sqrt\frac{N-n}{N-1}$ and $n'=n*FPC^2$, however that doesn’t help in cases  $N\approx n$ and $N<n$
     
-To simplify the implementation, I define the following bins with boundaries that personally make sense:
+    To simplify the implementation, I define the following bins with boundaries that personally make sense:
 
-- for $N≤1581$, verify all blocks as they are recent enough (~2.5 hrs) and may also have checkpoints available
-- for $N≤2n=6234$, I cut off the FPC at $n'=0.5n = 1581$ which results in >25% verification probability for blocks that are ~10hr old under normal operation
-- for $N ≤ 20n = 63240$, $n'=n*\frac{N-n}{N-1}$, which results in 25 to 4.7% verification for newer to older blocks
-- for $20n<N\leq 1000n$, sample estimate stays  $n'=n$
-- for $N>1000n$, I set a lower limit of $n'=N/1000$ to make sure older block are at least minimally verified
+    - for $N≤1581$, verify all blocks as they are recent enough (~2.5 hrs) and may also have checkpoints available
+    - for $N≤2n=6234$, I cut off the FPC at $n'=0.5n = 1581$ which results in >25% verification probability for blocks that are ~10hr old under normal operation
+    - for $N ≤ 20n = 63240$, $n'=n*\frac{N-n}{N-1}$, which results in 25 to 4.7% verification for newer to older blocks
+    - for $20n<N\leq 1000n$, sample estimate stays  $n'=n$
+    - for $N>1000n$, I set a lower limit of $n'=N/1000$ to make sure older block are at least minimally verified
 
-Here’s a plot of verification probability of each block until example target 500 000 (Sep 19 2023 Gemini3f)
+    Here’s a plot of verification probability of each block until example target 500 000 (Sep 19 2023 Gemini3f)
 
-![PoT_Explanation_SC_1.png](/img/PoT_Explanation_SC_1.png) 
+    ![PoT_Explanation_SC_1.png](/img/PoT_Explanation_SC_1.png) 
 
 
-Close-up to last 15k blocks
+    Close-up to last 15k blocks
 
-![PoT_Explanation_SC_2.png](/img/PoT_Explanation_SC_2.png)
+    ![PoT_Explanation_SC_2.png](/img/PoT_Explanation_SC_2.png)
 
     
 </Collapsible>
 
 
     <Collapsible title="Note">
-    we may want to accept the fork after this probabilistic verification passes, but eventually and asynchronously verify it fully. See discussion on time [here](https://forum.subspace.network/t/pot-verification-during-genesis-sync/1606). We don’t know if it’s [implementable](https://www.notion.so/Dilithium-PoT-Specification-4e17a6d5b03a4abea864ba2d0b97970e?pvs=21)
+        we may want to accept the fork after this probabilistic verification passes, but eventually and asynchronously verify it fully. See discussion on time [here](https://forum.subspace.   network/t/pot-verification-during-genesis-sync/1606). We don’t know if it’s [implementable](https://www.notion.so/Dilithium-PoT-Specification-4e17a6d5b03a4abea864ba2d0b97970e?pvs=21)
     </Collapsible>
 
 ### New Blocks
