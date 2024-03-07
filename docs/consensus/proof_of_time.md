@@ -296,9 +296,9 @@ Generate a random number `n` in the range `0..=(diff)` and if `n<sample_size` re
 </Collapsible>
 
 
-    <Collapsible title="Note">
-        we may want to accept the fork after this probabilistic verification passes, but eventually and asynchronously verify it fully. See discussion on time [here](https://forum.subspace.   network/t/pot-verification-during-genesis-sync/1606). We don’t know if it’s [implementable](https://www.notion.so/Dilithium-PoT-Specification-4e17a6d5b03a4abea864ba2d0b97970e?pvs=21)
-    </Collapsible>
+<Collapsible title="Note">
+    We may want to accept the fork after this probabilistic verification passes, but eventually and asynchronously verify it fully. See discussion on time [here](https://forum.subspace.network/t/pot-verification-during-genesis-sync/1606). We don’t know if it’s [implementable](https://www.notion.so/Dilithium-PoT-Specification-4e17a6d5b03a4abea864ba2d0b97970e?pvs=21)
+</Collapsible>
 
 ### New Blocks
 
