@@ -28,9 +28,7 @@ last_update:
 - `StakeWithdrawalLockingPeriod`: The number of consensus chain blocks after a staking withdrawal has been submitted and cleared before it will be transferred back to owner balances. Currently, 14400 domain blocks *(Value TBD)*
 - `BlockTreePruningDepth`: The confirmation depth at which domain blocks are pruned from the `BlockTree`*, de-facto challenge period.* Currently, 14400 domain blocks.
 - `BundleLongevity`: How long the bundle is consider as not stale, defined in the number of consensus blocks. Currently, 5 consensus blocks.
-:::warning `MaxFraudProofSize`
-    The maximum size of a fraud proof, as enforced by the fraud proof storage metering scheme. This ensures that fraud proof size is not unbounded. The default is 1 MiB.
-:::
+
 <!-- - `MaxFraudProofSize`: The maximum size of a fraud proof, as enforced by the fraud proof storage metering scheme. This ensures that fraud proof size is not unbounded. The default is 1 MiB. -->
 - `DomainInstantiationDeposit`: The amount of funds to be locked up for the domain instance creator. The initial value is 100 SSC *(Value TBD)*
 - `MaxDomainNameLength`: The maximum domain name length limit for all domains. The default is 32 bytes.

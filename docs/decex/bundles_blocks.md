@@ -54,7 +54,8 @@ Domain block follows the standard [Substrate block format](https://github.com/pa
     - *`number`*
     - *`state_root`*
     - *`extrinsics_root`*
-    <br />
+    
+    
     <Collapsible title="Note">
     Substrate header also contains a *`digest`* field, but it is usually unused for the domain block. It was used to feed some consensus chain data into the domain block before but will likely not be used going forward if it causes a challenge for fraud proofs.
     </Collapsible>

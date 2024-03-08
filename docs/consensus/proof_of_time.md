@@ -64,7 +64,10 @@ Takes a `seed` and number of iterations `pot_iterations` and repeatedly evaluate
     3. Set `input = output`. The `key` stays the same.
 5. Output `checkpoints`
 
-![PoT Evaluator time in iteration.png](/img/PoT_Evaluator_time_in_iter.png)
+<div align="center">
+    <img src="/img/Proof of Time light.svg#gh-light-mode-only" alt="Proof of Time light" />
+    <img src="/img/Proof of Time dark.svg#gh-dark-mode-only" alt="Proof of Time dark" />
+</div>
 
 
 ### output
@@ -297,7 +300,7 @@ Generate a random number `n` in the range `0..=(diff)` and if `n<sample_size` re
 
 
 <Collapsible title="Note">
-    We may want to accept the fork after this probabilistic verification passes, but eventually and asynchronously verify it fully. See discussion on time [here](https://forum.subspace.network/t/pot-verification-during-genesis-sync/1606). We don’t know if it’s [implementable](https://www.notion.so/Dilithium-PoT-Specification-4e17a6d5b03a4abea864ba2d0b97970e?pvs=21)
+    We may want to accept the fork after this probabilistic verification passes, but eventually and asynchronously verify it fully. See discussion on time [here](https://forum.subspace.network/t/pot-verification-during-genesis-sync/1606).
 </Collapsible>
 
 ### New Blocks

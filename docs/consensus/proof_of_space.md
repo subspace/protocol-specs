@@ -81,9 +81,9 @@ Computes the 7 PoS tables.
 
 The resulting `pos_tables` is a vector containing the 7 tables in order.
 
-![Steps 3.b and 3.c in Generate. Numbers and matching function $M$ are solely illustrative. Since the `entry.y` is sorted, Chia does this sequentially on portions of the table as their tables don’t fit in memory.  Notice that 235 and 380 appear in multiple matches, while some numbers don’t have a match.](/img/Proof_of_space_plotting.png)
+![Steps 4.ii-iv in generate function definition. Numbers and matching function $M$ are solely illustrative. Since the `entry.y` is sorted, Chia does this sequentially on portions of the table as their tables don’t fit in memory.  Notice that 235 and 380 appear in multiple matches, while some numbers don’t have a match.](/img/Proof_of_space_plotting.png)
 
-<center>Steps 3.b and 3.c in Generate. Numbers and matching function $M$ are solely illustrative. Since the `entry.y` is sorted, Chia does this sequentially on portions of the table as their tables don’t fit in memory.  Notice that 235 and 380 appear in multiple matches, while some numbers don’t have a match.</center>
+<center>Steps 4.ii-iv in generate function definition. Numbers and matching function $M$ are solely illustrative. Since the `entry.y` is sorted, Chia does this sequentially on portions of the table as their tables don’t fit in memory.  Notice that 235 and 380 appear in multiple matches, while some numbers don’t have a match.</center>
 
 
 ## Tables Computation
@@ -211,8 +211,6 @@ Instead of doing naive pair-wise comparison in $$O(N^2)$$ we first compute the t
     Check `rmap[r_target]` for right indices and collect into pairs of `(left_index, right_index)`.
     
 4. Return the list of all matching pairs.
-
-# Proving
 
 ## Find Quality
 

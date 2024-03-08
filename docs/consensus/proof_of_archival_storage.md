@@ -123,8 +123,6 @@ This extra data is added to the end of the [SCALE-encoded](https://docs.substrat
 <center>Figure 3: Piece Building Process corresponds to steps 5-12 of Archiving.</center>
 
 
-Figure 3: Piece Building Process corresponds to steps 5-12 of Archiving. --->
-
 ## Plotting
 
 ### Pre-plotting Initialization
