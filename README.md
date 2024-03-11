@@ -44,7 +44,10 @@ pip install pre-commit
 
 2. Make sure the update_last_update.sh script is present in the scripts/ directory at the root of your repository and is executable. You may need to run chmod +x scripts/update_last_update.sh to make it executable.
 
-3. Run pre-commit install to set up the hook.
+3. Run following command to set up the hook.
+```bash
+pre-commit install
+```
 
 With these steps completed, your local environment is set up to automatically update the last_update section of Markdown files with your name and the current date whenever you make a commit. This process helps maintain accurate documentation and attribution for contributions.
 
