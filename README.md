@@ -42,8 +42,6 @@ The pre-commit package is used to run scripts before each commit automatically, 
 pip install pre-commit
 ```
 
-1. At the root of your repository, create a file named .pre-commit-config.yaml with the following content to set up the pre-commit hook:
-
 2. Make sure the update_last_update.sh script is present in the scripts/ directory at the root of your repository and is executable. You may need to run chmod +x scripts/update_last_update.sh to make it executable.
 
 3. Run pre-commit install to set up the hook.
