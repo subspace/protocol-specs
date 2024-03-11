@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Assuming your .env file is at the root of your repository
-source "./author.env"
+source "./.env"
 
 date=$(date -u +"%m/%d/%Y")
 author_name=$AUTHOR_NAME
@@ -13,6 +13,9 @@ if [[ -z "$author_name" ]]; then
 fi
 
 for file in $(git diff --cached --name-only | grep '\.md$'); do
+    if [ "$file" == "README.md" ]; then
+        continue
+    fi
     awk -v date="$date" -v author="$author_name" '
         BEGIN {printed=0}
         /^---$/ {count++} # Count the number of occurrences of "---"
