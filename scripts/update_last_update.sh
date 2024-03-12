@@ -1,27 +1,22 @@
 #!/bin/bash
 
-# Load environment variables
-source "./.env"
+# Assuming your .env file is at the root of your repository
+source "./author.env"
+
+date=$(date -u +"%m/%d/%Y")
+author_name=$AUTHOR_NAME
 
 # Check if AUTHOR_NAME is set
-if [[ -z "$AUTHOR_NAME" ]]; then
+if [[ -z "$author_name" ]]; then
     echo "Error: Author name is empty."
     exit 1
 fi
 
-# Current date in UTC
-current_date=$(date -u +"%m/%d/%Y")
-
-# Iterate over staged markdown files, excluding README.md
-git diff --cached --name-only | grep '\.md$' | grep -v 'README.md' | while read -r file; do
-    # Create a temporary file
-    temp_file=$(mktemp)
-
-    # Use awk to update last_update fields
-    awk -v date="$current_date" -v author="$AUTHOR_NAME" '
+for file in $(git diff --cached --name-only | grep '\.md$'); do
+    awk -v date="$date" -v author="$author_name" '
         BEGIN {printed=0}
-        /^---$/ {count++}
-        count == 1 && !printed {
+        /^---$/ {count++} # Count the number of occurrences of "---"
+        count == 1 && !printed { # Only print between the first set of "---"
             if (/^last_update:/) {
                 print "last_update:"
                 print "  date: " date
@@ -30,16 +25,9 @@ git diff --cached --name-only | grep '\.md$' | grep -v 'README.md' | while read 
                 next
             }
         }
-        !/^last_update:/ && !/^  date:/ && !/^  author:/ {print}
-    ' "$file" > "$temp_file"
+        !/^last_update:/ && !/^  date:/ && !/^  author:/ {print} # Skip old last_update lines
+    ' "$file" > temp && mv temp "$file"
 
-    if [ -s "$temp_file" ]; then
-        # Only move temp_file to original if temp_file is not empty
-        mv "$temp_file" "$file"
-        # Add the updated file to the staging area
-        git add "$file"
-    else
-        echo "Failed to update $file, temp_file was empty."
-        rm "$temp_file"
-    fi
+    # Add the updated file to the staging area
+    git add "$file"
 done
