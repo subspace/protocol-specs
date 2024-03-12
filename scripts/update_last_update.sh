@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # Assuming your .env file is at the root of your repository
-source "./author.env"
+SCRIPT_DIR="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+REPO_ROOT=$(dirname "$SCRIPT_DIR")
+echo "REPO_ROOT: $REPO_ROOT"
+
+source "$REPO_ROOT/.env"
 
 date=$(date -u +"%m/%d/%Y")
 author_name=$AUTHOR_NAME
@@ -29,5 +33,6 @@ for file in $(git diff --cached --name-only | grep '\.md$'); do
     ' "$file" > temp && mv temp "$file"
 
     # Add the updated file to the staging area
-    git add "$file"
+    git add "$REPO_ROOT/$file"
+
 done
