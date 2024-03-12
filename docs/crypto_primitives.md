@@ -5,10 +5,9 @@ description: Cryptographic Primitives used in the protocol.
 keywords:
     - cryptography
 last_update:
-  date: 02/14/2024
-  author: Dariia Porechna
+  date: 03/12/2024
+  author: Saeid Yazdinejad
 ---
-
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
 The following primitives are used in various parts of the protocol.

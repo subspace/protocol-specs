@@ -7,10 +7,9 @@ keywords:
     - decex
     - instantiation
 last_update:
-  date: 03/06/2024
-  author: Ning Lin
+  date: 03/12/2024
+  author: Saeid Yazdinejad
 ---
-
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
 

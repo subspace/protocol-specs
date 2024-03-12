@@ -7,10 +7,11 @@ keywords:
     - tables
     - plotting
 last_update:
-  date: 02/14/2024
-  author: Dariia Porechna
+  date: 03/12/2024
+  author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
+
 
 This specification defines a secure proof-of-space construction for [Plotting](proof_of_archival_storage.md#plotting) and [Proving](proof_of_archival_storage.md#proving) sub-protocols of the Dilithium consensus based on Chia PoS.
 

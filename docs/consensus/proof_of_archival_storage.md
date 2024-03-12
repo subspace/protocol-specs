@@ -8,14 +8,16 @@ keywords:
     - plotting
     - auditing
 last_update:
-  date: 02/18/2024
-  author: Dariia Porechna
+  date: 03/12/2024
+  author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
+
 
 ## Public Parameters and Values
 
 ### Protocol Constants
+
 
 These parameters are fixed at the beginning of the protocol and used by all clients. 
 
