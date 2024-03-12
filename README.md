@@ -42,7 +42,7 @@ The pre-commit package is used to run scripts before each commit automatically, 
 pip install pre-commit
 ```
 
-2. Make sure the update_last_update.sh script is present in the scripts/ directory at the root of your repository and is executable. You may need to run chmod +x scripts/update_last_update.sh to make it executable.
+2. Make sure the update_last_update.sh script is present in the scripts/ directory at the root of your repository and is executable. You may need to run `chmod +x scripts/update_last_update.sh` to make it executable.
 
 3. Run following command to set up the hook.
 ```bash
