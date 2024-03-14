@@ -5,7 +5,7 @@ description: Cryptographic Primitives used in the protocol.
 keywords:
     - cryptography
 last_update:
-  date: 03/12/2024
+  date: 03/14/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -76,6 +76,31 @@ Splits `vrf_signature` into `output` and `proof` and verifies `proof` for an inp
 - The proof size is *constant* and **equal** to one group element (48 bytes)
 - Verification time is *constant* and requires two group multiplications and two pairings
 - Proving time (commitment and proof generation) is *linear* in the degree of the underlying polynomial (length of committed data)
+
+<!--
+The KZG public parameters are essential for the secure functioning of the KZG Polynomial Commitment scheme. These parameters were generated through a Multi-Party Computation (MPC) ceremony. This process ensures the parameters are secure and trustworthy by having multiple participants collaboratively generate them without any single party knowing the entire setup. The ceremony involves:
+
+1. Starting with a seed value, agreed upon by all participants.
+2. Individual contributions from participants, who perform computations with the seed and their private inputs.
+3. Combining these contributions to produce the final public parameters.
+4. Verifying the output to ensure its integrity and security.
+
+This method guarantees that as long as one participant is honest, the parameters are secure and can be trusted for cryptographic operations within the KZG scheme.
+-->
+
+<!--
+ETH MPC Ceremony:
+
+The Ethereum MPC ceremony, often referred to in the context of Proto-Danksharding, is a collaborative effort aimed at generating cryptographic parameters needed for the Ethereum network's upgrade and functionalities. This ceremony follows the principles of Multi-Party Computation (MPC), similar to the KZG parameters setup. It's designed to enhance the security and scalability of the Ethereum blockchain, particularly for its sharding solution, which is a part of the Ethereum 2.0 upgrades.
+
+In this ceremony:
+
+* Participants from around the globe contribute, ensuring that the cryptographic setup is not controlled by any single entity.
+* It involves generating cryptographic data that's essential for validating and securing transactions in a more scalable and efficient manner.
+* The process ensures transparency and security, as the generated parameters can only be trusted if they are produced in a decentralized and tamper-proof manner.
+The goal of the Ethereum MPC ceremony was to produce a set of public parameters that can be used to securely and efficiently shard data, allowing for improved transaction throughput and reduced costs on the Ethereum network.
+
+-->
 
 <!-- 
 TODO: replace with reading existing params
