@@ -7,9 +7,11 @@ keywords:
     - tables
     - plotting
 last_update:
-  date: 02/14/2024
-  author: Dariia Porechna
+  date: 03/12/2024
+  author: Saeid Yazdinejad
 ---
+import Collapsible from '@site/src/components/Collapsible/Collapsible';
+
 
 This specification defines a secure proof-of-space construction for [Plotting](proof_of_archival_storage.md#plotting) and [Proving](proof_of_archival_storage.md#proving) sub-protocols of the Dilithium consensus based on Chia PoS.
 
@@ -72,20 +74,18 @@ Computes the 7 PoS tables.
     6. Map the match pair entries `(left_entry, right_entry)` positions back from the bucket to their respective positions in the previous table, `left_position` and `right_position`.
     7. Push to the current table an entry `(ys, metadata, positions) = (y, c, {left_position, right_position})`
     8. Sort the current table by `y` value.
-        <!-- 
-        TODO: toggle
-        Note
-            
-            chiapos and spaceframe use k-way merge to deal with the fact that table might be too large to store in memory. Since we don’t have this problem we could use a faster algorithm. -->
+
+        <Collapsible title="Note">
+        chiapos and spaceframe use k-way merge to deal with the fact that table might be too large to store in memory. Since we don’t have this problem we could use a faster algorithm.
+        </Collapsible>
             
 
 The resulting `pos_tables` is a vector containing the 7 tables in order.
 
-<!-- 
-TODO: replace diagram
-![Steps 3.b and 3.c in Generate. Numbers and matching function $M$ are solely illustrative. Since the `entry.y` is sorted, Chia does this sequentially on portions of the table as their tables don’t fit in memory.  Notice that 235 and 380 appear in multiple matches, while some numbers don’t have a match.](Dilithium%20PoS%20Specification%2008339021db504ce9aa0be6cc2f52a949/Subspace_v2_Master_-_Plotting_(9).png)
+![Steps 4.ii-iv in generate function definition. Numbers and matching function $M$ are solely illustrative. Since the `entry.y` is sorted, Chia does this sequentially on portions of the table as their tables don’t fit in memory.  Notice that 235 and 380 appear in multiple matches, while some numbers don’t have a match.](/img/Proof_of_space_plotting.png)
 
-Steps 3.b and 3.c in Generate. Numbers and matching function $M$ are solely illustrative. Since the `entry.y` is sorted, Chia does this sequentially on portions of the table as their tables don’t fit in memory.  Notice that 235 and 380 appear in multiple matches, while some numbers don’t have a match. -->
+<center>Steps 4.ii-iv in generate function definition. Numbers and matching function $M$ are solely illustrative. Since the `entry.y` is sorted, Chia does this sequentially on portions of the table as their tables don’t fit in memory.  Notice that 235 and 380 appear in multiple matches, while some numbers don’t have a match.</center>
+
 
 ## Tables Computation
 
@@ -100,10 +100,13 @@ Computes the whole table `t_1` for all values of `x in 0..2^k`:
 3. Append to each `y` the `PARAM_EXT` most significant bits of the corresponding `x`.
 4. Push `(y, x)` pairs to `t_1`. 
 5. Sort `t_1` by `y`. 
-- Notes
-    - Consider this function a necessary optimization of `compute_f1` It is much faster to generate the whole result of `f1(0..2^k)` in one go due to the stream nature of ChaCha instead of computing one by one. chiapos does in batches, since the whole table is too big in their case
-    - The output is extended by `PARAM_EXT` (6) bits, so `f1(x)` takes `x` of k bits as input and outputs y of `k + 6` bits. These 6 bits are the most significant bits of x, added to minimize collisions (birthday paradox).
-    - Sorting is needed to optimize bucketing for `find_matches` in the calculation of the next table
+
+<Collapsible title="Note">
+- Consider this function a necessary optimization of `compute_f1` It is much faster to generate the whole result of `f1(0..2^k)` in one go due to the stream nature of ChaCha instead of computing one by one. chiapos does in batches, since the whole table is too big in their case
+- The output is extended by `PARAM_EXT` (6) bits, so `f1(x)` takes `x` of k bits as input and outputs y of `k + 6` bits. These 6 bits are the most significant bits of x, added to minimize collisions (birthday paradox).
+- Sorting is needed to optimize bucketing for `find_matches` in the calculation of the next table
+</Collapsible>
+   
 
 ### compute_f1
 
@@ -116,6 +119,10 @@ Computes one value `y` for a specific `x` with the first table function. This is
 3. Seek to the needed point `skip_bits` in the generated keystream.
 4. Set `y` the next `k` bits from the keystream.
 5. Append to `y` the `PARAM_EXT` most significant bits of `x`
+
+<Collapsible title="Note">
+This is a version of `compute_table1` but for a single value, necessary for the verifier that does not need to compute the whole table, only selected x
+</Collapsible>
 
 The output `y` has length `k+PARAM_EXT` bits.
 
@@ -155,7 +162,7 @@ The second condition is quite complex.
 Consider an underlying graph of a table: the digraph where each node is an entry, and
 an edge exists if that pair of entries is a match. The second condition defines the edges of this graph for parameters `PARAM_B` and `PARAM_C`. Each node (entry) of this graph is described with a triplet $(i,b,c)$ for $i\in\Z$ (the bucket id of the entry), $b \in \Z_{PARAM\_B}$ (entry remainder modulo `PARAM_B`) and $c \in\Z_{PARAM\_C}$ (entry remainder modulo `PARAM_C`). The edges in the graph are given between two nodes as:
 
-$$(i, b, c) → (i + 1, b + m, c + (2m + i\%2)^2 )$$
+<center>$$(i, b, c) → (i + 1, b + m, c + (2m + i\%2)^2 )$$</center>
 
 for all 0 ≤ $m$ < 64 = `PARAM_M`
 
@@ -182,22 +189,19 @@ Compute possible target matching values `left_targets` for use in `find_matches`
 
 Given two buckets with entries (`y` values), computes which `y` values match and returns a list of the pairs of indices `(left_index, right_index)` into `left_bucket` and `right_bucket`. 
 
-<!--
-TODO: toggle
- Note
-    
-    Instead of doing naive pair-wise comparison in O(N^2) we first compute the target values needed to match based on left bucket, then scan the right bucket
-     -->
+<Collapsible title="Note">
+Instead of doing naive pair-wise comparison in $$O(N^2)$$ we first compute the target values needed to match based on left bucket, then scan the right bucket
+</Collapsible>
+
 1. Iterate over entries in `right_bucket` by `right_index`.
     1. Create `rmap` that will store a mapping from `r` to a list of right bucket positions.
     2. Reduce each entry value to the remainder of its division by `PARAM_BC`. To do so, compute `r_base = (right_bucket[0].y/PARAM_BC) * PARAM_BC` and subtract it from each entry’s `fx` in the right bucket to get `r = entry.y - r_base`.
     3. Since the same `fx` and, as a result, the remainder `r` can appear in the table multiple times, in which case they'll all occupy consecutive slots in `right_bucket`. Hence, all we need to store in `rmap` is just the position `right_index` of the first appearance of each `r` and the number of elements in a map at `rmap[r]`.
-    <!-- 
-    TODO: toggle
-    Notes
-        
-        `y` is not unique, so multiple `right_index` can match the same `rmap[r]`, but they will all be next to each other, so it is possible to store start index and count rather than dynamically sized vector of indices
-         -->
+
+    <Collapsible title="Note">
+    `y` is not unique, so multiple `right_index` can match the same `rmap[r]`, but they will all be next to each other, so it is possible to store start index and count rather than dynamically sized vector of indices.
+    </Collapsible>
+    
 2. Calculate the `parity` (0 or 1) of the first entry in `left_bucket` as `(left_bucket[0].y/PARAM_BC)%2`.
 3. Iterate over entries in `left_bucket` with `left_index` being the index of the corresponding entry.
     1. Reduce each entry value to the remainder of its division by `PARAM_BC`. To do so, compute `l_base = r_base - PARAM_BC` and subtract it from each entry’s `fx` in the left bucket to get `r = entry.y - l_base`.
@@ -216,6 +220,11 @@ Note: Not used in Dilithium, used only for testing the implementation against Ch
 *Quality* is a 32-byte hash of 2 table entries within the 64-entry full proof. This value is known in the Chia context as a *proof quality string* however, this naming is irrelevant to our use case as we do not assign any qualitative measure to the outputs of the PoS table.
 
 On the verifier side, the quality is extractable from the full proof.
+
+
+<Collapsible title="Note">
+This value is known in the Chia context as a *proof quality string*; however, this naming is irrelevant to our use case as we do not assign any qualitative measure to the outputs of the PoS table.
+</Collapsible>
 
 ### find_quality
 
@@ -236,10 +245,11 @@ For a given `challenge` , sample the `pos_table` for a *proof-of-space quality s
     3. Add the left and right entries to the `quality_entries` vector.
 6. For the two `entry` in `quality_entries`, take `entry.x` truncated to `k` bits and concatenate them together.
 7. Output the 32-byte SHA256 hash of `challenge || left_entry.x || right_entry.x` .
-<!-- 
-TODO: toggle
-Notes
-    - Generally a path to chose between left entry and right entry depends on last bits of challenge (left if 0, right if 1), but we set them all to 0 so we can always follow the entry corresponding to `position` -->
+
+<Collapsible title="Note">
+- Generally a path to chose between left entry and right entry depends on last bits of challenge (left if 0, right if 1), but we set them all to 0 so we can always follow the entry corresponding to `position`
+</Collapsible>
+
 
 ## Proving
 
@@ -277,19 +287,29 @@ To verify a proof-of-space, we need 4 things: the 64 x values in the `proof_of_s
 Consider an example with four tables. The proof-of-space then consists of $2^{(4-1)} = 8$ values $x_1||…||x_8$. The verifier will perform the following:
 
 1. Compute the outputs of the first table function $f_1(x)$:
-$$f_1(x_1), f_1(x_2), f_1(x_3), f_1(x_4), f_1(x_5), f_1(x_6), f_1(x_7), f_1(x_8)$$
+
+<center>$$f_1(x_1), f_1(x_2), f_1(x_3), f_1(x_4), f_1(x_5), f_1(x_6), f_1(x_7), f_1(x_8)$$</center>
+
 2. Verify that the matching function $M$ returns a match on each of the following four pairs 
-$$M(f_1(x_1), f_1(x_2)), M(f_1(x_3), f_1(x_4)), M(f_1(x_5), f_1(x_6)), M(f_1(x_7), f_1(x_8))$$
+
+<center>$$M(f_1(x_1), f_1(x_2)), M(f_1(x_3), f_1(x_4)), M(f_1(x_5), f_1(x_6)), M(f_1(x_7), f_1(x_8))$$</center>
+
 3. Compute the outputs of the second table function $f_2(x)$:
-$$f_2(x_1, x_2), f_2(x_3, x_4), f_2(x_5, x_6), f_2(x_7, x_8)$$
+
+<center>$$f_2(x_1, x_2), f_2(x_3, x_4), f_2(x_5, x_6), f_2(x_7, x_8)$$</center>
+
 4. Verify the matching function $M$ returns a match on each of the following two pairs 
-$$M(f_2(x_1, x_2), f_2(x_3, x_4)), M(f_2(x_5, x_6), f_2(x_7, x_8))$$
+<center>$$M(f_2(x_1, x_2), f_2(x_3, x_4)), M(f_2(x_5, x_6), f_2(x_7, x_8))$$</center>
+
 5. Compute the outputs of the third table function $f_3(x)$:
-$$f_3((x_1, x_2), (x_3, x_4)), f_3((x_5, x_6), (x_7, x_8))$$
+<center>$$f_3((x_1, x_2), (x_3, x_4)), f_3((x_5, x_6), (x_7, x_8))$$</center>
+
 6. Verify the matching function $M$ returns a match 
-$$M(f_3((x_1, x_2), (x_3, x_4)), f_3((x_5, x_6), (x_7, x_8)))$$
+<center>$$M(f_3((x_1, x_2), (x_3, x_4)), f_3((x_5, x_6), (x_7, x_8)))$$</center>
+
 7. Compute the last table value
-$$fx =f_4((x_1,x_2,x_3,x_4),(x_5,x_6,x_7,x_8))$$
+<center>$$fx =f_4((x_1,x_2,x_3,x_4),(x_5,x_6,x_7,x_8))$$</center>
+
 8. Verify this value corresponds to our challenge $truncate(fx) = challenge\_index$
 
 ### is_proof_valid
@@ -310,7 +330,7 @@ Verifies whether *proof-of-space* `proof_of_space` is valid for the `challenge` 
     5. Calculating `compute_fn(table_number, left_entry.y, left_entry.metadata, right_entry.metadata)` and push to buffer.
     6. Set `y_values` and `metadata` to the buffer vectors.
 5. Check that the first `k` bits of `y_values[0]` match the first `k` bits of `challenge_index`.
-<!-- 
-TODO: toggle
-Note
-    - Verification is fast, but not quite fast enough to be verified in Solidity on Ethereum (something that would enable trustless transfers between chains), since this verification requires blake3 and chacha8 operations. -->
+
+<Collapsible title="Note">
+- Verification is fast, but not quite fast enough to be verified in Solidity on Ethereum (something that would enable trustless transfers between chains), since this verification requires blake3 and chacha8 operations.
+</Collapsible>

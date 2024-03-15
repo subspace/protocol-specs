@@ -7,9 +7,10 @@ keywords:
     - decex
     - bundle
 last_update:
-  date: 03/04/2024
-  author: Dariia Porechna
+  date: 03/12/2024
+  author: Saeid Yazdinejad
 ---
+import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
 ## Bundles
 
@@ -52,10 +53,12 @@ Domain block follows the standard [Substrate block format](https://github.com/pa
     - *`number`*
     - *`state_root`*
     - *`extrinsics_root`*
-    <!-- TODO toggle - Note
-        
-        Substrate header also contains a *`digest`* field, but it is usually unused for the domain block. It was used to feed some consensus chain data into the domain block before but will likely not be used going forward if it causes a challenge for fraud proofs.
-         -->
+    
+    
+    <Collapsible title="Note">
+    Substrate header also contains a *`digest`* field, but it is usually unused for the domain block. It was used to feed some consensus chain data into the domain block before but will likely not be used going forward if it causes a challenge for fraud proofs.
+    </Collapsible>
+  
 - Extrinsics
 
 ## Execution Receipt
@@ -68,9 +71,10 @@ Execution Receipt (ER) is a deterministic receipt for the execution of a domain 
 - `parent_domain_block_receipt_hash`: a pointer to the hash of the ER for the last domain block. The parent must have already been included in this domain’s blocktree by the consensus chain for this bundle to be valid. Note that this does not have to be the tip of the domain blocktree (on the consensus chain), as this bundle could be confirming an existing tip or forking away from a fraudulent branch.
 - `consensus_block_number`: a pointer to the consensus block index which contains all of the bundles that were used to derive and order all extrinsics executed by the current domain block for this ER.
 - `consensus_block_hash`: a pointer to the consensus block hash which contains all of the bundles that were used to derive and order all extrinsics executed by the current domain block for this ER. 
-    <!--- TODO toggle - Note
-        Consensus block number alone is insufficient, since their could be honest forks of the consensus chain.
-         -->
+    <Collapsible title="Note">
+    Consensus block number alone is insufficient, since their could be honest forks of the consensus chain.
+    </Collapsible>
+    
 - `inboxed_bundles`: list of all bundles included in and excluded from execution by this domain block, contains a list of hashes and invalidity reasons for bundles `(Valid or Invalid(InvalidBundleType), extrinsics_root)`. The bundles marked `Invalid` were initially included in the consensus block, but later deemed invalid and excluded from execution.
 - `bundle_extrinsics_roots`: all `extrinsic_root`s for all bundles being executed by this block. Used to ensure these are contained within the state of the `execution_inbox`.
 - `final_state_root`: the final state root for the current domain block reflected by this ER. Used for verifying storage proofs for domains.
