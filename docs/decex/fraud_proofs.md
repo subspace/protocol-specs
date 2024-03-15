@@ -8,8 +8,8 @@ keywords:
     - fraud proof
     - challenge period
 last_update:
-  date: 03/12/2024
-  author: Saeid Yazdinejad
+  date: 03/15/2024
+  author: Ning Lin
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -367,6 +367,12 @@ Proving and verification algorithm varies depending on which execution phase the
 3. Re-run the state transition and get the post-state root after the execution.
 4. If the post-state root matches the state root in the trace of the header being challenged, then the proof is invalid ⇒ ignore the proof
 5. If the post-state root does not match the state root in the trace, then the proof is valid ⇒ accept the proof and punish the authors of receipt identified by `bad_receipt_hash`.
+
+## Fraud proof priority in transaction pool
+
+For fraud proof that targets bad ER its priority is defined as `MAX - blocks_before_bad_er_confirm`, fraud proof targets bad ER that is closer to being confirmed is more emergency and thus has a higher priority to be accepted by the transaction pool and to be included in the next block. For a given domain, at most one fraud proof will be accepted by the transaction pool at a time, if an incoming fraud proof has a higher priority than the fraud proof already in the pool then it will replace the previous fraud proof otherwise it will be rejected.
+
+For the bundle equivocation fraud proof, since it is not time-sensitive its priority is a const value `MAX - challenge_period - 1` thus lower than any other type of fraud proofs that target bad ER. For a given operator, at most one bundle equivocation fraud proof will be accepted by the transaction pool at a time, if there is already a bundle equivocation fraud proof in the pool, incoming bundle equivocation fraud proof that targetting the same operator will be rejected.
 
 <!-- TODO check if still correct
 ### Excessive Transaction
