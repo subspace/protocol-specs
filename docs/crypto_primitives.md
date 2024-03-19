@@ -5,7 +5,7 @@ description: Cryptographic Primitives used in the protocol.
 keywords:
     - cryptography
 last_update:
-  date: 03/12/2024
+  date: 03/19/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -77,11 +77,41 @@ Splits `vrf_signature` into `output` and `proof` and verifies `proof` for an inp
 - Verification time is *constant* and requires two group multiplications and two pairings
 - Proving time (commitment and proof generation) is *linear* in the degree of the underlying polynomial (length of committed data)
 
-<!-- 
-TODO: replace with reading existing params
+<!--
+`Trusted_Setup() →  LoadSRS() →  KZG_PUBLIC_PARAMETERS
+
 `Setup(seed, KZG_MAX_DEGREE)` → `KZG_PUBLIC_PARAMETERS`
 
-Runs a one-time trusted setup of the universal reference values `KZG_PUBLIC_PARAMETERS`, enabling commitment to polynomials of degree less than or equal to `KZG_MAX_DEGREE`. The initial `seed` for value generation can be provided by a multi-party computation at genesis. -->
+ Runs a one-time trusted setup of the universal reference values `KZG_PUBLIC_PARAMETERS`, enabling commitment to polynomials of degree less than or equal to `KZG_MAX_DEGREE`. The initial `seed` for value generation can be provided by a multi-party computation at genesis. -->
+
+Subspace adopted the KZG public parameters from the Ethereum KZG ceremony, leveraging the Structured Reference String (SRS), also known as the universal reference. The SRS is publicly available, allowing anyone to construct their KZG commitments with confidence in the underlying security. The success of the Ethereum ceremony guarantees the trustworthiness of the setup.
+
+The cryptographic hash of the final parameters file, produced at the conclusion of the Ethereum KZG ceremony, serves as a digital fingerprint, ensuring the integrity and authenticity of the SRS used across the Ethereum network. This hash enables users to verify that they are working with the correct set of parameters, untouched and unaltered since their creation during the trusted setup.
+
+ <Collapsible title="Trusted Setup and KZG Public Parameters">
+
+**Trusted Setup for KZG Commitment**
+
+The trusted setup is a critical step in the KZG commitment scheme. It requires a secret value, denoted as `s`, to generate the polynomial commitments. This secret is used only once during the setup phase and must then be securely discarded to ensure the integrity of the system. Possession of `s` after the setup allows for the fabrication of false proofs, compromising the scheme's security.
+
+The secret value `s` is typically generated through a Multi-Party Computation (MPC) ceremony, ensuring that no single participant knows the secret. This process secures the value by distributing trust among multiple parties.
+
+
+**Ethereum's Approach to the MPC Ceremony**
+
+The Ethereum community conducted its MPC ceremony using the "Powers of Tau" method. This process begins with a participant adding their secret $s_1$ to the mix, computing the first polynomial, and then passing the result to the next participant. Each subsequent participant adds their secret and forwards the updated polynomial to the next, in a secure chain of contributions. The ceremony's security hinges on at least one participant keeping their contribution secret, embodying the principle of a `1-out-of-N` trusted setup. This method ensures that no single entity can compromise the system.
+
+For a visual representation please see the figure below:
+
+<div align="center">
+    <img src="/img/Multi Participants.png" alt="ETH KZG Ceremony" />
+</div>
+
+
+Further exploration of trusted setups can be found in [Vitalik Buterin's comprehensive post on trusted setups](https://vitalik.eth.limo/general/2022/03/14/trustedsetup.html).
+
+
+</Collapsible>
 
 ### poly
 
@@ -195,12 +225,6 @@ The plot seed is obtained from farmer public key, current sector and piece offse
 </div>
 
 <center>Figure 1: Structure of Chia PoS table</center>
-<!-- 
-TODO: Pull figure from Subnomicon
- ![Figure 1: Structure of Chia PoS table](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/86273655-3697-440d-9313-135513abc658/Subspace_v2_Master_-_Plotting_(31).png)
-
- -->
-
 
 ### find_proof
 
@@ -214,12 +238,7 @@ For a given `challenge_index` samples the `pos_table` for a valid full *proof-of
 </div>
 
 <center>Figure 2: Querying the PoS table at a challenge index. On average 37% of indices are missing a proof.</center>
-<!-- 
-TODO: Pull figure from Subnomicon
-![Figure 2: Querying the PoS table at a challenge index. On average 37% of indices are missing a proof.](https://prod-files-secure.s3.us-west-2.amazonaws.com/562415b3-26fd-44e9-a7cf-40b1a8253627/1a0139da-0686-4fce-9195-27d723353c86/Subspace_v2_Master_-_Plotting.png)
 
-Figure 2: Querying the PoS table at a challenge index. On average 37% of indices are missing a proof.
--->
 
 ### is_proof_valid
 
