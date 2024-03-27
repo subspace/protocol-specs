@@ -1,7 +1,7 @@
 ---
 title: Glossary
 sidebar_position: 5
-description: Collection of terms and definitions used within the project.
+description: Collection of terms and definitions used within the network.
 keywords:
     - glossary
     - terminology
