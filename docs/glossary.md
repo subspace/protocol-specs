@@ -1,12 +1,12 @@
 ---
 title: Glossary
-sidebar_position: 5
+sidebar_position: 6
 description: Collection of terms and definitions used within the network.
 keywords:
     - glossary
     - terminology
 last_update:
-  date: 03/28/2024
+  date: 03/29/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
