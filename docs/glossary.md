@@ -1,44 +1,45 @@
 ---
 title: Glossary
 sidebar_position: 5
-description: Collection of terms and definitions used within the network.
+description: Collection of terms and definitions used within the subspace network.
 keywords:
     - glossary
     - terminology
 last_update:
-  date: 03/28/2024
+  date: 04/10/2024
   author: Saeid Yazdinejad
 ---
-import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
 <!-- A -->
 ## Archival Node
-- Similar to the Full Node but retains all history and state since the genesis block, making it a comprehensive data repository.
+- An Archival Node, similar to a Full Node, engages in processing all blocks and running all state transitions. Unlike a Full Node, which retains history and state for a configurable number of recent blocks, an Archival Node preserves the entire history and state of the blockchain since the genesis block, making it a comprehensive data repository.
+
+
 
 ## Archived History
 
 It refers to the blockchain's historical data that has been specifically processed for preservation. This includes:
 
 - **Transformation**: The blockchain history undergoes a transformation process, converting blocks into a format suitable for long-term storage and access.
-- **Depth-Based Selection**: This history consists of blocks that have reached a certain depth from the chain's tip, ensuring a consistent approach to archiving data.
+- **Depth-Based Confirmation**: This history consists of blocks that have reached a certain depth from the chain's tip, ensuring a consistent approach to archiving data.
 
 It also known as "archival history".
 
 
 ## Archiver
 
-It is an implementation of the Archiving process
+It is an implementation of the Archiving process within the node.
 
 
 ## Archiving
 
-It is the transformation of Blockchain History into Archived History. It is defines by several steps:
+It is the transformation of Blockchain History into Archived History. It is defined by several steps:
 
 1. **Transformation Depth**: It involves processing blocks at a certain depth from the chain's tip.
 2. **Encoding and Buffering**: Blocks are SCALE-encoded and stored in a buffer.
 3. **Slicing into Records**: The buffered data is sliced into records.
 4. **Erasure Coding**: These records are then erasure-coded to ensure redundancy and fault tolerance.
-5. **Commitment and Witnessing**: A KZG commitment is computed for both source and parity records, with a witness derived for each record.
+5. **Commitment and Witness Creation**: First, a KZG commitment is computed for each source and parity record, then to the set of all records (Segment) and a witness to the segment commitment derived for each record.
 6. **Piece Formation**: The combination of a record, its commitment, and witness forms a piece of Archived History, ready for Plotting and Farming by Farmers.
 
 An **Archiver** implements the functionalities necessary for this process.
@@ -59,29 +60,29 @@ It refers to the current status and data of a blockchain, resulting from the exe
 
 - **Transaction Outcomes**: The state reflects changes from transactions, such as account balances, smart contract states, and other relevant data.
 
-## Beacon Chain
+<!-- ## Beacon Chain
 
 - **Core Shard Functionality**: It acts as a Blockchain Shard that other Shards commit to, serving as the foundational layer for network operations.
 - **Characteristics in Subspace**:
     - **Index `0` Shard**: Designated as the Shard with index `0`, setting it apart as the primary reference point for the network.
     - **Randomness Source**: Utilized by every Shard (including itself) as a source of randomness.
     - **Global History Integration**: Integration of Archived History from all Shards into a cohesive Global History.
-    - **Staking Hub**: Executors stake exclusively on the Beacon Chain only.
+    - **Staking Hub**: Executors stake exclusively on the Beacon Chain only. -->
 
 
 <!-- C -->
 
-## Clockmaster
+## Timekeeper
 
 - A role on the Subspace Network that is responsible for running Proof-of-Time chain and maintaining the randomness beacon for the consensus chain.
 
 
-## Client
+<!-- ## Client
 
 Client refers to the entities involved in the client-server communication model with distinct roles and functions in the network ecosystem:
 
 - **Light Client**: Operates by connecting to Full Nodes to process block headers without executing state transitions or storing history. Notably, it's designed for lightweight operations, such as running in a browser environment, for example, [Substrate Connect](https://github.com/paritytech/substrate-connect).
-- **Browser Client**: Represents an application or library executed within a browser, facilitating interactions with the blockchain. This can occur either directly, as in the case of a Light Client, or indirectly through a Full Node's RPC, utilizing tools like the Polkadot.js API or subspace.js for blockchain interactions.
+- **Browser Client**: Represents an application or library executed within a browser, facilitating interactions with the blockchain. This can occur either directly, as in the case of a Light Client, or indirectly through a Full Node's RPC, utilizing tools like the Polkadot.js API or subspace.js for blockchain interactions. -->
 
 ## Consensus Chain
 
@@ -91,7 +92,7 @@ It is a blockchain with consensus logic in the Subspace Network, designed for fa
 - **Computational Simplicity**: Stripped of heavy computation to lower the processing load for farmers.
 - **Fast Synchronization**: Engineered for quick updates to maintain farmer accessibility and network integrity.
 
-Previously referred to as the "primary chain" or in the context of code inherited from the Polkadot codebase, the "relay chain" or "polkadot."
+Previously referred to as the "primary chain" or in the context of code inherited from Substrate, the "relay chain".
 
 ## Commitment
 
@@ -136,7 +137,7 @@ The Domain Operator in the Subspace Network serves a dual purpose:
 - **Network Role**: Tasked with executing arbitrary computations on Domains, managing state transitions, and ensuring the ongoing operation (liveness) of the Execution Chain.
 - **Software Utility**: Operates as the mechanism that executes the state transition logic for the Execution Chain, functioning as an optional component of the Full Node implementation.
 
-**Previous Terminology**: Known in some contexts as the "executor"
+Previously known in some contexts as the "executor"
 
 ## Domain
 
@@ -144,7 +145,7 @@ It is an application-specific blockchain, akin to layer two networks on Ethereum
 
 - **Gossip Network**: Each Domain operates its own gossip network, known as a domain subnet.
 - **Configurable Runtime**: Domains feature a customizable runtime with settings maintained on x-net.
-- **Domain Operation**: Staked executors can become Domain Operators, managing domain operations, collecting compute fees from users, and ensuring the integrity of state commitments.
+- **Domain Operation**: Staked executors become Domain Operators, managing domain execution, collecting compute fees from users, and ensuring the integrity of state commitments.
 
 Domains are anchored to and validated by the Subspace Network for enhanced security and interoperability.
 
@@ -175,13 +176,10 @@ Formerly known as "secondary chain" or referred to as "cirrus," "parachain," and
 
 In the Subspace Network, the term "Farmer" embodies both a pivotal role and a specialized software, playing a dual function in the ecosystem:
 
-<Collapsible title="Role in the Network">
+
 
 - **Consensus Maintenance**: As a crucial role within the Subspace Network, a Farmer ensures the security and integrity of the Consensus Chain. This responsibility involves participating in the network's consensus mechanism to maintain a stable and secure blockchain environment.
 
-</Collapsible>
-
-<Collapsible title="Software Functionality">
 
 - **Subspace Farmer Crate**: The essence of farming within Subspace is captured in the `subspace-farmer` crate. This component is integral for:
     - **Archival History Storage**: It archives segments of the network's history onto disk, preserving a record of transactions and interactions.
@@ -189,22 +187,8 @@ In the Subspace Network, the term "Farmer" embodies both a pivotal role and a sp
     - **Distributed Storage Network (DSN) Participation**: As a node within the DSN, it aids in data retrieval, facilitating the synchronization of new nodes, supporting other farmers, and managing data requests from various clients.
 - **Versatility in Usage**: The `subspace-farmer` crate is designed for flexibility, allowing for integration as a library in applications like Subspace Desktop or operation as a standalone command-line interface (CLI) application, binary, or executable.
 
+- Previously, the functionalities now encompassed by the Farmer role were referred to by various terms, including "client" and "node".
 
-</Collapsible>
-
-
-<!-- <Collapsible title="Future Developments">
-
-- **Potential for New Implementations**: While the `subspace-farmer` serves as the reference implementation, the evolving nature of Subspace anticipates the introduction of alternative farmer implementations, enhancing the network's robustness and adaptability.
-
-</Collapsible> -->
-
-
-<Collapsible title="Historical Context">
-
-- Previously, the functionalities now encompassed by the Farmer role were referred to by various terms, including "client" and "node," reflecting the evolving lexicon as the Subspace Network matures and refines its conceptual framework.
-
-</Collapsible>
 
 ## Farming
 
@@ -227,7 +211,7 @@ It refers to two distinct yet interconnected concepts:
 
 ## Global History
 
-Global History represents the aggregated record of all transactions and events across the entire network, encompassing all individual Subspace Blockchains (or Shards).
+Global History represents the aggregated record of all transactions and events across the entire network, encompassing all individual Subspace domain histories ordered by the consensus chain.
 
 
 
@@ -243,13 +227,10 @@ Global History represents the aggregated record of all transactions and events a
 
 Within the Subspace Network, a "Node" represents a key component with distinct functionalities and roles in the peer-to-peer (P2P) network architecture.
 
-<Collapsible title="Conceptual Role">
 
 - **P2P Network Participant**: Conceptually, a node is a logical entity that participates in the P2P network, contributing to the network's functionality, security, and resilience.
 
-</Collapsible>
 
-<Collapsible title="Specific Implementation in Subspace">
 
 - **Subspace Node**: Primarily, within Subspace, a node is implemented as a Substrate-based `subspace-node`, which:
     - **Network Connectivity**: Connects to other nodes within the P2P network, fostering a robust and interconnected network structure.
@@ -263,24 +244,21 @@ Within the Subspace Network, a "Node" represents a key component with distinct f
 
 - Within the context of the DSN, the term "Farmer" is also used to describe a specific type of node, highlighting the diverse roles within the Subspace ecosystem.
 
-</Collapsible>
 
 
 <!-- - **Future Developments**: Although the `subspace-node` serves as the reference implementation, there is potential for alternative implementations in the future, which would augment the network's capabilities and flexibility. -->
 
 
-<Collapsible title="Historical Context">
 
-- Historically, various terms including "client" and "farmer" have been used to describe entities that now fall under the node category, reflecting the ongoing evolution and refinement of terminology within the Subspace Network.
+- Historically, various terms including "client" and "farmer" have been used to describe entities that technically fall under the node definition.
 
-</Collapsible>
 
 <!-- O -->
 <!-- P -->
 
 ## Plotting
 
-It refers to the process of generating and updating plots on disk, crucial for the network's farming activities. This process is facilitated by the `subspace-farmer` tool and encompasses:
+It refers to the process of generating and updating plots on disk, crucial for the network's farming activities. This process is facilitated by the `subspace-farmer` crate and encompasses:
 
 - **Initial Plot Creation**: Setting up the initial plots necessary for farming.
 - **Ongoing Maintenance**: Regularly updating and replotting to accommodate the expanding blockchain history, ensuring plots remain current and effective.
@@ -311,9 +289,8 @@ It represents a piece of the Blockchain History, serving as the foundational "us
 ## Record
 
 It refers to a Raw Record that has undergone transformation for the purpose of Archiving. This transformation process includes the insertion of a 0 byte after every 31 bytes of the original Raw Record.
-<Collapsible title="Note">
+
 This modification is necessary because the KZG commitment scheme operates on values up to 254 bits.
-</Collapsible>
 
 ## Reconstructor
 
@@ -348,7 +325,7 @@ Also known as "Extraction".
 
 - An overarching term that typically means a combination of Subspace Blockchains (all Shards) and DSN
 
-## Subspace CLI
+<!-- ## Subspace CLI
 
 - A Command Line Interface application automates the tasks of Subspace Farmers and Executors by running an instance of Farmer and Full Node within the same terminal instance
 
@@ -360,9 +337,7 @@ Also known as "Extraction".
     - Farming by pledging space to the network
     - Running Executor (in the future)
     - Basic wallet functionality (in the future)
-
-
-
+ -->
 
 ## Segment
 
