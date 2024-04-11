@@ -5,8 +5,8 @@ description: Cryptographic Primitives used in the protocol.
 keywords:
     - cryptography
 last_update:
-  date: 03/19/2024
-  author: Saeid Yazdinejad
+  date: 04/11/2024
+  author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -32,9 +32,61 @@ Provides succinct commitments (Merkle roots) to arbitrary-sized data sets with e
 - state of the blockchain (as defined in the Substrate framework)
 - execution trace for the domain block
 
-<!--
-TODO 
-## Merkle Mountain Range -->
+## Merkle Mountain Range (MMR)
+
+Provides succint commitments to arbitrary-sized data sets with efficient proofs (witnesses) of inclusion, updates and lookups. Specifically on the consensus chain, the Merkle Mountain range commits to the state of the chain. Specific block data is pruned from the consensus runtime state as the chain progresses, but the Merkle Mountain range allows for efficient verification of the pruned state. MMR proofs are primarily used in cross-domain messaging and fraud proofs.
+
+We currently use Substrate `pallet-mmr` as a primitive type and we add another wrapper to provide `LeafData` on every block. A new MMR leaf is added during new block initialization, and each leaf from a given block holds information of the previous block.
+
+MMR uses Keccak256 as the hashing function for greater interoperability with other chains.
+
+### Pallet implementation
+
+### struct LeafData
+
+The leaf data for the Merkle Mountain Range contains the following fields:
+- `block_number`
+- `block_hash`
+- `state_root` that can be used to prove specific storage after block was imported
+- `extrinsics_root` that can be used to prove block body
+
+### leaf_data
+
+`leaf_data()` -> `LeafData`
+
+Fetches parent consensus block number and hash from the frame-system and fetch state root and extrinsic root through host function.
+
+### on_new_root 
+
+`on_new_root(mmr_root_hash)`
+
+Implements the `OnNewRoot` hook for the pallet, which is triggered when a new MMR root is computed. When a new MMR root is computed, this function will deposit a log entry in the system digest with the new root hash. This allows other pallets or external systems to be notified of the new MMR root.
+
+### Runtime Integrations
+### mmr_root
+
+`mmr_root()` -> `mmr_root_hash`
+
+Returns the on-chain MMR root hash.
+
+### mmr_leaf_count
+
+`mmr_leaf_count()` -> `index`
+
+Return the number of MMR blocks in the chain.
+
+### generate_proof 
+
+`generate_proof(block_numbers, best_known_block_number: Option)` -> `(Vec<Leaf>, Proof)`
+
+Generates an MMR proof for a series of block numbers. If `best_known_block_number` argument is provided, uses the historical MMR state at the given block height `n`. Else, uses current MMR state. Returns a tuple containing the list of MMR leves corresponding to `block_numbers` and the MMR proof.
+
+### verify_proof
+
+`verify_proof(leaves, proof)` -> `Ok/Error`
+
+Verifies an MMR proof against on-chain MMR for a given batch of leaves. The leaves should be sorted such that corresponding leaves and leaf indices have the
+same position in both the `leaves` vector and the leaf indices contained in the proof. It will return `Ok` if the proof is valid and an `Err(..)` if MMR is inconsistent (some leaves are missing) or the proof is invalid.
 
 ## Digital Signature
 
