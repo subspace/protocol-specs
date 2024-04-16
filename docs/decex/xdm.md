@@ -69,6 +69,9 @@ A Channel is defined as follows
     	fee: FeeModel
     	// Max number of messages to be in outbox at a given time on both domains.
     	max_outgoing_messages: u32
+    	/// Owner of the channel
+   	/// Owner maybe None if the channel was initiated on the other chain.
+	maybe_owner: Option<AccountId>,
     }
 ```
     
