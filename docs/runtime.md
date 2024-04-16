@@ -6,7 +6,7 @@ description: Subspace runtime configuration
 keywords:
     - runtime
 last_update:
-  date: 04/11/2024
+  date: 04/16/2024
   author: Dariia Porechna
 ---
 A runtime in Subspace refers to the runtime logic that defines the state transition function of the chain.
@@ -35,6 +35,6 @@ The `Runtime` struct defines the runtime configuration and pallets for the Subsp
 - `Mmr`: A pallet for MMR proofs.
 - `SubspaceMmr`: A custom pallet for Subspace MMR proofs.
 - `Messenger`: A custom pallet for cross-chain messages, including between consensus and domains and intra-domain.
-- `Transporter`: A custom pallet to relay messages.
+- `Transporter`: A custom pallet to transfer funds between consensus chain and domains.
 - `Sudo`: A pallet that allows superuser access.
 
