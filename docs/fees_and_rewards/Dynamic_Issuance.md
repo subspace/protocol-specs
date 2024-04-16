@@ -1,7 +1,7 @@
 ---
 title: Dynamic Issuance
 sidebar_position: 3
-description: Fees & Rewards Specification
+description: Dynamic Issuance Formulas
 keywords:
     - fees
     - rewards
