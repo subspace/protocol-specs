@@ -1,6 +1,6 @@
 ---
 title: Fees & Rewards Specification
-sidebar_position: 5
+sidebar_position: 2
 description: Fees & Rewards Specification
 keywords:
     - fees
