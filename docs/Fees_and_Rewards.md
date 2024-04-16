@@ -7,7 +7,7 @@ keywords:
     - rewards
     - WIP
 last_update:
-  date: 04/07/2024
+  date: 04/16/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -98,7 +98,8 @@ As opposed to having a fixed issuance rate, the Subspace Network implements a dy
 
 TLDR: The farmer who proposed a block gets some fresh SSC + fees, and voters get some fresh SSC regardless of what the proposer got.
 
-<!-- https://subspacelabs.notion.site/Dynamic-Issuance-Specification-3bdf63955cb943489347889775d71c24?pvs=25 -->
+
+[Dynamic Issuance Specification](https://www.notion.so/Dynamic-Issuance-Specification-3bdf63955cb943489347889775d71c24?pvs=21)
 
 
 ## Consensus Extrinsic Fees
@@ -120,9 +121,12 @@ $\text{storage fee per byte}  = \frac{\text{total credit supply}}{\text{total sp
 $\text{storage fee} \left(\text{tx}\right) = \text{storage fee per byte}*\text{length(tx)}\ shannons$
 </center>
 
-<!-- Implemented as 
-transaction_byte_fee = credit_supply / max(TotalSpacePledged/MinReplicationFactor - BlockchainHistorySize, 1)$ -->
-
+Implemented as 
+<center>
+```rust
+transaction_byte_fee = credit_supply / max(TotalSpacePledged / MinReplicationFactor - BlockchainHistorySize, 1)
+```
+</center>
 The intuition behind this formula is: given all the coins in existence to buy up all the storage pledged, how much would be the cost? The total credit supply includes tokens issued by the protocol as rewards and tokens issued under vesting grants (regardless of whether they have vested) minus burnt tokens. Locked or staked tokens on domains are also included as they are used to pay for storage fees of domain transactions.
 
 A `transaction_byte_fee()` value computed on block finalization is persisted in the state and is valid for the next block. This value is used to validate extrinsics for inclusion in the next block. On initialization of the next block, this “next” value is moved to the current and used to deduct storage fees until the new value is computed during block finalization.
@@ -157,7 +161,7 @@ $\text{compute fee(tx)} = \text{compute fee multiplier}*\text{weight to fee}*\te
 
 ### Bundle Storage Fees
 
-As a special case of [Consensus Extrinsic Fees](https://www.notion.so/Consensus-Extrinsic-Fees-e8a5f0953d7046ecaaae589a7c13bd8a?pvs=21), the protocol defines Bundle Storage Fees. A bundle in this context is extrinsic in itself, submitted by a domain operator (using `submit_bundle` runtime call), containing other extrinsic submitted by their respective signers.
+As a special case of Consensus Extrinsic Fees, the protocol defines Bundle Storage Fees. A bundle in this context is extrinsic in itself, submitted by a domain operator (using `submit_bundle` runtime call), containing other extrinsic submitted by their respective signers.
 
 Signers who submit extrinsics for execution on domains should pay respective storage and compute fees as defined by the configuration of a particular domain (i.e., in the domain’s native token, with/without dynamic adjustment, etc.), which is outside this section's scope.
 
