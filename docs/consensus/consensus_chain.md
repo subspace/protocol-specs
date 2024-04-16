@@ -108,13 +108,13 @@ Justifications contain a set of all PoT checkpoints since the parent block up to
 
 ## Fast sync
 
-1. Obtain segment headers from DSN: 1-4 from `sync from DSN implementation`
-2. If the last segment index is greater than 2 - download the last two segments from DSN otherwise exit `Fast sync` and continue with either `sync from DSN implementation` or `Substrate sync`.
+1. Obtain segment headers from DSN: 1-4 from [sync from DSN implementation](#Synchronization)
+2. If the last segment index is greater than 2 - download the last two segments from DSN otherwise exit [Fast sync](#fast-sync) and continue with either [sync from DSN implementation](#Synchronization) or [Substrate Sync](#substrate-sync) .
 3. Reconstruct blocks from the two downloaded segments.
 4. Import the last block from the second last segment into the blockchain DB bypassing the blockchain checks of missing parent block.
-5. Import the state using `Substrate sync` for the newly imported block.
+5. Import the state using [Substrate Sync](#substrate-sync)  for the newly imported block.
 6. Import and execute all blocks from the last segment in regular mode.
-7. Pass the control to `Sync from DSN implementation`. It will either download the new archived segment if any or pass the control to `Substrate sync`.
+7. Pass the control to [sync from DSN implementation](#Synchronization). It will either download the new archived segment if any or pass the control to [Substrate Sync](#substrate-sync).
 
 ## Substrate Sync
 
