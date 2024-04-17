@@ -1,13 +1,13 @@
 ---
 title: Fees & Rewards Specification
-sidebar_position: 2
+sidebar_position: 1
 description: Fees & Rewards Specification
 keywords:
     - fees
     - rewards
     - WIP
 last_update:
-  date: 04/16/2024
+  date: 04/17/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -29,9 +29,9 @@ import Collapsible from '@site/src/components/Collapsible/Collapsible';
 <Collapsible title="Stock & Flow">
 
 
-<div align="center">
+<!-- <div align="center">
     <img src="/img/Fees & Rewards Specification_Stack_and_flow.png" alt="Fees & Rewards Specification Stack and Flow" />
-</div>
+</div> -->
 
 ### **Farmers Balance**
 
@@ -99,7 +99,7 @@ As opposed to having a fixed issuance rate, the Subspace Network implements a dy
 TLDR: The farmer who proposed a block gets some fresh SSC + fees, and voters get some fresh SSC regardless of what the proposer got.
 
 
-[Dynamic Issuance Specification](https://www.notion.so/Dynamic-Issuance-Specification-3bdf63955cb943489347889775d71c24?pvs=21)
+[Dynamic Issuance Specification](../../docs/fees_and_rewards/Dynamic_Issuance)
 
 
 ## Consensus Extrinsic Fees
@@ -199,7 +199,7 @@ The user is charged when the domain block that includes the bundle is executed.
 
 **How**
 
-The `ER::block_fees` field stores the fees split by storage and compute fees (similar to how the consensus chain stores block fees). The fraud proof for this field  ([**Invalid Block Fees** ](https://www.notion.so/Invalid-Block-Fees-dd30a64b5c814367bc7e0d44e041afc0?pvs=21)) handles both parts. The [**Inherent Extrinsic**](https://www.notion.so/Inherent-Extrinsic-53b70d913daf4fdbb98dd3027fab9c09?pvs=21) fraud proof variant handles the invalid inherent proof for `transaction_byte_fee`.
+The `ER::block_fees` field stores the fees split by storage and compute fees (similar to how the consensus chain stores block fees). The fraud proof for this field  ([**Invalid Block Fees** ](../../docs/decex/fraud_proofs#invalid-block-fees)) handles both parts. The [**Inherent Extrinsic**](../../docs/decex/fraud_proofs#inherent-extrinsic) fraud proof variant handles the invalid inherent proof for `transaction_byte_fee`.
 
 When registering onto a domain, a percentage $s$ (currently 20%) of the operator’s stake is transferred to a “storage fee fund”. A `storage_fund_account` is a separate account from stake, derived uniquely from operator public key. The storage fee for a bundle $B$ will be paid from this account. 
 We can estimate the minimum operator stake required to be able to produce bundles for a challenge period.
@@ -207,7 +207,7 @@ We can estimate the minimum operator stake required to be able to produce bundle
 Any subsequent operator&nominator stake deposits will automatically allocate the same percentage $s$ to the `storage_fund_account`. Unlike staking deposits that are locked in the nominator account in `pallet_balances`, a % required for storage fees is transferred to `storage_fund_account` sub-account for this operator.
 
 Every nomination deposit gives the same  $s$ %  to storage fees reserve like the operator deposit. Storage fees are shared with nominators according to their shares in the pool for withdrawals, however, the amount of `storage_fund_account` and current epoch storage fees do not influence the share value (to sustain our current [assumption](https://www.notion.so/3fb0ec6e4d204c4881a7df50ef58da8f?pvs=21) of increasing share value).
-Withdrawal amounts are converted to shares according to end of epoch share value and the same amount of shares is withdrawn from `storage_fund_account`. See [example](https://www.notion.so/Fees-Rewards-Specification-WIP-1b835c7684a940f188920802ca6791f2?pvs=21).
+Withdrawal amounts are converted to shares according to end of epoch share value and the same amount of shares is withdrawn from `storage_fund_account`. See [example](#deposit--withdraw-example).
 
 If the `storage_fund_account` does not have enough funds to pay the consensus chain for blockspace, the operator cannot submit a new bundle (or only include as many tx as they can pay for). They can either top it up via a deposit or wait until some of the rewards clear the challenge period (both take effect at the end of epoch).
 After the domain block that executes the bundle $B$ clears the challenge period, the storage fees for the txs in the bundle will go to `storage_fund_account` of the bundle author (while the compute fees go to ER producer). If the tx was duplicated across multiple bundles (of different authors), its storage fee gets split between all bundle authors who bundled it. The same author should not be allowed to duplicate a tx in his bundles, so they will only get the fee part once.
@@ -242,8 +242,9 @@ Let `paid_storage` be the amount of fees this operator paid for their bundle and
 
 `refund_amount = total_storage_fees * (paid_storage/total_paid_storage)`
 
+## Deposit & Withdraw example
+<Collapsible title="Example">
 
-<Collapsible title="Deposit & Withdraw example">
 
 Operator $O$ has staked 100 SSC with a minimum nominator stake of 10 SSC and nomination tax of 5%. Assume the storage fee reserve is 20%. The operator has to reserve 20 SSC for storage fees. Operator $O$ has 2 nominators $N_1 $ and $N_2$ each staked 50 SSC and reserved 20% = 10 SSC each for storage fees. Initially $\text{shares\_per\_ssc} = 1$, so $O$ gets 80 shares, and $N_1$ and $N_2$ each get 40 shares and $
 \text{total\_shares}=80+40+40=160$ in the stake and the same shares in the storage fee reserve. 
@@ -367,6 +368,10 @@ Everyone shares proportional loss unless they wait for the fund to fill up. $N_2
 
 </Collapsible>
 
+
+
+
+
 <Collapsible title="Fund reserved amount">
 
 
@@ -397,6 +402,9 @@ For full bundles, that is up to 300k SSC for a week and ~50kSSC for a day (which
 We can define MinOperatorStake as a necessary condition to operate on the domain, but it does not have to be sufficient to pay for all blockspace on the max estimates. Let’s say we allow operators who can afford 1% of that reserve estimate.
 
 </Collapsible>
+
+
+
 
 
 <Collapsible title="Notes">

@@ -1,13 +1,13 @@
 ---
 title: Dynamic Issuance
-sidebar_position: 3
+sidebar_position: 2
 description: Dynamic Issuance Formulas
 keywords:
     - fees
     - rewards
     - WIP
 last_update:
-  date: 04/16/2024
+  date: 04/17/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -18,35 +18,33 @@ As opposed to having a fixed issuance rate, the Subspace Network implements a dy
 TLDR: The farmer who proposed a block gets some fresh SSC + fees, and voters get some fresh SSC regardless of what the proposer got.
 
 
-[Dynamic Issuance Specification](https://www.notion.so/Dynamic-Issuance-Specification-3bdf63955cb943489347889775d71c24?pvs=21)
 
+## Space Race
 
-# Space Race
+The rewards issuance is not enabled by default at the chain genesis. After the genesis block, several things need to happen before authoring blocks by anyone, and rewards can be enabled (See [genesis](https://subnomicon.subspace.network/docs/consensus/genesis) algorithm). Then:
 
-The rewards issuance is not enabled by default at the chain genesis. After the genesis block, several things need to happen before authoring blocks by anyone, and  [rewards can be enabled](https://subnomicon.subspace.network/docs/consensus/genesis). Then:
-
-1. Define a target space pledged to the network at which the rewards will be enabled (i.e., 8PiB for Gemini-3h). In the runtime, it is defined in terms of the target value of the solution range [`solution_range_for_rewards`](https://github.com/subspace/protocol-specs/issues/13).
+1. Define a target space pledged to the network at which the rewards will be enabled (i.e., 8PiB for Gemini-3h). In the runtime, it is defined in terms of the target value of the solution range [`solution_range_for_rewards - TODO`](https://github.com/subspace/protocol-specs/issues/13).
 2. Identify an assumed current space pledged `initial_solution_range`.
 3. Enable solution range adjustment starting at `initial_solution_range` at the next era 
 4. Set in the runtime the `solution_range_for_rewards` below which to automatically enable rewards.
 5. Enable block authoring by anyone.
-6. Farmers will start producing blocks and the solution range will be updated every era as defined in [Solution Range Updates](https://www.notion.so/Solution-Range-Updates-a7205a46a20c42e5838d0bc332c51bed?pvs=21) 
+6. Farmers will start producing blocks and the solution range will be updated every era as defined in [Solution Range Updates](docs/consensus/proof_of_archival_storage.md#solution-range-updates) 
 7. Eventually, as farmers pledge more space, the network’s solution range will reach a value ≤ `solution_range_for_rewards` at a certain block $B$.
 8. The `RewardsEnabled` runtime item is set to `true`. The rewards will start to be paid to voters and proposer of the very next block.
 
 
 
-# Issuance Function
+## Issuance Function
 
 The issuance function currently consists of two components: a decaying component and a utilization-based component. The decaying component issues a constant reward for some initial interval and gradually reduces it over time. The utilization-based component issues a reward based on the average utilization of blockspace in recent blocks.
 Such construction allows for more decaying components to be included for additional incentivization.
 
-**Full  Block**
+### Full  Block
 
 `MAX_NORMAL_BLOCK_LENGTH` is the byte size limit of a full block set to consensus and equal to `0.75*MAX_BLOCK_LENGTH` (currently 3.75 MiB for) normal txs (different from operational (e.g., votes, equivocation) and mandatory (e.g., new archived segments))
 
 
-**Utilized Block Resources**
+### Utilized Block Resources
 
 `AvgBlockspaceUsage` (in bytes) 
 
@@ -65,7 +63,7 @@ Store new value
 `multiplier * used_blockspace + (1-multiplier) * AvgBlockspaceUsage`
 
 
-**Issuance Components**
+### Issuance Components
 
 We define a base block issuance as the number of tokens issued per block in a static case: a fixed reward to block proposer and `EXPECTED_VOTES_PER_BLOCK` voters.
 
@@ -77,9 +75,9 @@ We define a reward split rule where the block proposer and voters are entitled t
 - `voters_share`, currently `=EXPECTED_VOTES_PER_BLOCK` (for gemini-3h)
 - `total_shares = proposer_share + voters_share`
 
-The total actual reward issued includes a sum of several independent issuance components, each characterized by different values of common parameters based on the value of `BASE_REWARD` computed off-chain beforehand as described in [Off-chain Issuance curve parameters setting](https://www.notion.so/Off-chain-Issuance-curve-parameters-setting-1e532d57bcff4475933c395919505c85?pvs=21).  
+The total actual reward issued includes a sum of several independent issuance components, each characterized by different values of common parameters based on the value of `BASE_REWARD` computed off-chain beforehand as described in [Off-chain Issuance curve parameters setting](docs/fees_and_rewards/Dynamic_Issuance#off-chain-issuance-curve-parameters-setting).  
 
-$B$ is the block starting from which the rewards component is activated. It can be set manually by an extrinsic initializing the component or automatically if rewards are subject to [Space Race](https://www.notion.so/Space-Race-9ea6d89b884c422a98fcbe3562a63e36?pvs=21) and stored in `RewardsEnabled` runtime item.
+$B$ is the block starting from which the rewards component is activated. It can be set manually by an extrinsic initializing the component or automatically if rewards are subject to [Space Race](docs/fees_and_rewards/Dynamic_Issuance#space-race) and stored in `RewardsEnabled` runtime item.
 
 Defining a component requires setting the following parameters:
 
@@ -91,7 +89,7 @@ Block numbers have to be strictly increasing, and reward values have to be stric
 
 The length of this list is the number of decay phases, usually 4-6. 
 
-All block numbers will be offset by $B$ at the time the component is initialized or as soon as $B$ is known if rewards are subject to [Space Race](https://www.notion.so/Space-Race-9ea6d89b884c422a98fcbe3562a63e36?pvs=21).
+All block numbers will be offset by $B$ at the time the component is initialized or as soon as $B$ is known if rewards are subject to [Space Race](docs/fees_and_rewards/Dynamic_Issuance#space-race).
 
 We currently define two such components: block proposer reference subsidy and voter reward. If desired, we may introduce other components (i.e., one to incentivize operators for an initial period of low domain activity).
 
@@ -101,7 +99,7 @@ We currently define two such components: block proposer reference subsidy and vo
 
 `[(0, 100000000000000000), (201600, 99989921015995728), (79041600, 92408728791312960), (779041600, 45885578019877912), (2443104160, 8687806947398648)]`
 
-The first value of `subsidy` here is equal to `proposer_share/total_shares*BASE_REWARD`, and the rest follow exponential decay, computed off-chain as described in [Off-chain Issuance curve parameters setting](https://www.notion.so/Off-chain-Issuance-curve-parameters-setting-1e532d57bcff4475933c395919505c85?pvs=21). The points describe the following phases:
+The first value of `subsidy` here is equal to `proposer_share/total_shares*BASE_REWARD`, and the rest follow exponential decay, computed off-chain as described in [Off-chain Issuance curve parameters setting](docs/fees_and_rewards/Dynamic_Issuance#off-chain-issuance-curve-parameters-setting). The points describe the following phases:
 
 - decay phase 0:  `0` ≤ block height < `201600`, subsidy `100000000000000000 -> 99989921015995728`
 - decay phase 1: `201600` ≤ block height < `79041600`, subsidy `99989921015995728 -> 92408728791312960` decay phase 1
@@ -113,7 +111,7 @@ The first value of `subsidy` here is equal to `proposer_share/total_shares*BASE_
 
 `[(0, 100000000000000000), (201600, 99989921015995728), (79041600, 92408728791312960), (779041600, 45885578019877912), (2443104160, 8687806947398648)]`
 
-The first value `from_subsidy` is the initial subsidy equal to `voter_share/total_shares*BASE_REWARD`, and the rest follow exponential decay, computed off-chain as described in [Off-chain Issuance curve parameters setting](https://www.notion.so/Off-chain-Issuance-curve-parameters-setting-1e532d57bcff4475933c395919505c85?pvs=21) 
+The first value `from_subsidy` is the initial subsidy equal to `voter_share/total_shares*BASE_REWARD`, and the rest follow exponential decay, computed off-chain as described in [Off-chain Issuance curve parameters setting](docs/fees_and_rewards/Dynamic_Issuance#off-chain-issuance-curve-parameters-setting) 
 
 Based on those parameters, a function deterministically computes the amount of new SSC to be issued via a specific component
 
@@ -138,7 +136,7 @@ Once an issuance component has been initialized, the issued reward for each indi
     
 4. (Tail issuance, may or may not be 0) If none of the defined phases match, `block_height > points.last().block`, return `points.last().subsidy`
 
-**Total Issued Reward**
+### Total Issued Reward
 
 By total issued reward, we mean SSC newly issued by the protocol when a new block is proposed, separate from transaction fees paid with existing credits.
 The total reward is higher when blocks are underutilized and lower when blocks are fuller. 
@@ -155,7 +153,7 @@ Proposer gets a cut of voting rewards to incentivize them to include votes (whic
 The effective proposer reward is:
 `block_reward(block_height) + PROPOSER_TAX_ON_VOTES * num_votes * vote_reward(block_height)`
 
-**Block Reward**
+### Block Reward
 
 By block rewards we mean SSC newly issued by the protocol to the farmer who proposed the block (proposer). The farmer also gets all the fees for transactions in the block in addition to this reward. In fuller blocks, the sum of fees earned by the block proposer should be higher than their share of the block reward. This ensures farmers are incentivized to fill the blocks with tx rather than relying on newly issued credits.
 
@@ -191,8 +189,8 @@ $a+b\tanh(-c(\text{blockspace\_utilization}-d))$
 where 
 
 - $a =S_r - b*\tanh(c*d)$  the offset parameter (sets the amount of reward issued at 0 utilization to $S_r$).
-- $~~S_r~~$ is `reference_subsidy = reference_subsidy_for_block(ProposerSubsidyParams, block_height)`, a maximum amount of SSC issued at 0 utilization.
-- $b$  $= \frac{S_r-\max(S_r-\bar{F},0)}{\text{const}\tanh(c*d)}=\frac{\min(S_r,\bar{F})}{\text{const}\tanh(c*d)}$ is a linear sensitivity parameter.
+- $S_r$ is `reference_subsidy = reference_subsidy_for_block(ProposerSubsidyParams, block_height)`, a maximum amount of SSC issued at 0 utilization.
+- $b= \frac{S_r-\max(S_r-\bar{F},0)}{\text{const}\tanh(c*d)}=\frac{\min(S_r,\bar{F})}{\text{const}\tanh(c*d)}$ is a linear sensitivity parameter.
 - $\bar F$ is `max_block_fee = MAX_NORMAL_BLOCK_LENGTH * transaction_byte_fee`, maximum possible amount of storage fees in this block.
 - (const) $c$ is hyperbolic sensitivity parameter (determines the shape of the reward function) (currently, 0.99)
 
@@ -213,11 +211,11 @@ $
 
 </Collapsible>
 
-**Voting Reward**
+### Voting Reward
 
 By vote rewards we mean SSC newly issued by the protocol to incentivize voting to each voter.
 
-Vote rewards have  *a probabilistic issuance rate* based on expected number of votes in the block. **Reward **numbers **defined in `VoterSubsidyParams` are issued **per vote** with all voters getting equal reward.
+Vote rewards have  *a probabilistic issuance rate* based on expected number of votes in the block. Reward numbers defined in `VoterSubsidyParams` are issued **per vote** with all voters getting equal reward.
 
 `vote_reward(block_height) → Balance`
 
@@ -225,7 +223,7 @@ Vote rewards have  *a probabilistic issuance rate* based on expected number of v
 
 90% of the `vote_reward` are accredited to the voter account and 10% to the proposer.
 
-# Off-chain Issuance curve parameters setting
+## Off-chain Issuance curve parameters setting
 
 For Gemini-3h the following initial parameters are used to set the issuance curves for both proposer and voter rewards (the are the same in gemini-3h, but generally don’t have to be):
 
