@@ -7,7 +7,7 @@ keywords:
     - rewards
     - WIP
 last_update:
-  date: 04/17/2024
+  date: 04/18/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -197,7 +197,10 @@ where
     <Collapsible title="Note">
         c is a parameter that controls how slow will rewards go down as utilization ratio goes up. This is useful for not letting the rewards go too down when utilization ratios are small. The higher the values for $c$, the slower the rewards will decay as the utilization ratio goes up. Values near zero imply in a straight line from rewards being reference_subsidy(utilization=0) until zero (utilization=1). Values around ~1.0 imply in a somewhat curved line from rewards being reference_subsidy(g=0) until zero (g=1). For instance, when g=0.5, the rewards would be around ~20% larger than compared with the first case. As values goes way above 1.0, then the result is to have a relatively constant reward for low values of utilization ratio, with a exponential decay afterwards. Generally speaking, Values between 0 and 1 imply that it is rational for farmers to try to maximize utilization ratio. For values above 1.0 that's not obvious, as the peak profit (rewards + fees) may be maximized on inflection point (generally between 60-80% of the utilization ratio)
     </Collapsible> 
-- $\text{blockspace\_utilization}$ = `AvgBlockspaceUsage/MAX_NORMAL_BLOCK_LENGTH`
+- blockspace_utilization = `AvgBlockspaceUsage/MAX_NORMAL_BLOCK_LENGTH`
+- (const) `d=1`, utilization rate at which reward issued is 0
+
+
 - (const) $d=1$, utilization rate at which reward issued is 0
 
 
