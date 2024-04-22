@@ -106,6 +106,16 @@ Justifications contain a set of all PoT checkpoints since the parent block up to
 4. DSN sync must be able to terminate early if local chain already contains imported blocks that DSN sync was about to download (doesn’t happen often, but possible)
 5. Node blocks that are finalized and pruned must be much higher than archiving point such that block available through DSN sync and regular Substrate sync have significant overall (5 archived segments worth of blocks right now)
 
+## Fast sync
+
+1. Obtain segment headers from DSN as described in steps 1 to 4 of [sync from DSN implementation](#Synchronization)
+2. Download and reconstruct all blocks from the last segment of archived history
+    * Note: In most cases it'll be necessary to download second last segment as well due to the first block being partially included in latest segment
+3. Download state that corresponds to the first block received in the previous step using Substrate State Sync
+4. Import the first block of the last segment with its state into the blockchain DB bypassing the blockchain checks of missing parent block, it is important for this to be an atomic operation
+5. Import and execute other remaining blocks from the last segment as they would normally
+6. Pass the control to [sync from DSN implementation](#Synchronization). It will either download the new archived segment if any or pass the control to [Substrate Sync](#substrate-sync).
+
 ## Substrate Sync
 
 *Default sync in Substrate*
