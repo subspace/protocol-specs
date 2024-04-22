@@ -111,9 +111,10 @@ Justifications contain a set of all PoT checkpoints since the parent block up to
 1. Obtain segment headers from DSN as described in steps 1 to 4 of [sync from DSN implementation](#Synchronization)
 2. Download and reconstruct all blocks from the last segment of archived history
     * Note: In most cases it'll be necessary to download second last segment as well due to the first block being partially included in latest segment
-3. Import the last block from the second last segment into the blockchain DB bypassing the blockchain checks of missing parent block. Import the state using [Substrate Sync](#substrate-sync) for the newly imported block. Note: block and its state should be imported as atomic operation.
-4. Import and execute all blocks from the last segment in regular mode.
-5. Pass the control to [sync from DSN implementation](#Synchronization). It will either download the new archived segment if any or pass the control to [Substrate Sync](#substrate-sync).
+3. Download state that corresponds to the first block received in the previous step using Substrate State Sync
+4. Import the first block of the last segment with its state into the blockchain DB bypassing the blockchain checks of missing parent block, it is important for this to be an atomic operation
+5. Import and execute other remaining blocks from the last segment as they would normally
+6. Pass the control to [sync from DSN implementation](#Synchronization). It will either download the new archived segment if any or pass the control to [Substrate Sync](#substrate-sync).
 
 ## Substrate Sync
 
