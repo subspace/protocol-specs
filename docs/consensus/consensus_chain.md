@@ -108,7 +108,7 @@ Justifications contain a set of all PoT checkpoints since the parent block up to
 
 ## Fast sync
 
-1. Obtain segment headers from DSN: 1-4 from [sync from DSN implementation](#Synchronization)
+1. Obtain segment headers from DSN as described in steps 1 to 4 of [sync from DSN implementation](#Synchronization)
 2. Download and reconstruct all blocks from the last segment of archived history
     * Note: In most cases it'll be necessary to download second last segment as well due to the first block being partially included in latest segment
 3. Import the last block from the second last segment into the blockchain DB bypassing the blockchain checks of missing parent block. Import the state using [Substrate Sync](#substrate-sync) for the newly imported block. Note: block and its state should be imported as atomic operation.
