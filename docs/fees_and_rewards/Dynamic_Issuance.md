@@ -7,7 +7,7 @@ keywords:
     - rewards
     - WIP
 last_update:
-  date: 04/18/2024
+  date: 04/23/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -75,9 +75,9 @@ We define a reward split rule where the block proposer and voters are entitled t
 - `voters_share`, currently `=EXPECTED_VOTES_PER_BLOCK` (for gemini-3h)
 - `total_shares = proposer_share + voters_share`
 
-The total actual reward issued includes a sum of several independent issuance components, each characterized by different values of common parameters based on the value of `BASE_REWARD` computed off-chain beforehand as described in [Off-chain Issuance curve parameters setting](docs/fees_and_rewards/Dynamic_Issuance#off-chain-issuance-curve-parameters-setting).  
+The total actual reward issued includes a sum of several independent issuance components, each characterized by different values of common parameters based on the value of `BASE_REWARD` computed off-chain beforehand as described in [Off-chain Issuance curve parameters setting](#off-chain-issuance-curve-parameters-setting).
 
-$B$ is the block starting from which the rewards component is activated. It can be set manually by an extrinsic initializing the component or automatically if rewards are subject to [Space Race](docs/fees_and_rewards/Dynamic_Issuance#space-race) and stored in `RewardsEnabled` runtime item.
+$B$ is the block starting from which the rewards component is activated. It can be set manually by an extrinsic initializing the component or automatically if rewards are subject to [Space Race](#space-race).
 
 Defining a component requires setting the following parameters:
 
@@ -89,7 +89,7 @@ Block numbers have to be strictly increasing, and reward values have to be stric
 
 The length of this list is the number of decay phases, usually 4-6. 
 
-All block numbers will be offset by $B$ at the time the component is initialized or as soon as $B$ is known if rewards are subject to [Space Race](docs/fees_and_rewards/Dynamic_Issuance#space-race).
+If a component is initialized before the rewards are activated via [Space Race](#space-race) (i.e. at genesis), all block heights in the reward points will be offset by the block number $B$ at which rewards get activated as soon as Space Race completes. Else, if a new component is defined over pre-existing rewards, the block heights in the reward points list are offset by the block number at which the component initialization network upgrade goes through.
 
 We currently define two such components: block proposer reference subsidy and voter reward. If desired, we may introduce other components (i.e., one to incentivize operators for an initial period of low domain activity).
 
@@ -99,7 +99,7 @@ We currently define two such components: block proposer reference subsidy and vo
 
 `[(0, 100000000000000000), (201600, 99989921015995728), (79041600, 92408728791312960), (779041600, 45885578019877912), (2443104160, 8687806947398648)]`
 
-The first value of `subsidy` here is equal to `proposer_share/total_shares*BASE_REWARD`, and the rest follow exponential decay, computed off-chain as described in [Off-chain Issuance curve parameters setting](docs/fees_and_rewards/Dynamic_Issuance#off-chain-issuance-curve-parameters-setting). The points describe the following phases:
+The first value of `subsidy` here is equal to `proposer_share/total_shares*BASE_REWARD`, and the rest follow exponential decay, computed off-chain as described in [Off-chain Issuance curve parameters setting](#off-chain-issuance-curve-parameters-setting). The points describe the following phases:
 
 - decay phase 0:  `0` ≤ block height < `201600`, subsidy `100000000000000000 -> 99989921015995728`
 - decay phase 1: `201600` ≤ block height < `79041600`, subsidy `99989921015995728 -> 92408728791312960` decay phase 1
@@ -111,7 +111,7 @@ The first value of `subsidy` here is equal to `proposer_share/total_shares*BASE_
 
 `[(0, 100000000000000000), (201600, 99989921015995728), (79041600, 92408728791312960), (779041600, 45885578019877912), (2443104160, 8687806947398648)]`
 
-The first value `from_subsidy` is the initial subsidy equal to `voter_share/total_shares*BASE_REWARD`, and the rest follow exponential decay, computed off-chain as described in [Off-chain Issuance curve parameters setting](docs/fees_and_rewards/Dynamic_Issuance#off-chain-issuance-curve-parameters-setting) 
+The first value `from_subsidy` is the initial subsidy equal to `voter_share/total_shares*BASE_REWARD`, and the rest follow exponential decay, computed off-chain as described in [Off-chain Issuance curve parameters setting](#off-chain-issuance-curve-parameters-setting) 
 
 Based on those parameters, a function deterministically computes the amount of new SSC to be issued via a specific component
 
