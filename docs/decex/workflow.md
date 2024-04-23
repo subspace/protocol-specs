@@ -7,7 +7,7 @@ keywords:
     - decex
     - instantiation
 last_update:
-  date: 03/12/2024
+  date: 04/23/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -112,7 +112,7 @@ If, for this time slot, this operator was successfully elected a slot leader, th
     2. If there's a non-empty domain block in the challenge period, the operator will continue the following step to produce an empty bundle to derive the non-empty domain block out of the challenge period (accelerate confirmation time)
 5. Compute the `bundle_extrinsics_root` and attach to the header.
 6. Compute the `bundle_size` and `estimated_bundle_weight`.
-7. Note the storage fees to be paid to the consensus block author as per [Bundle Storage Fees](https://www.notion.so/Bundle-Storage-Fees-3fa20d8079aa4b38a7f997f244003a71?pvs=21) 
+7. Note the storage fees to be paid to the consensus block author as per [Bundle Storage Fees](/docs/fees_and_rewards/Fees_and_Rewards.md#bundle-storage-fees) 
 8. Sign the bundle header.
 9. Build the bundle header as [described](bundles_blocks.md#bundle-header).
 10. Broadcast the full bundle over the consensus network.
