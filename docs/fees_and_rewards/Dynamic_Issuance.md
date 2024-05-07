@@ -7,7 +7,7 @@ keywords:
     - rewards
     - WIP
 last_update:
-  date: 04/23/2024
+  date: 05/07/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -23,7 +23,7 @@ TLDR: The farmer who proposed a block gets some fresh SSC + fees, and voters get
 
 The rewards issuance is not enabled by default at the chain genesis. After the genesis block, several things need to happen before authoring blocks by anyone, and rewards can be enabled (See [genesis](https://subnomicon.subspace.network/docs/consensus/genesis) algorithm). Then:
 
-1. Define a target space pledged to the network at which the rewards will be enabled (i.e., 8PiB for Gemini-3h). In the runtime, it is defined in terms of the target value of the solution range [`solution_range_for_rewards - TODO`](https://github.com/subspace/protocol-specs/issues/13).
+1. Define a target space pledged to the network at which the rewards will be enabled (i.e., 8PiB for Gemini-3h). In the runtime, it is defined in terms of the target value of the solution range [`solution_range_for_rewards`](docs/consensus/proof_of_archival_storage.md#conversion-rate-between-solution-range-and-space-pledged).
 2. Identify an assumed current space pledged `initial_solution_range`.
 3. Enable solution range adjustment starting at `initial_solution_range` at the next era 
 4. Set in the runtime the `solution_range_for_rewards` below which to automatically enable rewards.
