@@ -7,7 +7,7 @@ keywords:
     - rewards
     - WIP
 last_update:
-  date: 04/17/2024
+  date: 05/07/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -99,7 +99,7 @@ As opposed to having a fixed issuance rate, the Subspace Network implements a dy
 TLDR: The farmer who proposed a block gets some fresh SSC + fees, and voters get some fresh SSC regardless of what the proposer got.
 
 
-[Dynamic Issuance Specification](../../docs/fees_and_rewards/Dynamic_Issuance)
+[Dynamic Issuance Specification](docs/fees_and_rewards/Dynamic_Issuance.md)
 
 
 ## Consensus Extrinsic Fees
@@ -199,14 +199,14 @@ The user is charged when the domain block that includes the bundle is executed.
 
 **How**
 
-The `ER::block_fees` field stores the fees split by storage and compute fees (similar to how the consensus chain stores block fees). The fraud proof for this field  ([**Invalid Block Fees** ](../../docs/decex/fraud_proofs#invalid-block-fees)) handles both parts. The [**Inherent Extrinsic**](../../docs/decex/fraud_proofs#inherent-extrinsic) fraud proof variant handles the invalid inherent proof for `transaction_byte_fee`.
+The `ER::block_fees` field stores the fees split by storage and compute fees (similar to how the consensus chain stores block fees). The fraud proof for this field  ([**Invalid Block Fees** ](docs/decex/fraud_proofs.md#invalid-block-fees)) handles both parts. The [**Inherent Extrinsic**](docs/decex/fraud_proofs.md#inherent-extrinsic) fraud proof variant handles the invalid inherent proof for `transaction_byte_fee`.
 
 When registering onto a domain, a percentage $s$ (currently 20%) of the operator’s stake is transferred to a “storage fee fund”. A `storage_fund_account` is a separate account from stake, derived uniquely from operator public key. The storage fee for a bundle $B$ will be paid from this account. 
 We can estimate the minimum operator stake required to be able to produce bundles for a challenge period.
 
 Any subsequent operator&nominator stake deposits will automatically allocate the same percentage $s$ to the `storage_fund_account`. Unlike staking deposits that are locked in the nominator account in `pallet_balances`, a % required for storage fees is transferred to `storage_fund_account` sub-account for this operator.
 
-Every nomination deposit gives the same  $s$ %  to storage fees reserve like the operator deposit. Storage fees are shared with nominators according to their shares in the pool for withdrawals, however, the amount of `storage_fund_account` and current epoch storage fees do not influence the share value (to sustain our current [assumption](https://www.notion.so/3fb0ec6e4d204c4881a7df50ef58da8f?pvs=21) of increasing share value).
+Every nomination deposit gives the same  $s$ %  to storage fees reserve like the operator deposit. Storage fees are shared with nominators according to their shares in the pool for withdrawals, however, the amount of `storage_fund_account` and current epoch storage fees do not influence the share value.
 Withdrawal amounts are converted to shares according to end of epoch share value and the same amount of shares is withdrawn from `storage_fund_account`. See [example](#deposit--withdraw-example).
 
 If the `storage_fund_account` does not have enough funds to pay the consensus chain for blockspace, the operator cannot submit a new bundle (or only include as many tx as they can pay for). They can either top it up via a deposit or wait until some of the rewards clear the challenge period (both take effect at the end of epoch).

@@ -9,8 +9,8 @@ keywords:
     - transaction
     - synchronization
 last_update:
-  date: 02/14/2024
-  author: Dariia Porechna
+  date: 05/07/2024
+  author: Saeid Yazdinejad
 ---
 
 Unless specified otherwise below, consensus chain primitives are inherited from Substrate.
@@ -125,3 +125,31 @@ Justifications contain a set of all PoT checkpoints since the parent block up to
 3. Import and verify blocks. Ban bad peers.
 4. When you are close to tip (~18 blocks) switch to keep-up sync
 5. When get to tip start participate in consensus
+
+## Block Reward Address
+In a basic blockchain farming setup, a farmer’s identity would be used for plot creation, block signing, and receiving block rewards, posing risks like plot invalidation on testnet when used across multiple nodes and incompatibility with cold wallets. To address these,  the farmer's identity is decoupled from the reward address by introducing a `--reward-address` argument in the farmer app, allowing the specification of a separate address for block rewards. This additional `reward_address` block header field, enhances security, supports multi-replica farming, and aligns farming operations with practices in PoW mining where reward addresses are independent of operational identities.
+
+```rust
+pub struct Solution<PublicKey, RewardAddress> {
+    /// Public key of the farmer that created the solution
+    pub public_key: PublicKey,
+    /// Address for receiving block reward
+    pub reward_address: RewardAddress,
+    /// Index of the sector where solution was found
+    pub sector_index: SectorIndex,
+    /// Size of the blockchain history at time of sector creation
+    pub history_size: HistorySize,
+    /// Pieces offset within sector
+    pub piece_offset: PieceOffset,
+    /// Record commitment that can use used to verify that piece was included in blockchain history
+    pub record_commitment: RecordCommitment,
+    /// Witness for above record commitment
+    pub record_witness: RecordWitness,
+    /// Chunk at above offset
+    pub chunk: Scalar,
+    /// Witness for above chunk
+    pub chunk_witness: ChunkWitness,
+    /// Proof of space for piece offset
+    pub proof_of_space: PosProof,
+}
+```

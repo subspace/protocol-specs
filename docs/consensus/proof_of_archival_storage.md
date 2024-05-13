@@ -8,7 +8,7 @@ keywords:
     - plotting
     - auditing
 last_update:
-  date: 03/12/2024
+  date: 05/07/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -133,7 +133,7 @@ This extra data is added to the end of the [SCALE-encoded](https://docs.substrat
 
 1. Given the total allocated disk space, reserve some space ($<2\%$) for commitments and other auxiliary information. 
 2. Create a single plot of `plot_size = allocated_plotting_space`. Sizes of farmer plots are independent from size of blockchain history, but must be a multiple of `sector_size`.
-3. Generate a farmer identity, that is a key pair `public_key, secret_key` under the digital signature scheme. These signing keys are independent from reward address of an entity (exactly as payout address in Bitcoin mining) described in [Block reward address](https://www.notion.so/Block-reward-address-5cd4467a70974f94b7d4dcdb44c6e068?pvs=21).
+3. Generate a farmer identity, that is a key pair `public_key, secret_key` under the digital signature scheme. These signing keys are independent from reward address of an entity (exactly as payout address in Bitcoin mining) described in [Block reward address](docs/consensus/consensus_chain.md#block-reward-address).
 4. Derive an identifier `public_key_hash` as `hash(public_key)`. This farmer id will also serve as the basis for their single global network peer id in the DHT.
 5. Determine the `sector_count = plot_size / sector_size`. 
 6. **Verifiable Sector Construction (VSC)**:
@@ -379,3 +379,20 @@ Global `solution_range` is adjusted every era accordingly to actual and expected
 2. At the start of a new era, compute and store new `solution_range` 
 
 $\text{next\_solution\_range} = \max\left(\min\left(\frac{\text{era\_slot\_count}}{\text{ERA\_DURATION\_IN\_BLOCKS}}*\text{SLOT\_PROBABILITY}, 4\right), 1/4\right)*\text{solution\_range}$. 
+
+### Conversion Rate Between Solution Range and Space Pledged
+
+The relationship between the solution range and the amount of space pledged is dynamically calculated using the function `solution_range_to_sectors`. This function computes the number of sectors corresponding to a given solution range by adjusting for slot probability and the configuration of data within sectors. Specifically, the maximum possible solution range (`SolutionRange::MAX`) is first reduced according to the slot probability, which reflects the desired frequency of successful block production. This is further adjusted by the distribution of data, particularly the ratio of the number of chunks per s-bucket in each sector (`MAX_PIECES_IN_SECTOR * Record::NUM_CHUNKS / Record::NUM_S_BUCKETS`), to account for the probability of an occupied s-bucket being successfully audited in the verification process. The resulting figure is then divided by the current solution range to determine the total number of sectors that this solution range can effectively cover.
+
+```rust
+const fn solution_range_to_sectors(solution_range: SolutionRange) -> u64 {
+    let sectors = SolutionRange::MAX
+        // Account for slot probability
+        / SLOT_PROBABILITY.1 * SLOT_PROBABILITY.0
+        // Now take sector size and probability of hitting occupied s-bucket in sector into account
+        / (MAX_PIECES_IN_SECTOR as u64 * Record::NUM_CHUNKS as u64 / Record::NUM_S_BUCKETS as u64);
+
+    // Take solution range into account
+    sectors / solution_range
+}
+```
