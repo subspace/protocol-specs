@@ -8,13 +8,14 @@ keywords:
     - fraud proof
     - challenge period
 last_update:
-  date: 03/15/2024
-  author: Ning Lin
+  date: 05/13/2024
+  author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
 
-Every domain operator executes the domain block ([as described](workflow.md#domain-block-execution-on-the-operator-node)), derived deterministically from the consensus block, and submits this computational result to the consensus chain as an execution receipt within the next bundle this operator produces, thereby committing to the execution result. By default, the computation result is optimistically assumed correct until challenged by a fraud proof during the challenge period of `BlockTreePruningDepth` blocks. All domain nodes scrutinize the submitted execution results, and upon detecting any discrepancies, they challenge the execution by submitting a fraud proof to the consensus chain as an unsigned extrinsic. This fraud proof includes or calls from a host function all necessary data and the state of the domain required for the verification process, which can be executed by a node on the consensus chain (has access to the consensus state but not the domain). If the node who detected fraud is also a registered operator of this domain, they can submit a new execution receipt to the consensus chain with their next bundle, which will override the fraudulent one in the [block tree](interfaces.md#block_tree) once the fraud proof is accepted by the consensus chain.
+Every domain operator executes the domain block ([as described](workflow.md#domain-block-execution-on-the-operator-node)), derived deterministically from the consensus block, and submits this computational result to the consensus chain as an execution receipt within the next bundle this operator produces, thereby committing to the execution result. By default, the computation result is optimistically assumed correct until challenged by a fraud proof during the challenge period of `BlockTreePruningDepth` blocks. All domain nodes scrutinize the submitted execution results, and upon detecting any discrepancies, they challenge the execution by submitting a fraud proof to the consensus chain as an unsigned extrinsic. 
+A fraud proof either explicitly includes all necessary data and the state of the domain required for the verification process or points to a storage key for this data. This way, a fraud can be executed by a node on the consensus chain, which has access to the recent consensus state and the MMR for historical state, but not the domain state. If the node who detected fraud is also a registered operator of this domain, they can submit a new execution receipt to the consensus chain with their next bundle, which will override the fraudulent one in the [block tree](interfaces.md#block_tree) once the fraud proof is accepted by the consensus chain.
 
 Any domain node (a node that has an up-to-date state of domain A) can submit fraud proofs for domain A. Whether the node is acting honestly or not in this particular instance is determined by the validity of the fraud proof. The node does not have to stake or run operator (produce bundles) to report fraud.
 
@@ -22,7 +23,17 @@ Fraud proofs are verified on the client side, first in the transaction pool and 
 
 Broadly, fraud proofs can be categorized into those caused by invalid execution receipt fields and those caused by invalid state transitions.
 
-We currently handle the following types of fraud proofs:
+## Structure
+
+A fraud proof contains the following fields:
+
+- `domain_id`: domain identifier of the domain this fraud proof targets
+- `bad_receipt_hash`: hash of the claimed invalid execution receipt
+- `maybe_mmr_proof`: MMR proof for the consensus state root that used to verify the storage proof. Only the  Invalid Extrinsics Root, Incorrect List of Inboxed Bundles fraud proofs are using the MMR proof during verification, for other fraud proofs it is set to `None`. 
+- `maybe_domain_runtime_code_proof`: domain runtime code storage proof and MMR proof for the parent block. May be set to `None` if the specific fraud proof variant doesn't require domain runtime code for verification or the required domain runtime code is available from the current runtime state. This field is usually required if the domain runtime code was upgraded during the challenge period.
+- `proof`: storage proof for specific variant of the fraud proof.
+
+We currently handle the following variants of fraud proofs:
 
 - [Bundle Equivocation](#bundle-equivocation)
 
@@ -100,31 +111,23 @@ A class of fraudulent behaviors to be caught by honest operators within bundles 
 
 A dishonest operator may include incorrect info on fees extracted from the executed block, causing an incorrect `ER::block_fees` field.
 
-<Collapsible title="Note">
-    Initially, a naive approach was to include an additional trace in the receipt that tracks the reward differences in each transaction, similar to the execution trace for the state difference. However, it was discovered that the multiple traces shares one pattern: every state transition, such as InitializeBlock, ApplyExtinsic, and FinalizeBlock, essentially follows a process of taking the input and pre_state and producing an output \{ input, pre_state ⇒ output }\. 
-    
-    Moreover, the state itself can undergo changes during this process. The post_state_root, in essence, represents the most condensed expression of the output, and we can extend it to encompass reward changes as well since they are part of the output.
-
-    A proposed solution is to enhance the current trace from a list of intermediate state roots to a more comprehensive list of intermediate outputs that include reward information after each transaction. By incorporating reward information into the trace, we can detect the correctness of rewards after each transaction and generate a fraud proof if any discrepancies arise.
-
-    - Before: the trace is a list of post_state_root
-    - Proposition: the trace is a list of TraceDetails \{ post_state_root, rewards_info }\.
-</Collapsible>
-
-
 Detect if the external ER has a different `block_fees` field, if so the operator will need to construct a fraud proof that includes the correct `block_fees` field and data that prove the integrity of this correct `block_fees`.
 
 **Prover provides:**
 
 - `domain_id`: the id of the domain this fraud proof targeted
-- `bad_receipt_hash`*:* the targeted invalid ER
-- `storage_proof`: the storage proof of the `pallet_operator_rewards::BlockRewards` storage item from the domain chain that attests correct `block_fees`
+- `bad_receipt_hash`: the targeted invalid ER
+- `maybe_domain_runtime_code_proof`: for the runtime code if it is not still present in the state.
+- `storage_proof`: the storage proof of the `BlockFees` storage item from the domain chain that attests correct `block_fees` value.
 
 **Verifier checks:**
 
 1. Verify `bad_receipt_hash` exists
-2. Verify the `bad_receipt_hash.final_state_root` corresponds to the value included with the consensus chain state root
-3. Verify that storage proofs included a value for `block_fees != bad_receipt_hash::block_fees`
+2. Verify the `bad_receipt_hash.final_state_root` corresponds to the value included with the consensus chain state root.
+3. Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the `maybe_domain_runtime_code_proof` storage proof with MMR proof.
+4. Get the storage key for `BlockFees` from the runtime code and decode the value from the `storage_proof`.
+5. Verify that storage proofs included a value for `block_fees != bad_receipt_hash::block_fees.
+6. If both are same ⇒ Ignore the fraud proof.
 
 ## Invalid Transfers
 
@@ -135,14 +138,18 @@ Detect if the external ER has a different `transfers` field, if so the operato
 **Prover provides:**
 
 - `domain_id`: the id of the domain this fraud proof targeted
-- `bad_receipt_hash`*:* the targeted invalid ER
-- `storage_proof`: the storage proof of the `Transfers` storage item from the domain chain that attests correct `transfers`
+- `bad_receipt_hash`: the targeted invalid ER
+- `maybe_domain_runtime_code_proof`: for the runtime code if it is not still present in the state.
+- `storage_proof`: the storage proof of the `Transfers` storage item from the domain chain that attests correct `transfers` value.
 
 **Verifier checks:**
 
-1. Verify `bad_receipt_hash` exists
-2. Verify the `bad_receipt_hash.final_state_root` corresponds to the value included with the consensus chain state root
-3. Verify that storage proofs included a value for `transfers.transfers_in != bad_receipt_hash::transfers.transfers_in` or `transfers.transfers_out != bad_receipt_hash::transfers.transfers_out`
+1. Verify `bad_receipt_hash` exists.
+2. Verify the `bad_receipt_hash.final_state_root` corresponds to the value included with the consensus chain state root.
+3. Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the `maybe_domain_runtime_code_proof` storage proof with MMR proof.
+4. Get the storage key for `Transfers` from the runtime code and decode the value from the `storage_proof`.
+5. Verify that storage proofs included a value for `transfers.transfers_in != bad_receipt_hash::transfers.transfers_in` or `transfers.transfers_out != bad_receipt_hash::transfers.transfers_out`.
+6. If both are same ⇒ Ignore the fraud proof.
 
 ## Invalid Extrinsics Root
 
@@ -157,17 +164,24 @@ Upon receiving the proof, the consensus node can rerun the shuffle algorithm to 
 
 - `domain_id`: ID of the domain this fraud proof targets.
 - `bad_receipt_hash`: the targeted invalid ER.
-- `valid_bundle_digests`: list of lists of extrinsics `(index, (signer,hash))` from all bundles
+- `mmr_proof`: MMR proof for the parent consensus block of the receipt.
+- `maybe_domain_runtime_code_proof`: for the runtime code if it is not still present in the state.
+- `valid_bundle_digests`: list of lists of extrinsics `(index, (signer,hash))` from all bundles.
+- `block_randomness_proof`: storage proof of the `BlockRandomness` storage item from the domain chain that attests correct `block_randomness` value.
+- `domain_inherent_extrinsic_data_proof`: storage proofs of the inherent extrinsics (timestamp, runtime upgrade, cost of storage, etc.) that were present in the block.
 
 **Verifier checks:**
 
 1. Verify a `bad_receipt` with `bad_receipt_hash` exists
-2. Obtain from the host function the `block_randomness` for `consensus_block_hash` in `bad_receipt`
-3. Obtain from the host function the timestamp extrinsic and runtime upgrade `set_code` extrinsic (if applicable). The inherents are not part of any bundle and are ingested directly into the domain block from the consensus chain.
-4. Check that `valid_bundle_digests` correspond to the bundle digests in the targeted ER
-5. Shuffle the extrinsics collected from `valid_bundle_digests`, timestamp and runtime upgrade extrinsics using `block_randomness` as a seed 
-6. Compare if the root of the resulting ordered tree is different from `bad_receipt.domain_block_extrinsics_root` ⇒ Accept the fraud proof and punish the producer of `bad_receipt`.
-7. If the root is same ⇒ Ignore the fraud proof.
+2. Verify `mmr_proof` and obtain the corresponding state root for the consensus block number in the receipt.
+3. Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the `maybe_domain_runtime_code_proof` storage proof with MMR proof.
+4. Verify `domain_inherent_extrinsic_data_proof` and `block_randomness_proof` storage proofs.
+5. Obtain from the `block_randomness_proof` storage proof the `block_randomness` for `consensus_block_hash` in `bad_receipt`.
+6. Obtain from the `domain_inherent_extrinsic_data_proof` storage proof any inherent extrinsics: timestamp, domain allowlist update (if applicable), consensus chain byte fee, runtime upgrade `set_code` (if applicable). The inherents are not part of any bundle and are ingested directly into the domain block from the consensus chain.
+7. Check that `valid_bundle_digests` correspond to the bundle digests in the targeted ER
+8. Shuffle the extrinsics collected from `valid_bundle_digests`, timestamp and runtime upgrade extrinsics using `block_randomness` as a seed 
+9. Compare if the root of the resulting ordered tree is different from `bad_receipt.domain_block_extrinsics_root` ⇒ Accept the fraud proof and punish the producer of `bad_receipt`.
+10. If the root is same ⇒ Ignore the fraud proof.
 
 ## Invalid Domain Block Hash
 
@@ -182,11 +196,12 @@ This fraud proof depends on [Invalid Extrinsics Root](#invalid-extrinsics-root) 
 **Verifier checks:**
 
 1. Verify the `bad_receipt` with `bad_receipt_hash` exists.
-2. Verify `bad_receipt.parent_domain_block_receipt_hash` corresponds to an existing `parent_receipt`
-3. Verify the `digest` storage proof with `ER::final_state_root`
-4. Construct the `derived_domain_block_hash` from `(bad_receipt.domain_block_number, bad_receipt.domain_block_extrinsic_root, bad_receipt.final_state_root, parent_receipt.domain_block_hash, digest)` by reconstructing a new header and hashing it.
-5. Verify that `derived_domain_block_hash != bad_receipt.domain_block_hash` ⇒ Accept the fraud proof and punish the producer of `bad_receipt`.
-6. If both `domain_block_hash` are same ⇒ Ignore the fraud proof.
+2. Verify that `maybe_domain_runtime_code_proof` is `None` as this fraud proof variant does not require domain runtime code.
+3. Verify `bad_receipt.parent_domain_block_receipt_hash` corresponds to an existing `parent_receipt`
+4. Verify the `digest` storage proof with `ER::final_state_root`
+5. Construct the `derived_domain_block_hash` from `(bad_receipt.domain_block_number, bad_receipt.domain_block_extrinsic_root, bad_receipt.final_state_root, parent_receipt.domain_block_hash, digest)` by reconstructing a new header and hashing it.
+6. Verify that `derived_domain_block_hash != bad_receipt.domain_block_hash` ⇒ Accept the fraud proof and punish the producer of `bad_receipt`.
+7. If both `domain_block_hash` are same ⇒ Ignore the fraud proof.
 
 ## Incorrect List of Inboxed Bundles
 
@@ -211,15 +226,20 @@ There are several variants of why `inboxed_bundles` in the receipt can be wrong:
 
 - `domain_id`: ID of the domain this fraud proof targets.
 - `bad_receipt_hash`: the targeted invalid ER.
-- `bundle_index`: index of mismatched bundle
+- `mmr_proof`: MMR proof for the parent consensus block of the receipt.
+- `maybe_domain_runtime_code_proof`: for the runtime code if it is not still present in the state.
+- `bundle_with_proof`: including `bundle_index` index of mismatched bundle; `bundle` bundle body; and `bundle_storage_proof` storage proof.
 
 **Verifier checks:**
 
 1. Verify the `bad_receipt` with `bad_receipt_hash` exists.
-2. Obtain from the host function the `bundle_body`  of the bundle in question.
-3. Compute `valid_bundle_digest` of the `bundle_body`.
-4. Compare that the digest is different from the one in `bad_receipt` ⇒ Accept the fraud proof and punish the producer of `bad_receipt`.
-5. If the digest is same ⇒ Ignore the fraud proof.
+2. Verify `mmr_proof` and obtain the corresponding state root for the consensus block number in the receipt.
+3. Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the `maybe_domain_runtime_code_proof` storage proof with MMR proof.
+4. Verify the `bundle_storage_proof`.
+5. Obtain from `bundle_with_proof` the `bundle` body of the bundle in question.
+6. Compute `valid_bundle_digest` from extrinsics in the `bundle` using domain runtime code.
+7. Compare that the digest is different from the one in `bad_receipt`at the given `bundle_index` ⇒ Accept the fraud proof and punish the producer of `bad_receipt`.
+8. If the digest is same ⇒ Ignore the fraud proof.
 
 ### True/False Invalid Bundle
 
@@ -227,24 +247,27 @@ There are several variants of why `inboxed_bundles` in the receipt can be wrong:
 
 - `domain_id`: ID of the domain this fraud proof targets.
 - `bad_receipt_hash`: the targeted invalid ER.
+- `mmr_proof`: MMR proof for the parent consensus block of the receipt.
+- `maybe_domain_runtime_code_proof`: for the runtime code if it is not still present in the state.
 - `bundle_index`: index of mismatched bundle
 - `invalid_bundle_type(extrinsic_index)`: the `InvalidBundleType` with the mismatched extrinsic
-- `extrinsic_inclusion_proof`: proof-of-inclusion of the extrinsic in the `invalid_bundle_type`
 - `is_true_invalid_fraud_proof`: whether the variant of this proof is `TrueInvalid`(`true`) or `FalseInvalid`(`false`)
+- `proof_data`: specific data for the fraud proof variant.
 
 **Verifier checks:**
 
 1. Verify the `bad_receipt` with `bad_receipt_hash` exists.
-2. Determine the fraud proof variant. If `is_true_invalid_fraud_proof==true` then it’s `TrueInvalid`, else `FalseInvalid`.
-3. Determine which scenario the fraud proof corresponds to (if any) based on its structure:
+2. Verify `mmr_proof` and obtain the corresponding state root for the consensus block number in the receipt.
+3. Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the `maybe_domain_runtime_code_proof` storage proof with MMR proof.
+4. Determine the fraud proof variant. If `is_true_invalid_fraud_proof==true` then it’s `TrueInvalid`, else `FalseInvalid`.
+5. Determine which scenario the fraud proof corresponds to (if any) based on its structure:
     1. For `FalseInvalid`, the `invalid_bundle_type` in the fraud proof and `bad_receipt` should be same for `bundle_index` (because the fraud proof will try to show it is wrong).
     2. For `TrueInvalid`, either:
         1. The proof trying to prove the bundle at `bundle_index` is invalid due to `invalid_bundle_type` while `bad_receipt` claims bundle at `bundle_index` is `Valid`.
         2. The proof trying to prove there is an invalid extrinsic that the `bad_receipt` thinks is valid in the questioned bundle, so the proof should point to an extrinsic with a smaller `extrinsic_index` than that in of the `bad_receipt`.
-        3. The proof trying to prove the invalid extrinsic at `extrinsic_index` can not pass a validity check (e.g. `OutOfRangeTx`) that the `bad_receipt` thinks it can, so the proof should point to the same extrinsic and a check that is performed before the one in `bad_receipt` (in this [order](https://www.notion.so/Fraud-Proofs-v2-5295d767e5bb4bc9b170ce48e52c4754?pvs=21)).
+        3. The proof trying to prove the invalid extrinsic at `extrinsic_index` can not pass a validity check (e.g. `OutOfRangeTx`) that the `bad_receipt` thinks it can, so the proof should point to the same extrinsic and a check that is performed before the one in `bad_receipt` (in this [order](#invalid-bundle))).
     3. If none of the above match the fields of the fraud proof ⇒ Ignore the fraud proof.
-4. Verify the storage proof `extrinsic_inclusion_proof` and get the `encoded_extrinsic`.
-5. Verify `invalid_bundle_type(extrinsic_index)` as defined below.
+6. Verify `invalid_bundle_type(extrinsic_index)` as defined below.
 
 The list below constitutes the possible fraudulent behaviors an operator can check for in a set of extrinsics included in a bundle.
 
@@ -252,62 +275,67 @@ The list below constitutes the possible fraudulent behaviors an operator can che
 
 A dishonest operator may have included an extrinsic that fails to decode or excluded a decodable extrinsic as invalid. 
 
+**Proof data:**
+
+- `extrinsic_proof`: storage proof of inclusion for the extrinsic at the index given in the `invalid_bundle_type`.
+
 **Verifier checks:**
 
-1. Attempt to decode the `encoded_extrinsic`.
-2. If the attempt fails, the extrinsic is truly `Undecodable`.
-3. For a `TrueInvalid` fraud proof, the tx must be `Undecodable` for the fraud proof to be considered valid.
-4. For a `FalseInvalid` fraud proof, the tx must be decodable for the fraud proof to be considered valid.
+1. Verify the storage proof `extrinsic_proof` and get the `encoded_extrinsic`. 
+2. Attempt to decode the `encoded_extrinsic`.
+3. If the attempt fails, the extrinsic is truly `Undecodable`.
+4. For a `TrueInvalid` fraud proof, the tx must be `Undecodable` for the fraud proof to be considered valid.
+5. For a `FalseInvalid` fraud proof, the tx must be decodable for the fraud proof to be considered valid.
 
 ### Out Of Range Transaction
 
 A dishonest operator may have included a transaction not in the respective tx range defined here when producing a bundle or excluded a transaction within range as being out of range.
 
+**Proof data:**
+
+- `bundle_with_proof`: including `bundle_index` index of mismatched bundle; `bundle` bundle body; and `bundle_storage_proof` storage proof.
+
 **Verifier checks:**
 
-1. Request a check from the host function on whether the transaction is within the range according to the rule defined in [Transaction Selection for Bundle Production](workflow.md#transaction-selection-for-bundle-production) 
-2. For a `TrueInvalid` fraud proof, the tx must be outside of the range for fraud proof to be considered valid.
-3. For a `FalseInvalid` fraud proof, the tx must be within the range for fraud proof to be considered valid.
+1. Verify the `bundle_storage_proof`.
+2. Obtain from `bundle_with_proof` the `bundle` body of the bundle in question. 
+3. Get the extrinsic at `extrinsic_index`.
+4. Request a check from a stateless domain runtime call on whether the transaction is within the range according to the rule defined in [Transaction Selection for Bundle Production](workflow.md#transaction-selection-for-bundle-production) 
+5. For a `TrueInvalid` fraud proof, the tx must be outside of the range for fraud proof to be considered valid.
+6. For a `FalseInvalid` fraud proof, the tx must be within the range for fraud proof to be considered valid.
 
 ### Inherent Extrinsic
 
 A dishonest operator may have included an inherent extrinsic, which should not have been bundled or excluded a valid transaction that is not inherent. The inherent extrinsic data is data external to the domain from the consensus chain. 
 
+**Proof data:**
+
+- `extrinsic_proof`: storage proof of inclusion for the extrinsic at the index given in the `invalid_bundle_type`
+
 **Verifier checks:**
 
-1. Request a check from the host function on whether the extrinsic is an inherent extrinsic.
-2. For a `TrueInvalid` fraud proof, the tx must be an inherent extrinsic.
-3. For a `FalseInvalid` fraud proof, the tx must not be an inherent extrinsic.
+1. Verify `extrinsic_proof` and get the extrinsic at `extrinsic_index` from the `extrinsic_proof`.
+2. Request a check from a stateless domain runtime call on whether the extrinsic is an inherent extrinsic.
+3. For a `TrueInvalid` fraud proof, the tx must be an inherent extrinsic.
+4. For a `FalseInvalid` fraud proof, the tx must not be an inherent extrinsic.
 
 ### Illegal Transaction
 
-When producing a bundle, a dishonest operator may include a transaction that fails to pass the basic transaction validity check wasting the blockspace, or exclude a valid transaction. The basic checks of transaction validity are [defined in Substrate](https://github.com/paritytech/polkadot-sdk/blob/0e49ed72aa365475e30069a5c30e251a009fdacf/substrate/primitives/runtime/src/transaction_validity.rs#L40), including account balance too low, bad signature, 
+When producing a bundle, a dishonest operator may include a transaction that fails to pass the basic transaction validity check wasting the blockspace, or exclude a valid transaction. The basic checks of transaction validity are [defined in Substrate](https://github.com/paritytech/polkadot-sdk/blob/0e49ed72aa365475e30069a5c30e251a009fdacf/substrate/primitives/runtime/src/transaction_validity.rs#L40), including account balance too low, bad signature, invalid XDM.
+
+**Proof data:**
+
+- `bundle_with_proof`: including `bundle_index` index of mismatched bundle; `bundle` bundle body; and `bundle_storage_proof` storage proof.
+- `execution_proof`: storage proof recorded during computation which can be used to reconstruct a partial state trie to re-run the execution by someone who does not own the whole state.
 
 **Verifier checks:**
 
-1. Obtain from the host function the full body of the in question (all extrinsics).
-2. Request from the host function a check of all extrinsics in the bundle within the same runtime context
+1. Verify `bundle_storage_proof` and get the `bundle` body of the bundle in question.
+2. Request a check from a stateless domain runtime call of all extrinsics in the bundle within the same runtime context
 3. For a `TrueInvalid` fraud proof, the tx must be illegal for fraud proof to be considered valid.
 4. For a `FalseInvalid` fraud proof, the tx must be illegal for fraud proof to be considered valid.
 
-<!-- TODO check if still corect ### **Invalid XDM**
-
-A dishonest operator may include an invalid XDM extrinsic or exclude a valid XDM extrinsic.
-
-- Note
-    
-    The presence of a filter-out process complicates the fraud proof mechanism. To address this, we propose eliminating the filtering of any extrinsic and instead allowing them to fail if they are found to be invalid.
-    
-    This approach resembles the ApplyExtrinsic in the state transition below. However, for the verification process, a different state witness is used. Specifically, we need to provide a state witness of the consensus chain in order to verify the validity of XDM.
-    
-    We can consider extending the intermediate state root to include additional information. For instance, we could introduce a structure like something like NormalExtrinsic(state_root) and XDM(state_root) to facilitate a quick determination of the required state witness whenever there is a trace mismatch.
-    
-
-**Verifier checks:**
-
-TODO
-
---- -->
+### Note
 
 Note, that a dishonest operator may also ignore some valid transactions by not including them in the bundle.
 
@@ -325,7 +353,8 @@ Proving and verification algorithm varies depending on which execution phase the
 
 - `domain_id`: ID of the domain this fraud proof targets.
 - `bad_receipt_hash`: hash of the fraudulent receipt in which the trace mismatch was found.
-- `proof`: storage proof which can be used to reconstruct a partial state trie to re-run the execution by someone who does not own the whole state.
+- `maybe_domain_runtime_code_proof`: for the runtime code if it is not still present in the state.
+- `execution_ proof`: storage proof recorded during computation which can be used to reconstruct a partial state trie to re-run the execution by someone who does not own the whole state.
 - `execution_phase`: which [execution phase](workflow.md#domain-block-execution-on-the-operator-node) the alleged wrong state transition happened.
     1. `InitializeBlock` phase
         
@@ -356,7 +385,7 @@ Proving and verification algorithm varies depending on which execution phase the
 
 **Verifier checks:**
 
-1. Fetch the domain runtime code from the host function.
+1. Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the `maybe_domain_runtime_code_proof` storage proof with MMR proof.
 2. Verify the correctness of transition data based on `execution_phase`:
     - `InitializeBlock` phase: fetch `domain_block_hash` in the parent receipt
     - `ApplyExtrinsic` phase: verify the Merkle proof `extrinsic_proof` of extrinsic against `domain_block_extrinsics_root`
@@ -375,15 +404,3 @@ A fraud proof that targets a bad ER has a priority is defined as `MAX - blocks_b
 
 For the bundle equivocation fraud proof, since it is not time-sensitive, its priority is a constant value `MAX - challenge_period - 1` thus lower than any other type of time-sensitive fraud proofs that target bad ERs. At most one bundle equivocation fraud proof will be accepted by the transaction pool at a time for a given operator. If there is already a bundle equivocation fraud proof in the pool, incoming bundle equivocation fraud proof that targets the same operator will be rejected.
 For comparison, bundles have a constant priority of 1.
-<!-- TODO check if still correct
-### Excessive Transaction
-
-A dishonest operator may include a transaction resulting in a huge state witness that is unable to fit into the parent chain’s extrinsic.
-
-1. To verify the state transition proof, the verifier must re-execute a transaction using the pre-state provided in the proof. This pre-state, i.e., state witness, including all the storage reads and writes within the transaction, it’s part of the proof and is sent to the parent chain as an unsigned extrinsic. However, this approach can encounter challenges when fitting the proof into the parent chain's extrinsic due to size limitations. Moreover, the exact size of the state witness remains unknown until the transaction is executed.
-
-This attack vector requires operators to execute the domain transaction using a custom Overlay that will abort once the proof size exceeds the max storage proof size limit, which will simply make the transaction execution fail. Once finding an excessive transaction, the honest operator dumps the entire storage proof on abortion and includes it into the proof, which must be able to fit into the parent chain’s extrinsic.
-
-The proposed solution is mentioned in [In order to prevent that scenario, the operator executes the domain block by consistently utilizing a custom **`TrieBackend`** or something similar, capable of aborting the execution when there is excessive storage access. Throughout this execution, the size of the storage proof needed to prove the execution on the verifier side is kept track of, specifically, by the **`ProofRecorder`** in Substrate. If the storage proof size exceeds the maximum proof size limit `MaxFraudProofSize`, an **`OutOfStorage`** error will be triggered by the backend, resulting in the failure of the transaction.  This is similar `OutOfGas` in Ethereum. From an external perspective, this failure is indistinguishable from a failure caused by internal transaction logic.](https://www.notion.so/In-order-to-prevent-that-scenario-the-operator-executes-the-domain-block-by-consistently-utilizing--e8ed7d8827df489d937cc6b4cfb18ab5?pvs=21) 
-
-- Open domain runtime code may contain the InitializeBlock/FinalizeBlock logic that can cause huge state witness (*later*). -->
