@@ -8,7 +8,7 @@ keywords:
     - fraud proof
     - challenge period
 last_update:
-  date: 05/16/2024
+  date: 05/20/2024
   author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -29,7 +29,7 @@ A fraud proof contains the following fields:
 
 - `domain_id`: domain identifier of the domain this fraud proof targets
 - `bad_receipt_hash`: hash of the claimed invalid execution receipt
-- `maybe_mmr_proof`: MMR proof for the consensus state root that used to verify the storage proof. Only the  Invalid Extrinsics Root, Incorrect List of Inboxed Bundles fraud proofs are using the MMR proof during verification, for other fraud proofs it is set to `None`. 
+- `maybe_mmr_proof`: MMR proof for the consensus state root of the consensus block from which the Execution Receipt is derived, used to verify the storage proof. Only the  Invalid Extrinsics Root, Incorrect List of Inboxed Bundles fraud proofs are using the MMR proof during verification, for other fraud proofs it is set to `None`. 
 - `maybe_domain_runtime_code_proof`: domain runtime code storage proof and MMR proof for the parent block. May be set to `None` if the specific fraud proof variant doesn't require domain runtime code for verification or the required domain runtime code is available from the current runtime state. This field is usually required if the domain runtime code was upgraded during the challenge period.
 - `proof`: storage proof for specific variant of the fraud proof.
 
@@ -162,7 +162,7 @@ Upon receiving the proof, the consensus node can rerun the shuffle algorithm to 
 
 - `domain_id`: ID of the domain this fraud proof targets.
 - `bad_receipt_hash`: the targeted invalid ER.
-- `mmr_proof`: MMR proof for the consensus block containing the receipt.
+- `mmr_proof`: MMR proof for the consensus block from which the receipt is derived.
 - `maybe_domain_runtime_code_proof`: for the runtime code if it is not still present in the state.
 - `valid_bundle_digests`: list of lists of extrinsics `(index, (signer,hash))` from all bundles.
 - `block_randomness_proof`: storage proof of the `BlockRandomness` storage item from the consensus chain that attests correct `block_randomness` value.
@@ -224,7 +224,7 @@ There are several variants of why `inboxed_bundles` in the receipt can be wrong:
 
 - `domain_id`: ID of the domain this fraud proof targets.
 - `bad_receipt_hash`: the targeted invalid ER.
-- `mmr_proof`: MMR proof for the consensus block containing the receipt.
+- `mmr_proof`: MMR proof for the consensus block from which the receipt is derived.
 - `maybe_domain_runtime_code_proof`: for the runtime code if it is not still present in the state.
 - `bundle_with_proof`: including `bundle_index` index of mismatched bundle; `bundle` bundle body; and `bundle_storage_proof` storage proof.
 
@@ -245,7 +245,7 @@ There are several variants of why `inboxed_bundles` in the receipt can be wrong:
 
 - `domain_id`: ID of the domain this fraud proof targets.
 - `bad_receipt_hash`: the targeted invalid ER.
-- `mmr_proof`: MMR proof for the consensus block containing the receipt.
+- `mmr_proof`: MMR proof for the consensus block from which the receipt is derived.
 - `maybe_domain_runtime_code_proof`: for the runtime code if it is not still present in the state.
 - `bundle_index`: index of mismatched bundle
 - `invalid_bundle_type(extrinsic_index)`: the `InvalidBundleType` with the mismatched extrinsic
