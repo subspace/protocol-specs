@@ -8,7 +8,7 @@ keywords:
     - fraud proof
     - challenge period
 last_update:
-  date: 05/20/2024
+  date: 05/21/2024
   author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -34,8 +34,6 @@ A fraud proof contains the following fields:
 - `proof`: storage proof for specific variant of the fraud proof.
 
 We currently handle the following variants of fraud proofs:
-
-- [Bundle Equivocation](#bundle-equivocation)
 
 Execution Receipt invalid due to incorrect fields:
 
@@ -74,32 +72,6 @@ When an honest operator detects an incorrect field in ER produced by another ope
 ### Consensus Nodes
 
 The consensus node will verify as much as possible on receiving a bundle as [described here](workflow.md#initial-domain-bundle-verification-by-consensus-nodes).Once the bundles are well-formed, the consensus node can include them in the block. Verifying other reasons for invalid bundles exceeds the ability of the consensus node and is deterred to operators. 
-
-The consensus node then includes the rest of the bundles in the next consensus block.
-At this stage, the consensus node can report bundle equivocation. Note that operators can report this too.
-
-### Bundle Equivocation
-
-A dishonest operator may produce multiple bundles on the same slot with the same proof-of-election.
-
-Similar to [how consensus block equivocation is addressed](https://github.com/paritytech/substrate/blob/689da495a0c0c0c2466fe90a9ea187ce56760f2d/client/consensus/slots/src/aux_schema.rs#L53), consensus chain nodes perform a check to determine if a bundle has been equivocated when verifying its validity. If an equivocation is detected, then this bundle is invalid, and the consensus chain node generates a bundle equivocation proof by submitting an unsigned extrinsic locally.
-
-**Prover provides:**
-
-- `header_1`: first header involved in the equivocation.
-- `header_2`: second header involved in the equivocation.
-
-Note: offender ID, slot and target domain are in the bundle header
-
-**Verifier checks:**
-
-1. Check whether the signatures on `header_1` and `header_2` correspond to the `offender` key.
-2. Check that both headers are produced by the same operator on the same domain.
-3. Check that `header_1` and `header_2` claim the same `slot` with the valid `proof_of_election`.
-4. Check that `header_1` and `header_2` are different.
-5. If either of the above is false, then the proof is invalid ⇒ ignore the fraud proof.
-6. If all of the 1-4 are true, then the proof is valid ⇒ Accept the fraud proof and punish the `offender`
-
 
 ## Operators
 

@@ -7,8 +7,8 @@ keywords:
     - tables
     - plotting
 last_update:
-  date: 03/12/2024
-  author: Saeid Yazdinejad
+  date: 05/21/2024
+  author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -166,7 +166,7 @@ an edge exists if that pair of entries is a match. The second condition defines 
 
 for all 0 ≤ $m$ < 64 = `PARAM_M`
 
-The second condition avoids cycles between inputs if the set is represented as a graph. These cycles can be compressed by saving fewer entries and deriving the rest, representing a potential attack because it would optimize storage (see Cycles Attack in [Chia Proof-of-Space Construction v1.1-1](https://www.chia.net/wp-content/uploads/2022/09/Chia_Proof_of_Space_Construction_v1.1-1.pdf)). This is also why `PARAM_B = 119` and `PARAM_B = 127` have those values. 
+The second condition avoids cycles between inputs if the set is represented as a graph. These cycles can be compressed by saving fewer entries and deriving the rest, representing a potential attack because it would optimize storage (see Cycles Attack in [Chia Proof-of-Space Construction v1.1-1](https://www.chia.net/wp-content/uploads/2022/09/Chia_Proof_of_Space_Construction_v1.1-1.pdf)). This is also why `PARAM_B = 119` and `PARAM_C = 127` have those values. 
 
 ### get_left_targets
 
