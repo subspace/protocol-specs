@@ -7,8 +7,8 @@ keywords:
     - decex
     - instantiation
 last_update:
-  date: 05/13/2024
-  author: Saeid Yazdinejad
+  date: 05/21/2024
+  author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -180,12 +180,8 @@ For each new bundle, each consensus node will:
         - The compute fees should be divided equally between all operators in the `operator_ids` field for the parent `DomainBlock` in the `BlockTree`.
         - The compute fees are automatically staked and subtracted from domain’s balance.
         - The storage fees should be refunded to the bundle authors of bundles included in the confirmed block. These should be applied individually to their `current_epoch_reward` in the `OperatorPool`
-4. Prune the oldest level of the tree
-5. If fraud has occurred, a new branch will NOT be created. Instead, the system requires the submission of a fraud proof to prune the fraudulent ER at the specific height before any new ER can be submitted at that height. Fraud is not handled here as the consensus node cannot determine which (or all) `ExecutionReceipt` is actually fraudulent at this level. It is implied that an honest operator will eventually submit a fraud proof to address the issue.
-    1. The ER will NOT be inserted into a new layer of the tree, as new branches are not allowed.
-    2. The `bundle_extrinsics_root` will only be added to the `execution_inbox` if the ER is proven to be valid and follows the linear progression.
-    3. The `operator_id` will only be added to the `operator_ids` if the ER follows the required protocols and no fraud has been detected or if a submitted fraud proof has resolved an issue.
-6. If this ER has already been seen, we will be confirming an existing entry within the block tree
+4. Otherwise, reject the receipt that tries to create new branch in the block tree. If fraud has occurred, a new branch will not be created. Instead, the system requires the submission of a fraud proof to prune the fraudulent ER at the specific height before any new ER can be submitted at that height. Fraud verification is not handled here as the consensus node cannot determine which (or all) `ExecutionReceipt` is actually fraudulent at this level. It is implied that an honest operator will eventually submit a fraud proof to address the issue before submitting new ER.
+5. If this ER has already been seen, we will be confirming an existing entry within the block tree
     1. Retrieve the existing `DomainBlock` from the `BlockTree`
         1. If this is the tip of `BlockTree`
             - Add the `bundle_extrinsics_root` to the `execution_inbox`
@@ -198,6 +194,7 @@ For each new bundle, each consensus node will:
                 - *Execution Delays:* If we remove the static hardware assumption for operators (i.e. some operators can execute blocks faster than others), then the case above will be compounded and can even occur if we remove the concept of latency from the network. We have already discussed this at length, which is why we have the dynamic bundle sortition sector size to account for operators that are slow to execute blocks. The takeaways is that we still need to track these stale bundles so that we can set the dynamic sortition size appropriately.
                 - *Execution Liveness Attack*: An operator intentionally submitted a stale ER to attempt to stall the apparent liveness of execution, as witnessed by the consensus chain. This may be done proportional to the amount of stake controlled by malicious operators. This can be mitigated by adding a rule that each operator must extend the last ER they submitted, perhaps by caching the last ER for an operator in the `OperatorRegistry`. This would instead force operators to simply withhold bundles to engage in an execution liveness attack.
             </Collapsible>
+6. Prune the oldest level of the tree.
 
 ## Domain Epoch Transition
 
