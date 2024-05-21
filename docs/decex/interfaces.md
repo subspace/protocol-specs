@@ -6,8 +6,8 @@ keywords:
     - execution
     - decex
 last_update:
-  date: 03/06/2024
-  author: Ning Lin
+  date: 05/21/2024
+  author: Dariia Porechna
 ---
 
 ## Global Parameters
@@ -68,9 +68,9 @@ This is a permissioned operation, which follows the workflow of a forkless runti
 
 ### register_operator
 
-`register_operator(origin_account_id, domain_id, amount, operator_config) → operator_id`
+`register_operator(origin_account_id, domain_id, amount, operator_config, signing_key_proof_of_ownership) → operator_id`
 
-Registers a new operator with `operator_id` and the corresponding staking pool in the `Operators` registry with a given `operator_config` (as defined [here](staking.md#operator-config)). The operator must transfer `amount ≥ MinOperatorStake` from `pallet_balances` to the staking table within the `Operators` registry **and choose a domain to stake on. An operator may only be staked on one domain at a time. Any user may submit this extrinsic. Note that the `origin_account_id` between the balance and staking tables are the same. Any resulting bundle rewards are automatically re-staked into the pool.
+Registers a new operator with `operator_id` and the corresponding staking pool in the `Operators` registry with a given `operator_config` (as defined [here](staking.md#operator-config)). The operator must transfer `amount ≥ MinOperatorStake` from `pallet_balances` to the staking table within the `Operators` registry and choose a domain to stake on. Presently, an operator may only be staked on one domain at a time. The extrinsic must be submitted with a correct `signing_key_proof_of_ownership`, which is a signature verifiable with the `signing_key` that the operator passes inside the config. Note that the `origin_account_id` between the balance and staking tables are the same. Any resulting bundle rewards are automatically re-staked into the pool.
 
 For permissioned domains (that implement `allowlist`), the operator id should be present in the allowlist.
 
