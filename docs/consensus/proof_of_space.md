@@ -7,8 +7,8 @@ keywords:
     - tables
     - plotting
 last_update:
-  date: 03/12/2024
-  author: Saeid Yazdinejad
+  date: 05/21/2024
+  author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 

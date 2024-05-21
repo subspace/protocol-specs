@@ -8,7 +8,7 @@ keywords:
     - fraud proof
     - challenge period
 last_update:
-  date: 05/13/2024
+  date: 05/21/2024
   author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
