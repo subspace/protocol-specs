@@ -6,7 +6,7 @@ keywords:
     - execution
     - decex
 last_update:
-  date: 05/21/2024
+  date: 05/23/2024
   author: Dariia Porechna
 ---
 
@@ -32,7 +32,6 @@ last_update:
 <!-- - `MaxFraudProofSize`: The maximum size of a fraud proof, as enforced by the fraud proof storage metering scheme. This ensures that fraud proof size is not unbounded. The default is 1 MiB. -->
 - `DomainInstantiationDeposit`: The amount of funds to be locked up for the domain instance creator. The initial value is 100 SSC *(Value TBD)*
 - `MaxDomainNameLength`: The maximum domain name length limit for all domains. The default is 32 bytes.
-- `MaxNominators`: The maximum number of nominators one domain operator can take. Currently 256.
 
 ## Runtime Calls
 
@@ -80,7 +79,7 @@ For permissioned domains (that implement `allowlist`), the operator id should be
 
 Adds a `PendingDeposit` with `account_id` to the storage of the operator `operator_id` in and deposits SSC from an account balance (i.e., in *`pallet_balances`*) into the staking pool `Deposits` of a registered operator, awarding the nominator pro-rata shares in the pool when the share price for this epoch will become known. The nominator must transfer `amount` ≥ `min_nominator_stake` (as defined within the operator’s config). The nominator will receive shares in the operator's pool, which they can later withdraw for SSC. 
 
-This is a permissionless operation; however, currently, only `MaxNominators` nominators per operator are supported. Note that `account_id` between the balance and staking account are the same.
+This is a permissionless operation. Note that `account_id` between the balance and staking account are the same.
 If the operator is no longer registered, the funds will be returned to the reward address in *`pallet_balances`*.
 
 ### instantiate_domain
