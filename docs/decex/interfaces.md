@@ -108,16 +108,16 @@ To unlock funds, the nominator has to submit an `unlock_funds(operator_id, nomin
 
 ### unlock_funds
 
-`unlock_funds(operator_id, nominator_id)`
+`unlock_funds(nominator, operator_id)`
 
 To complete an initiated withdrawal, the nominator has to submit an unlock extrinsic after the locking period has passed.
 If a withdrawal has passed the `StakeWithdrawalLockingPeriod`, the funds are unlocked in the nominator’s account in `pallet_balances`.
 
-### unlock_operator
+### unlock_nominator
 
-`unlock_operator(operator_id, nominator_id)`
+`unlock_nominator(nominator, operator_id)`
 
-To complete an initiated deregistration of an operator, they need to submit an unlock extrinsic after the locking period has passed. This withdraws all the stake and fees to all nominators according to their shares.
+Unlocks the nominator funds under a given deregistered operator. A nominator can initiate their unlock given operator is already deregistered, by submitting an unlock extrinsic after the locking period has passed. This withdraws all the stake and fees to the nominator according to their shares.
 If a withdrawal has passed the `StakeWithdrawalLockingPeriod`, the funds are unlocked in the operator’s and nominators’ accounts in `pallet_balances`.
 
 ### update_domain_operator_allow_list
