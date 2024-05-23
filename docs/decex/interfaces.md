@@ -32,6 +32,7 @@ last_update:
 <!-- - `MaxFraudProofSize`: The maximum size of a fraud proof, as enforced by the fraud proof storage metering scheme. This ensures that fraud proof size is not unbounded. The default is 1 MiB. -->
 - `DomainInstantiationDeposit`: The amount of funds to be locked up for the domain instance creator. The initial value is 100 SSC *(Value TBD)*
 - `MaxDomainNameLength`: The maximum domain name length limit for all domains. The default is 32 bytes.
+- `MAX_NOMINATORS_TO_SLASH`: The number of nominators to slash during a single bundle processing. The default is 10.
 
 ## Runtime Calls
 

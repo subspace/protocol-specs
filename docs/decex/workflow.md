@@ -7,7 +7,7 @@ keywords:
     - decex
     - instantiation
 last_update:
-  date: 05/21/2024
+  date: 05/23/2024
   author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -184,21 +184,26 @@ For each new bundle, each consensus node will:
         - The compute fees should be divided equally between all operators in the `operator_ids` field for the parent `DomainBlock` in the `BlockTree`.
         - The compute fees are automatically staked and subtracted from domain’s balance.
         - The storage fees should be refunded to the bundle authors of bundles included in the confirmed block. These should be applied individually to their `current_epoch_reward` in the `OperatorPool`
-4. Otherwise, reject the receipt that tries to create new branch in the block tree. If fraud has occurred, a new branch will not be created. Instead, the system requires the submission of a fraud proof to prune the fraudulent ER at the specific height before any new ER can be submitted at that height. Fraud verification is not handled here as the consensus node cannot determine which (or all) `ExecutionReceipt` is actually fraudulent at this level. It is implied that an honest operator will eventually submit a fraud proof to address the issue before submitting new ER.
-5. If this ER has already been seen, we will be confirming an existing entry within the block tree
-    1. Retrieve the existing `DomainBlock` from the `BlockTree`
-        1. If this is the tip of `BlockTree`
-            - Add the `bundle_extrinsics_root` to the `execution_inbox`
-            - Add the `operator_id` to the `operator_ids`
-        2. If this is not the tip of the block tree and we have a stale ER, it is directly rejected and not included in the BlockTree at all.
-            <Collapsible title="Note">
-                Possible reasons a stale ER may occur:
-                
-                - *Network Latency*: Farmer produces a new consensus block, requiring execution of a new domain block. Operator A receives the new consensus block before Operator B, allowing it to execute faster (assuming static operators hardware). Assuming Operator A and B both produce a bundle at about the same time, and Operator A’s bundle is included first by the consensus chain, then Operator B’s bundle will be stale, since it points to an ER that is not part of the parent chain. This event should be rare, meaning that we could ignore applying the contents of these bundles from the point of view of the `execution_inbox`. Ideally we would still be able track rewards and confirmation time for these bundles, as long as they are still *recent* (i.e. within the confirmation depth of the block tree) to be fair and to properly handle execution time tracking.
-                - *Execution Delays:* If we remove the static hardware assumption for operators (i.e. some operators can execute blocks faster than others), then the case above will be compounded and can even occur if we remove the concept of latency from the network. We have already discussed this at length, which is why we have the dynamic bundle sortition sector size to account for operators that are slow to execute blocks. The takeaways is that we still need to track these stale bundles so that we can set the dynamic sortition size appropriately.
-                - *Execution Liveness Attack*: An operator intentionally submitted a stale ER to attempt to stall the apparent liveness of execution, as witnessed by the consensus chain. This may be done proportional to the amount of stake controlled by malicious operators. This can be mitigated by adding a rule that each operator must extend the last ER they submitted, perhaps by caching the last ER for an operator in the `OperatorRegistry`. This would instead force operators to simply withhold bundles to engage in an execution liveness attack.
-            </Collapsible>
-6. Prune the oldest level of the tree.
+4. Otherwise, reject the receipt that tries to create new branch in the block tree. If fraud has occurred, a new branch will not be created. Instead, the system requires the submission of a fraud proof to prune the fraudulent ER at the specific height before any new ER can be submitted at that height. Fraud verification is not handled here as the consensus node cannot determine which (or all) `ExecutionReceipt` is actually fraudulent at this level. It is implied that an honest operator will eventually submit a fraud proof to address the issue before submitting new ER. If the fraud proof for the receipt already present in the block tree has already been seen, then it's operators are marked as pending slashing and the new receipt will create a new head as described in step 3. 
+5. If this ER has already been seen, we will be confirming an existing entry within the block tree. Retrieve the existing `DomainBlock` from the `BlockTree`
+    1. If this is the tip of `BlockTree`
+        - Add the `bundle_extrinsics_root` to the `execution_inbox`
+        - Add the `operator_id` to the `operator_ids`
+    2. If this is not the tip of the block tree and we have a stale ER, it is directly rejected and not included in the BlockTree at all.
+        <Collapsible title="Note">
+            Possible reasons a stale ER may occur:
+            
+            - *Network Latency*: Farmer produces a new consensus block, requiring execution of a new domain block. Operator A receives the new consensus block before Operator B, allowing it to execute faster (assuming static operators hardware). Assuming Operator A and B both produce a bundle at about the same time, and Operator A’s bundle is included first by the consensus chain, then Operator B’s bundle will be stale, since it points to an ER that is not part of the parent chain. This event should be rare, meaning that we could ignore applying the contents of these bundles from the point of view of the `execution_inbox`. Ideally we would still be able track rewards and confirmation time for these bundles, as long as they are still *recent* (i.e. within the confirmation depth of the block tree) to be fair and to properly handle execution time tracking.
+            - *Execution Delays:* If we remove the static hardware assumption for operators (i.e. some operators can execute blocks faster than others), then the case above will be compounded and can even occur if we remove the concept of latency from the network. We have already discussed this at length, which is why we have the dynamic bundle sortition sector size to account for operators that are slow to execute blocks. The takeaways is that we still need to track these stale bundles so that we can set the dynamic sortition size appropriately.
+            - *Execution Liveness Attack*: An operator intentionally submitted a stale ER to attempt to stall the apparent liveness of execution, as witnessed by the consensus chain. This may be done proportional to the amount of stake controlled by malicious operators. This can be mitigated by adding a rule that each operator must extend the last ER they submitted, perhaps by caching the last ER for an operator in the `OperatorRegistry`. This would instead force operators to simply withhold bundles to engage in an execution liveness attack.
+         </Collapsible>
+6. If any domain block reached `BlockTreePruningDepth`, then we confirm it:
+    1. refund the bundle storage fees;
+    2. distribute the operator rewards;
+    3. mark as pending slash the operators whose bundles this receipt marked as [invalid](fraud_proofs.md#invalid-bundle); 
+    4. if `StakeEpochDuration` has passed, do [epoch transition](#domain-epoch-transition).
+7. Slash any operators (and their nominators) who are pending slash, but not more than `MAX_NOMINATORS_TO_SLASH` at a time.
+8. Accept this bundle as successful and awaiting execution on the domain.
 
 ## Domain Epoch Transition
 
@@ -215,7 +220,7 @@ An epoch transition occurs after every `StakeEpochDuration` blocks (or when forc
     - Each operator will get a cut of `nomination_tax * current_epoch_fees` of all rewards issued to their pool as per `nomination_tax` specified in the operator’s config.
     - The operator’s cut will be automatically re-staked to the operator’s nomination as a deposit. Operator’s `shares`, `current_total_shares` and `current_total_stake` will be updated with the corresponding deposit later when deposits are processed.
     - The `current_epoch_fees` is temporarily updated to `current_epoch_fees*(1-nomination_tax)` for the rest of the calculations during the epoch transitions. It will be reset to 0 for the new epoch.
-2. Slash the operators: remove their stake from the VRF election, transfer the whole pool stake and pending withdrawals to the treasury
+2. If there are any operators pending slash, remove their stake from the VRF election for the next epoch.
 3. Finalize domain’s staking summary.
     
     For each operator operating on the next epoch (existing and new operators), do the following:
