@@ -8,7 +8,7 @@ keywords:
     - fraud proof
     - challenge period
 last_update:
-  date: 05/21/2024
+  date: 05/24/2024
   author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -237,7 +237,8 @@ There are several variants of why `inboxed_bundles` in the receipt can be wrong:
         2. The proof trying to prove there is an invalid extrinsic that the `bad_receipt` thinks is valid in the questioned bundle, so the proof should point to an extrinsic with a smaller `extrinsic_index` than that in of the `bad_receipt`.
         3. The proof trying to prove the invalid extrinsic at `extrinsic_index` can not pass a validity check (e.g. `OutOfRangeTx`) that the `bad_receipt` thinks it can, so the proof should point to the same extrinsic and a check that is performed before the one in `bad_receipt` (in this [order](#invalid-bundle))).
     3. If none of the above match the fields of the fraud proof ⇒ Ignore the fraud proof.
-6. Verify `invalid_bundle_type(extrinsic_index)` as defined below.
+6. Check if the fraud proof is targetting a bad receipt that claims an extrinsic at a non-exist `extrinsic_index` is invalid.
+7. If `extrinsic_index` exists in the bundle, verify `invalid_bundle_type(extrinsic_index)` as defined below.
 
 The list below constitutes the possible fraudulent behaviors an operator can check for in a set of extrinsics included in a bundle.
 
