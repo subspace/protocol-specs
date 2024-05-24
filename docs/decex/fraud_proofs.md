@@ -8,7 +8,7 @@ keywords:
     - fraud proof
     - challenge period
 last_update:
-  date: 05/21/2024
+  date: 05/24/2024
   author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -57,7 +57,7 @@ Operators will be responsible for filtering out the invalid bundles included in 
 2. `OutOfRangeTx(extrinsic_index)`
 3. `InherentExtrinsic(extrinsic_index)`
 4. `IllegalTx(extrinsic_index)`
-5. `InvalidXDM(extrinsic_index)`
+5. `InvalidBundleWeight`
 
 An operator executing a domain block will signal such invalid bundles with their `InvalidBundleType` in the execution receipt `ER::inboxed_bundles` field. Once the ER is confirmed, the authors of invalid bundles will be slashed.
 
@@ -220,7 +220,7 @@ There are several variants of why `inboxed_bundles` in the receipt can be wrong:
 - `mmr_proof`: MMR proof for the consensus block from which the receipt is derived.
 - `maybe_domain_runtime_code_proof`: for the runtime code if it is not still present in the state.
 - `bundle_index`: index of mismatched bundle
-- `invalid_bundle_type(extrinsic_index)`: the `InvalidBundleType` with the mismatched extrinsic
+- `invalid_bundle_type`: the `InvalidBundleType` indicator with the mismatched extrinsic index where applicable.
 - `is_true_invalid_fraud_proof`: whether the variant of this proof is `TrueInvalid`(`true`) or `FalseInvalid`(`false`)
 - `proof_data`: specific data for the fraud proof variant.
 
@@ -235,9 +235,10 @@ There are several variants of why `inboxed_bundles` in the receipt can be wrong:
     2. For `TrueInvalid`, either:
         1. The proof trying to prove the bundle at `bundle_index` is invalid due to `invalid_bundle_type` while `bad_receipt` claims bundle at `bundle_index` is `Valid`.
         2. The proof trying to prove there is an invalid extrinsic that the `bad_receipt` thinks is valid in the questioned bundle, so the proof should point to an extrinsic with a smaller `extrinsic_index` than that in of the `bad_receipt`.
-        3. The proof trying to prove the invalid extrinsic at `extrinsic_index` can not pass a validity check (e.g. `OutOfRangeTx`) that the `bad_receipt` thinks it can, so the proof should point to the same extrinsic and a check that is performed before the one in `bad_receipt` (in this [order](#invalid-bundle))).
+        3. The proof trying to prove the invalid extrinsic at `extrinsic_index` can not pass a validity check (e.g. `OutOfRangeTx`) that the `bad_receipt` thinks it can, so the proof should point to the same extrinsic and a check that is performed before the one in `bad_receipt` (in this [order](#invalid-bundle)).
+        4. The proof is trying to prove an incorrect bundle weight estimate provided in the header.
     3. If none of the above match the fields of the fraud proof ⇒ Ignore the fraud proof.
-6. Verify `invalid_bundle_type(extrinsic_index)` as defined below.
+6. Verify the specific invalid bundle proof type as defined below.
 
 The list below constitutes the possible fraudulent behaviors an operator can check for in a set of extrinsics included in a bundle.
 
@@ -304,6 +305,22 @@ When producing a bundle, a dishonest operator may include a transaction that fai
 2. Request a check from a stateless domain runtime call of all extrinsics in the bundle within the same runtime context
 3. For a `TrueInvalid` fraud proof, the tx must be illegal for fraud proof to be considered valid.
 4. For a `FalseInvalid` fraud proof, the tx must be illegal for fraud proof to be considered valid.
+
+### Invalid Bundle Weight
+
+A dishonest operator may have included in the bundle header an incorrect `estimated_bundle_weight` field for the transactions in the bundle body.
+
+**Proof data:**
+
+- `bundle_with_proof`: including `bundle_index` index of mismatched bundle; `bundle` bundle body; and `bundle_storage_proof` storage proof.
+
+**Verifier checks:**
+
+1. Verify the `bundle_storage_proof`.
+2. Obtain from `bundle_with_proof` the `bundle` body of the bundle in question (all extrinsics). 
+3. Request a check from a stateless domain runtime call on whether the sum of the weights of all transactions in the bundle is equal to the `estimated_bundle_weight` field in the bundle header.
+4. For a `TrueInvalid` fraud proof, the sum of weights of all transactions in the bundle must be different from the `estimated_bundle_weight` field in the bundle header for fraud proof to be considered valid.
+5. For a `FalseInvalid` fraud proof, the sum of weights of all transactions in the bundle must be equal to the `estimated_bundle_weight` field in the bundle header for fraud proof to be considered valid.
 
 ### Note
 
