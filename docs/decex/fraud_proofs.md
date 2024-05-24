@@ -8,7 +8,7 @@ keywords:
     - fraud proof
     - challenge period
 last_update:
-  date: 05/22/2024
+  date: 05/24/2024
   author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -320,7 +320,7 @@ A dishonest operator may have included in the bundle header an incorrect `estima
 2. Obtain from `bundle_with_proof` the `bundle` body of the bundle in question (all extrinsics). 
 3. Request a check from a stateless domain runtime call on whether the sum of the weights of all transactions in the bundle is equal to the `estimated_bundle_weight` field in the bundle header.
 4. For a `TrueInvalid` fraud proof, the sum of weights of all transactions in the bundle must be different from the `estimated_bundle_weight` field in the bundle header for fraud proof to be considered valid.
-5. For a `FalseInvalid` fraud proof, the sum of weights of all transactions in the bundle must be different from the `estimated_bundle_weight` field in the bundle header for fraud proof to be considered valid.
+5. For a `FalseInvalid` fraud proof, the sum of weights of all transactions in the bundle must be equal to the `estimated_bundle_weight` field in the bundle header for fraud proof to be considered valid.
 
 ### Note
 
