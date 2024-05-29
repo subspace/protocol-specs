@@ -6,7 +6,7 @@ keywords:
     - execution
     - decex
 last_update:
-  date: 02/15/2024
+  date: 05/23/2024
   author: Dariia Porechna
 ---
 
@@ -84,4 +84,4 @@ last_update:
     
     Any node who observes an `ExecutionReceipt` within any bundle for any consensus chain block that differs from what they produced locally has detected fraud. To handle the fraud they will produce a `submit_fraud_proof` extrinsic, which includes a proof. If the proof is valid, it will be included in the consensus chain, which will prune the `ExecutionReceipt` (and all children) from the `BlockTree` and slash all related operators. 
     
-    For more details, see [Execution Challenges Sub-Protocol](workflow.md#) and [Fraud Proofs](fraud_proofs.md).
+    For more details, see [Slashing Stake](staking.md#slashing-stake) and [Fraud Proofs](fraud_proofs.md).
