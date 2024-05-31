@@ -6,7 +6,7 @@ keywords:
     - execution
     - decex
 last_update:
-  date: 02/15/2024
+  date: 05/31/2024
   author: Dariia Porechna
 ---
 
@@ -52,7 +52,7 @@ last_update:
     
 5. **VRF Election**
     
-    For each time slot, the registered operator will attempt to solve the VRF puzzle with the success probability determined by the `target_bundles_per_slot` defined in the genesis `domain_config`. To do so, they sign the slot challenge and check if it is below the desired threshold. When elected, they will produce a new domain bundle. 
+    For each time slot, the registered operator will attempt to solve the VRF puzzle with the success probability determined by the `bundle_slot_probability` defined in the genesis `domain_config`. To do so, they sign the slot challenge and check if it is below the desired threshold. When elected, they will produce a new domain bundle. 
     
     For more details, see [Bundle Producer Election](workflow.md#bundle-producer-election) 
     
