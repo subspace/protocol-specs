@@ -10,7 +10,7 @@ keywords:
     - cross-chain messaging
     - cross-domain messaging
 last_update:
-  date: 06/04/2024
+  date: 06/05/2024
   author: Dariia Porechna
 ---
 
@@ -262,7 +262,7 @@ Detailed description of each function required to be present in the protocol.
 
 Consensus chain maintains a `ChainAllowList` to keep track of the authorized domain chains that can establish channels with the Consensus chain. `ChainAllowList` can be defined at Genesis and can be updated later by the sudo account adding or removing chains.
 
-When a Consensus chain receives an `initiate_channel` XDM to open the channel, if the `dst_chain_id` is in the allowlist, then channel is opened else XDM is rejected.
+When a Consensus chain receives an `initiate_channel` XDM to open the channel, if the `dst_chain_id` is in the allowlist, then channel is opened else the channel opening is rejected. In the latter case, the channel remains in `Initialized` state and the submitter can close it and get back the deposit.
 Practically, this means that a newly initialized domain chain needs to be approved by governance and added to the Consensus chain's `ChainAllowList` before it can initiate a channel with the Consensus chain.
 
 Similarly, each domain chain maintains its own `DomainChainAllowList` to keep track of the authorized domains it can establish channels with. This allows the domains to control and restrict which other domains they want to interact with. Updating domain-specific lists is done within a domain by the domain's sudo or governance, without consensus chain approval.
@@ -270,10 +270,10 @@ Similarly, each domain chain maintains its own `DomainChainAllowList` to keep tr
 ### Initiate Channel
 
 1. Channel `initiate_channel` transaction is sent by a user of the `src_chain_id` domain.
-2. If both chains are in the allow list of each other, the next available `ChannelID` is assigned to the new channel.
-3. If the `src_chain_id` is not in the allow listof `dst_chain_id`, destination chain does not open a channel, but rather leaves it in `Initiated` state and responds with an `Err`. When the error response is received on source chain, it also does not open then channel and leaves it in the `Initiated` state.
+2. The next available `ChannelID` is assigned to the new channel.
 3. If no Channel exits, a Channel is created and set to `Initiated` status and cannot accept or receive any messages yet.
-4. `Protocol` payload message to open the channel is added to the `src_chain_id` domain outbox with nonce `0` 
+4. If the `src_chain_id` is not in the allow list of `dst_chain_id`, destination chain does not open a channel, but rather leaves it in `Initiated` state and responds with an `Err`. When the error response is received on source chain, it also does not open then channel and leaves it in the `Initiated` state.
+5. If both chains are in the allow list of each other, the `Protocol` payload message to open the channel is added to the `src_chain_id` domain outbox with nonce `0`. 
 
 ### Open Channel
 
