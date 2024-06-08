@@ -6,10 +6,11 @@ keywords:
     - genesis
     - initial configuration
 last_update:
-  date: 06/07/2024
+  date: 06/08/2024
   author: Saeid Yazdinejad
 ---
 
+import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
 <!-- ## Genesis Configuration -->
 
@@ -68,6 +69,9 @@ This parameter sets the number of iterations for the Proof-of-Time (PoT) functio
 ```rust
 pot_slot_iterations: NonZeroU32::new(100_000_000).expect("Not zero; qed"),
 ```
+<Collapsible title="Implementation Note">
+This line ensures that `pot_slot_iterations`, which controls the computational intensity required for each slot, is assigned a valid non-zero value. By using `NonZeroU32`, the code explicitly states that zero is not a permissible value, avoiding any logical errors where a zero could imply no computation. The `expect("Not zero; qed")` part acts as a safeguard, providing a clear runtime error message if zero is mistakenly used.
+</Collapsible>
 
 ### enable_domains
 
@@ -97,8 +101,7 @@ enable_non_root_calls: true,
 
 ### confirmation_depth_k
 
-Defines the number of subsequent blocks required to consider a transaction or block finalized.
-
+This parameter specifies the minimal depth a block must reach in the blockchain before it is considered part of the recorded history. It sets a global constant for the network, distinguishing it from client-specific transaction confirmation depths. This ensures that once a block has been built upon by a certain number of subsequent blocks, it is accepted as irreversible.
 
 ### rewards_config
 
