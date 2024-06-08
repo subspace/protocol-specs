@@ -1,14 +1,14 @@
 ---
 title: Proof-of-Space
-sidebar_position: 3
+sidebar_position: 4
 description: Proof-of-Space Dilithium Consensus component
 keywords:
     - pos
     - tables
     - plotting
 last_update:
-  date: 05/27/2024
-  author: Dariia Porechna
+  date: 06/07/2024
+  author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 

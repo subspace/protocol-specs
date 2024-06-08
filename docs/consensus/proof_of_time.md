@@ -1,13 +1,13 @@
 ---
 title: Proof-of-Time
-sidebar_position: 4
+sidebar_position: 5
 description: Proof-of-Time Dilithium Consensus component
 keywords:
     - pot
     - timekeeper
     - randomness
 last_update:
-  date: 03/12/2024
+  date: 06/07/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
