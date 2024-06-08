@@ -1,6 +1,6 @@
 ---
 title: Proof-of-Archival-Storage
-sidebar_position: 2
+sidebar_position: 3
 description: Proof-of-Archival-Storage Dilithium Consensus
 keywords:
     - archiving
@@ -8,7 +8,7 @@ keywords:
     - plotting
     - auditing
 last_update:
-  date: 05/07/2024
+  date: 06/07/2024
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';

@@ -1,6 +1,6 @@
 ---
 title: Consensus Chain
-sidebar_position: 1
+sidebar_position: 2
 description: General sub-protocols of the consensus chain operation. 
 keywords:
     - consensus
@@ -9,7 +9,7 @@ keywords:
     - transaction
     - synchronization
 last_update:
-  date: 05/07/2024
+  date: 06/07/2024
   author: Saeid Yazdinejad
 ---
 
