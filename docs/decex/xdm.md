@@ -10,7 +10,7 @@ keywords:
     - cross-chain messaging
     - cross-domain messaging
 last_update:
-  date: 06/05/2024
+  date: 06/10/2024
   author: Dariia Porechna
 ---
 
@@ -269,7 +269,7 @@ Similarly, each domain chain maintains its own `DomainChainAllowList` to keep tr
 
 ### Initiate Channel
 
-1. Channel `initiate_channel` transaction is sent by a user of the `src_chain_id` domain.
+1. Channel `initiate_channel` transaction is sent by a user of the `src_chain_id` domain with the channel opening deposit.
 2. The next available `ChannelID` is assigned to the new channel.
 3. If no Channel exits, a Channel is created and set to `Initiated` status and cannot accept or receive any messages yet.
 4. If the `src_chain_id` is not in the allow list of `dst_chain_id`, destination chain does not open a channel, but rather leaves it in `Initiated` state and responds with an `Err`. When the error response is received on source chain, it also does not open then channel and leaves it in the `Initiated` state.
@@ -289,7 +289,7 @@ Before sending any messages, domain needs to have an channel open with the `dst_
 
 Any domain of either end of an `Open` or `Initiated` channel can close the channel:
 
-1. Channel close transaction is sent by the channel owner. We allow closing channel request even if there the chain is not in the allow list so that reserve deposits can be claimed back.
+1. Channel close transaction is sent by the channel owner. We allow closing channel request even if there the chain is not in the allow list so that reserve deposits can be claimed back. In the latter case, the initiator loses 20% of the deposit.
 2. Channel state is set to `Closed`.
 3. `Protocol` payload message to close channel is added to the `src_chain_id` outbox
 4. Operator on `src_chain_id` gossips the message
