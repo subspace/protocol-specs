@@ -7,8 +7,8 @@ keywords:
     - decex
     - instantiation
 last_update:
-  date: 05/23/2024
-  author: Dariia Porechna
+  date: 07/02/2024
+  author: Vedhavyas Singareddi
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -334,3 +334,22 @@ In Substrate, there is a trait [`Hooks`](https://paritytech.github.io/substrate/
     After executing `finalize_block()`, we calculate the state root as $Root_{ n+1 }$.
     
 Therefore, the execution trace for a block with  $n$ extrinsics is $[Root_{0}, Root_{1}, …, Root_{n+1}]$
+
+## Domain Sudo
+Domains have a modified pallet to provide sudo call. The Sudo is triggerred from the Consensus chain and then executed in the Domain block.
+`pallet_domain_sudo` has a inherent extrinsic that is created and imported into Domain block if the Consensus block from which Domain block is created
+from contains a Sudo Call for the targetted Domain. Only one sudo call is allowed per domain block. Multiple Call can be achieved using `pallet_utility::BatchAll`.
+
+### Flow to execute a Sudo call on Domain.
+- Sudo on Consensus chain will submit an encoded unsigned domain extrinsic to `pallet_domains::Call::send_domain_sudo_call`
+- If the targetted domain has the `pallet_domain_sudo` enabled, then the encoded call is stored.
+  - Note: This storage is cleared on Consensus chain when there is a Successful bundle submission from the Domain.
+- When domain operators are deriving a Domain Block from a given Consensus block, they check `pallet_domains::domain_sudo_call(domain_id)` if there is any sudo call.
+- If so, they will inject this Domain sudo Call as an Inherent extrinsic and executes the Domain block.
+  - Note: `pallet_domain_sudo` executed the provided the encoded domain call with `Root` origin.
+
+Since `pallet_domain_sudo` provides an Unsigned extrinsic, if this extrinsic is manually constructed and included in the Domain Block, it will trigger
+`FraudProof::InherentExtrinsic` from the honest operators.
+
+This inherent extrinsic also affects the `FraudProof::InvalidDomainExtrinsicRoot` if any malicious operator does not include this inherent while importing Domain block.
+Honest operators will submit above FraudProof variant with all the necessary storage proofs to construct the Domain Extrinsic root.
