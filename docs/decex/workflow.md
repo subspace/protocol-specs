@@ -356,7 +356,7 @@ Honest operators will submit above FraudProof variant with all the necessary sto
 
 ## Domain Freeze, Unfreeze, and Prune Execution Receipt by Consensus Sudo
 Generally, malicious activity from a domain operator is handled through Fraud proofs where honest operators verify the bundles before importing domain block and submit
-Fraud proof targeted at given bad Execution receipt. In a particular case where Fraud proof would not fit into the Consensus block due to weight or size restrictions of the
+Fraud proof targeted at given bad Execution receipt. In a particular case where Fraud proof could not be verified automatically or included in the
 Consensus block, the bad ER never gets pruned and given enough time, it may even go out of challenge period.
 
 In order to safe-guard against such an attack, Sudo on Consensus has the ability to Freeze, Unfreeze, and prune execution receipt of a domain.
