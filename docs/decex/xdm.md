@@ -313,9 +313,10 @@ When user wants to send message from endpoint on `src_chain_id` to an endpoint o
 When a relayer from `src_chain_id` submits the message to the inbox of the `dst_chain_id`:
 
 1. `dst_chain_id` verifies the message by verifying the storage proof from the point of view of the consensus chain as follows:
-    1. Verifies MMR proof using consensus chain `MMR::verify_proof` function to extract the MMR leaf data and the corresponding state root of consensus chain.
-    2. Using `consensus_chain_state_root`, `domain_confirmed_proof` is verified and associated domain’s `state_root` is extracted from `DomainBlockInfo`
-    3. Using `domain_state_root`, `message_proof` is verified and actual XDM is extracted from the storage proof.
+    1. Check if the MMR proof is constructed at a finalized consensus block to ensure the `MMR::verify_proof` result is deterministic regardless of the consensus chain fork.
+    2. Verifies MMR proof using consensus chain `MMR::verify_proof` function to extract the MMR leaf data and the corresponding state root of consensus chain.
+    3. Using `consensus_chain_state_root`, `domain_confirmed_proof` is verified and associated domain’s `state_root` is extracted from `DomainBlockInfo`
+    4. Using `domain_state_root`, `message_proof` is verified and actual XDM is extracted from the storage proof.
 2. `dst_chain_id` adds the message to its inbox.
 3. `dst_chain_id` listens for next message to process from the inbox in the nonce order.
 4. Message is passed to the endpoint and eventually executed and response is stored for that message.

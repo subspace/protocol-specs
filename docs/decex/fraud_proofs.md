@@ -291,6 +291,24 @@ A dishonest operator may have included an inherent extrinsic, which should not h
 3. For a `TrueInvalid` fraud proof, the tx must be an inherent extrinsic.
 4. For a `FalseInvalid` fraud proof, the tx must not be an inherent extrinsic.
 
+### Invalid XDM
+
+A dishonest operator may include an XDM that contains an invalid [MMR proof](xdm.md#message-proof), because the MMR Proof verification involve the consensus node (via host function) thus can't be proven like the basic transaction validity check in [Illegal Transaction](#illegal-transaction), this fraud proof variant is specially proving the MMR proof verification result in a deterministic and stateless way.
+
+**Proof data:**
+
+- `extrinsic_proof`: storage proof of inclusion for the extrinsic at the index given in the `invalid_bundle_type`
+- `mmr_root_proof`: the storage proof of the MMR root of the consensus block where the MMR proof is constructed
+
+**Verifier checks:**
+1. Verify `extrinsic_proof` and get the extrinsic at `extrinsic_index` from the `extrinsic_proof`.
+2. Request a check from a stateless domain runtime call to extract the MMR Proof from the extrinsic if it is an XDM
+    - If the extrinsic is not an XDM at all, consider `TrueInvalid` fraud proof as invalid and consider `FalseInvalid` fraud proof as valid.
+3. Verify the `mmr_root_proof` and get the MMR root
+4. Verify the MMR proof with the MMR root using `MMR::verify_proof_stateless`
+5. For a `TrueInvalid` fraud proof, the MMR proof must be invalid for fraud proof to be considered valid.
+6. For a `FalseInvalid` fraud proof, the MMR proof must be valid for fraud proof to be considered valid.
+
 ### Illegal Transaction
 
 When producing a bundle, a dishonest operator may include a transaction that fails to pass the basic transaction validity check wasting the blockspace, or exclude a valid transaction. The basic checks of transaction validity are [defined in Substrate](https://github.com/paritytech/polkadot-sdk/blob/0e49ed72aa365475e30069a5c30e251a009fdacf/substrate/primitives/runtime/src/transaction_validity.rs#L40), including account balance too low, bad signature, invalid XDM.
