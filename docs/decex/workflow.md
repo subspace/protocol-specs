@@ -7,7 +7,7 @@ keywords:
     - decex
     - instantiation
 last_update:
-  date: 07/02/2024
+  date: 07/09/2024
   author: Vedhavyas Singareddi
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -353,3 +353,19 @@ Since `pallet_domain_sudo` provides an Unsigned extrinsic, if this extrinsic is 
 
 This inherent extrinsic also affects the `FraudProof::InvalidDomainExtrinsicRoot` if any malicious operator does not include this inherent while importing Domain block.
 Honest operators will submit above FraudProof variant with all the necessary storage proofs to construct the Domain Extrinsic root.
+
+## Domain Freeze, Unfreeze, and Prune Execution Receipt by Consensus Sudo
+Generally, malicious activity from a domain operator is handled through Fraud proofs where honest operators verify the bundles before importing domain block and submit
+Fraud proof targeted at given bad Execution receipt. In a particular case where Fraud proof would not fit into the Consensus block due to weight or size restrictions of the
+Consensus block, the bad ER never gets pruned and given enough time, it may even go out of challenge period.
+
+In order to safe-guard against such an attack, Sudo on Consensus has the ability to Freeze, Unfreeze, and prune execution receipt of a domain.
+```
+pallet_domains::Call::freeze_domain(domain_id)
+pallet_domains::Call::unfreeze_domain(domain_id)
+pallet_domains::Call::prune_execution_receipt(domain_id, bad_er_hash)
+```
+The prune execution receipt dispatch makes an assumption that Sudo has validated the invalidity of the bad ER by verifying it offchain and/or through social consensus
+if the Governance is at play.
+
+Note: Domain must be frozen to stop accepting new bundles before pruning a execution receipt.
