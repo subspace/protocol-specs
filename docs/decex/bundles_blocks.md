@@ -34,7 +34,7 @@ Operators produce bundles, which add new extrinsics to the execution inbox, and 
 The bundle body is largely an “opaque blob” for consensus nodes. They only check to ensure the total size, weight, and Merkle roots are correct, but they should not need to interpret the semantics of individual transactions.
 
 - `extrinsics` 
-an ordered list of all new extrinsics being proposed by this operator for the next domain block.
+an ordered list of all new extrinsics being proposed by this operator for the next domain block. All the extrinsic is verified against the last domain block according to the `ExecutionReceipt` in the bundle header.
 
 ### Bundle Limits
 

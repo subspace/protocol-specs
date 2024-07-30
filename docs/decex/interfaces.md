@@ -50,6 +50,12 @@ Any staked operator who is elected may produce and submit a new bundle. The bund
 
 Challenges an ER committed to in the `BlockTree` of a domain on the consensus chain with proof. This proof could be one of several types, such as invalid state transition or bundle equivocation. Consensus nodes will verify the proof before broadcasting on the network. The next farmer elected to produce a block will include all valid challenges it has received. This will result in pruning the invalid ER, along with all of its children from the `BlockTree`, while de-registering and slashing all accompanying operators in the `Operators` registry and their nominators. 
 
+### submit_receipt
+
+`submit_receipt(domain_id, execution_receipt)`
+
+This call is used to submit the receipt alone to the consensus chain when there is a gap between the latest domain block (i.e. `HeadDomainNumber`) and the latest receipt on chain (i.e. `HeadReceiptNumber`), which usually happens after a fraud proof is accepted. Similar to `submit_bundle`, `submit_receipt` also contains a proof-of-election and an execution receipt and performs the same check, but it doesn't contain any domain extrinsic thus doesn't derive a new domain block.
+
 ### register_domain_runtime
 
 `register_domain_runtime(name, runtime_blob) → runtime_id`
