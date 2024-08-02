@@ -137,22 +137,26 @@ The operator may only include as many transactions within this range as fit with
 
 All consensus nodes will perform the following verification when a new bundle is received over the network. All valid bundles are added to the local extrinsics pool and propagated to all peers on the network. Any invalid bundles are not added to the pool (no fraud proofs for invalid bundles received, only fraud proofs for invalid bundles that are included in a block).
 
-1. Verify the `domain_id` is in the `DomainRegistry`.
-2. Verify the `ProofOfElection` for this domain and operator.
+1. Ensure `HeadDomainNumber - HeadReceiptNumber = 1` otherwise `submit_receipt` is expected instead of `submit_bundle`
+2. Verify the `domain_id` is in the `DomainRegistry`.
+3. Verify the `ProofOfElection` for this domain and operator.
     1. Ensure the `slot_number` is no older than the slot of the block `current_block_number - BundleLongevity`.
     2. Verify the `slot_number` and the `proof_of_time` is correctly computed.
     3. Verify the `vrf_signature` based on the operator signing key and the global challenge that is derived from the `slot_number` and the `proof_of_time`.
     4. Verify the `vrf_signature` is below the threshold that is derived from the `operator_stake / total_domain_stake` and the `bundle_slot_probability`.
-3. Verify the bundle header `signature` for the registered domain operator.
-4. Ensure the bundle does not exceed the bundle `max_bundle_weight` and `max_bundle_size` [limits](bundles_blocks.md#bundle-limits) for this domain.
-5. Ensure the bundle is well-formed:
+4. Verify the bundle header `signature` for the registered domain operator.
+5. Ensure the bundle does not exceed the bundle `max_bundle_weight` and `max_bundle_size` [limits](bundles_blocks.md#bundle-limits) for this domain.
+6. Ensure the bundle is well-formed:
     1. Verify the `execution_trace_root` is correctly computed for the `execution_trace`.
     2. Verify the `bundle_extrinsics_root` is correctly computed for all included extrinsics.
     3. Verify the `bundle_size` and `estimated_bundle_weight` were correctly computed for the bundle body.
-6. Ensure the `ExecutionReceipt` builds on the current `BlockTree` for this domain.
-    1. Verify the `consensus_block_hash` exists at the specified `consenus_block_height` on the consensus client.
-    2. Based on `parent_domain_receipt_hash`, verify the `parent_domain_block` exists at the specified `parent_domain_height` within the `BlockTree` on the operator client. If the ER is beyond the `BlockTreePruningDepth` it is too old and will simply be ignored.
-    3. Verify all `block_extrinsics_roots` exist within the `execution_inbox` of the `parent_domain_block`.
+7. Ensure the `ExecutionReceipt` builds on the head of current `BlockTree` for this domain.
+    1. Verify `domain_block_number` is equal to:
+        - `HeadReceiptNumber + 1` if this is the first bundle of the domain in the block
+        - or `HeadReceiptNumber` since `HeadReceiptNumber` is increased by the previous bundle in the block
+    2. Verify the `consensus_block_hash` exists at the specified `consenus_block_height` on the consensus client.
+    3. Based on `parent_domain_receipt_hash`, verify the `parent_domain_block` exists at the specified `parent_domain_height` within the `BlockTree` on the operator client. If the ER is beyond the `BlockTreePruningDepth` it is too old and will simply be ignored.
+    4. Verify all `block_extrinsics_roots` exist within the `execution_inbox` of the `parent_domain_block`.
 
 ### Bundle Equivocation
 
@@ -353,6 +357,16 @@ Since `pallet_domain_sudo` provides an Unsigned extrinsic, if this extrinsic is 
 
 This inherent extrinsic also affects the `FraudProof::InvalidDomainExtrinsicRoot` if any malicious operator does not include this inherent while importing Domain block.
 Honest operators will submit above FraudProof variant with all the necessary storage proofs to construct the Domain Extrinsic root.
+
+## Lagging operator protection
+
+In a distributed system, it is inevitable that some nodes may be lagging (e.g. due to network partition or slow hardware). This is critical for the operator node because when it produces a bundle, it needs to verify and guarantee all the extrinsic included in the bundle is valid. When the domain node tries to derive a new domain block from the bundles included in the consensus block, it will also verify all the extrinsic against the latest domain block (i.e. the parent domain block of the new block), if there is any invalid extrinsic found the whole bundle will be marked as invalid and the operator who produced this bundle will be slashed.
+
+For a lagging operator, it is possible that when producing a bundle it verifies the extrinsic against an old domain block, and the extrinsic turns out to be invalid when other domain nodes verify it against the latest domain block, as a result, an honest but lagging operator will be slashed.
+
+To protect the lagging operator, the consensus node when verifying the bundle will check the bundle contains an execution receipt that is derived from the latest domain block, which means the producer is not lagging, if it is not then the bundle will not be included in the consensus block so the operator won't be slashed.
+
+The consensus node when performing this check also needs to ensure the execution receipt is extending the previous head receipt, this means if there is a gap between the latest domain block (i.e. `HeadDomainNumber`) and the latest receipt on chain (i.e. `HeadReceiptNumber`), which usually happen after a fraud proof is accepted and bad receipts were pruned, any bundle will be rejected. In this case, the operator needs to produce `submit_receipt` to fill up the gap and after that they can resume producing `submit_bundle`.
 
 ## Domain Freeze, Unfreeze, and Prune Execution Receipt by Consensus Sudo
 Generally, malicious activity from a domain operator is handled through Fraud proofs where honest operators verify the bundles before importing domain block and submit
