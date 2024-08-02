@@ -7,7 +7,7 @@ keywords:
     - decex
     - instantiation
 last_update:
-  date: 07/02/2024
+  date: 07/09/2024
   author: Vedhavyas Singareddi
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -367,3 +367,19 @@ For a lagging operator, it is possible that when producing a bundle it verifies 
 To protect the lagging operator, the consensus node when verifying the bundle will check the bundle contains an execution receipt that is derived from the latest domain block, which means the producer is not lagging, if it is not then the bundle will not be included in the consensus block so the operator won't be slashed.
 
 The consensus node when performing this check also needs to ensure the execution receipt is extending the previous head receipt, this means if there is a gap between the latest domain block (i.e. `HeadDomainNumber`) and the latest receipt on chain (i.e. `HeadReceiptNumber`), which usually happen after a fraud proof is accepted and bad receipts were pruned, any bundle will be rejected. In this case, the operator needs to produce `submit_receipt` to fill up the gap and after that they can resume producing `submit_bundle`.
+
+## Domain Freeze, Unfreeze, and Prune Execution Receipt by Consensus Sudo
+Generally, malicious activity from a domain operator is handled through Fraud proofs where honest operators verify the bundles before importing domain block and submit
+Fraud proof targeted at given bad Execution receipt. In a particular case where Fraud proof could not be verified automatically or included in the
+Consensus block, the bad ER never gets pruned and given enough time, it may even go out of challenge period.
+
+In order to safe-guard against such an attack, Sudo on Consensus has the ability to Freeze, Unfreeze, and prune execution receipt of a domain.
+```
+pallet_domains::Call::freeze_domain(domain_id)
+pallet_domains::Call::unfreeze_domain(domain_id)
+pallet_domains::Call::prune_execution_receipt(domain_id, bad_er_hash)
+```
+The prune execution receipt dispatch makes an assumption that Sudo has validated the invalidity of the bad ER by verifying it offchain and/or through social consensus
+if the Governance is at play.
+
+Note: Domain must be frozen to stop accepting new bundles before pruning a execution receipt.
