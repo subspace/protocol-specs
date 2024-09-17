@@ -65,7 +65,7 @@ Any registered operator or nominator may initiate a withdrawal of their stake fr
     The stake is calculated by the share price at this instant, it may not be accurate and may withdraw a bit more stake if there is reward happen later in this epoch
 - Share, withdraw a given amount of share
 
- If the stake after withdrawing below the operator's `minimum_nominator_stake`, the nominator is completely unstaked, however the operator cannot withdraw below the `MinOperatorStake`.
+If the nominator's stake after withdrawal results in an amount below the operator's required `minimum_nominator_stake,` the nominator is automatically completely unstaked. Contrary, the operator cannot withdraw below the `MinOperatorStake`.
 
 A withdrawal is logically composed of 2 parts. First, a user request to withdraw shares (`withdraw_stake`) that unstakes a given amount of stake at the end of epoch, and second, a request to unlock (`unlock_funds` [extrinsic](interfaces.md/#unlock_funds)) and actually transfer to the balance account the amount of SSC for those shares after the locking period has passed.
 
