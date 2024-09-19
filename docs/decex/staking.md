@@ -58,13 +58,20 @@ For subsequent nomination deposits see [Stake Deposits](#stake-deposits).
 
 ## Stake Withdrawals
 
-Any registered operator or nominator may initiate a withdrawal of their stake from the pool by submitting a `withdraw_stake` [extrinsic](interfaces.md/#withdraw_stake) with the desired `withdraw_shares`. If `withdraw_shares` are all staked shares, the nominator is completely unstaked, however the operator cannot withdraw below the `MinOperatorStake`.
+Any registered operator or nominator may initiate a withdrawal of their stake from the pool by submitting a `withdraw_stake` [extrinsic](interfaces.md/#withdraw_stake) which support different types of withdrawal:
+- All, withdraw all the stake
+- Percent, withdraw a given percentage of the stake
+- Stake, withdraw a given amount of stake (i.e. balance)
+    The stake is calculated by the share price at this instant, it may not be accurate and may withdraw a bit more stake if there is reward happen later in this epoch
+- Share, withdraw a given amount of share
 
-A withdrawal is logically composed of 2 parts. First, a user request to withdraw shares (`withdraw_stake`) that unstakes a given amount of shares at the end of epoch, and second, a request to unlock (`unlock_funds` [extrinsic](interfaces.md/#unlock_funds)) and actually transfer to the balance account the amount of SSC for those shares after the locking period has passed.
+If the nominator's stake after withdrawal results in an amount below the operator's required `minimum_nominator_stake,` the nominator is automatically completely unstaked. Contrary, the operator cannot withdraw below the `MinOperatorStake`.
 
-A nominator can submit any number of `withdraw_shares` extrinsics. Withdrawals in the same epoch are aggregated and transferrable with the same `unlock_funds` extrinsic. However, for withdrawals in different epochs, separate `unlock_funds` extrinsics will have to be submitted, but they can be batched together if multiple have cleared the unlocking period. 
+A withdrawal is logically composed of 2 parts. First, a user request to withdraw shares (`withdraw_stake`) that unstakes a given amount of stake at the end of epoch, and second, a request to unlock (`unlock_funds` [extrinsic](interfaces.md/#unlock_funds)) and actually transfer to the balance account the amount of SSC for those shares after the locking period has passed.
 
-1. Nominator submits a `withdraw_stake` extrinsic to withdraw either `All` or a specific `withdraw_shares` as `withdraw_shares(operator_id, nominator_id, withdraw_shares)`.
+A nominator can submit any number of `withdraw_stake` extrinsics. Withdrawals in the same epoch are aggregated and transferrable with the same `unlock_funds` extrinsic. However, for withdrawals in different epochs, separate `unlock_funds` extrinsics will have to be submitted, but they can be batched together if multiple have cleared the unlocking period. 
+
+1. Nominator submits a `withdraw_stake` extrinsic.
 2. If there are any pending deposits `PendingDeposit` for this nominator for any previous epoch `n`, then use the `OperatorEpochSharePrice` stored for those specific deposit epoch `n` and calculate the `shares` and add it to existing `shares` in `KnownDeposit`.This would not be unbounded and at max be 1 `PendingDeposit` for a given nominator.
 3. If there are any withdrawals `withdrawals_in_shares` for this nominator for any previous epoch `n`, then use the `OperatorEpochSharePrice` stored for those specific epoch `n` and convert the `shares` to SSC, move the withdrawal into the converted `withdrawals` vector and add the amount to `total_withdrawal_amount`.
 4. Once the pending nominator deposit shares are calculated and added to known shares, 
