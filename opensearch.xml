@@ -4,8 +4,8 @@
   <ShortName>Subspace Protocol</ShortName>
   <Description>Search Subspace Protocol</Description>
   <InputEncoding>UTF-8</InputEncoding>
-  <Image width="16" height="16" type="image/x-icon">https://subspace.github.io/img/favicon.ico</Image>
-  <Url type="text/html" method="get" template="https://subspace.github.io/search?q={searchTerms}"/>
-  <Url type="application/opensearchdescription+xml" rel="self" template="https://subspace.github.io/opensearch.xml" />
-  <moz:SearchForm>https://subspace.github.io/</moz:SearchForm>
+  <Image width="16" height="16" type="image/x-icon">https://subspace.github.io/protocol-specs/img/favicon.ico</Image>
+  <Url type="text/html" method="get" template="https://subspace.github.io/protocol-specs/search?q={searchTerms}"/>
+  <Url type="application/opensearchdescription+xml" rel="self" template="https://subspace.github.io/protocol-specs/opensearch.xml" />
+  <moz:SearchForm>https://subspace.github.io/protocol-specs/</moz:SearchForm>
 </OpenSearchDescription>
