@@ -11,7 +11,7 @@ const config = {
   title: 'Subspace Protocol',
   tagline: 'Formal specifications of the Subspace scalable blockchain protocol',
   url: 'https://subspace.github.io',
-  baseUrl: '/',
+  baseUrl: '/protocol-specs/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
