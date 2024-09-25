@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-decex/fraud_proofs" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.1.1">
+<title data-rh="true">Fraud Proofs | Subspace Protocol</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://subspace.github.io/docs/decex/fraud_proofs"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Fraud Proofs | Subspace Protocol"><meta data-rh="true" name="description" content="Proving fraudulent behavior on domains"><meta data-rh="true" property="og:description" content="Proving fraudulent behavior on domains"><meta data-rh="true" name="keywords" content="execution,decex,fraud proof,challenge period"><link data-rh="true" rel="icon" href="/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://subspace.github.io/docs/decex/fraud_proofs"><link data-rh="true" rel="alternate" href="https://subspace.github.io/docs/decex/fraud_proofs" hreflang="en"><link data-rh="true" rel="alternate" href="https://subspace.github.io/docs/decex/fraud_proofs" hreflang="x-default"><link data-rh="true" rel="preconnect" href="https://DQOBF9R1M4-dsn.algolia.net" crossorigin="anonymous"><link rel="search" type="application/opensearchdescription+xml" title="Subspace Protocol" href="/opensearch.xml">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css" integrity="sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM" crossorigin="anonymous"><link rel="stylesheet" href="/assets/css/styles.006e31aa.css">
+<script src="/assets/js/runtime~main.9039c261.js" defer="defer"></script>
+<script src="/assets/js/main.ed26ac3b.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<script>!function(){function t(t){document.documentElement.setAttribute("data-theme",t)}var e=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return localStorage.getItem("theme")}catch(t){}}();null!==e?t(e):window.matchMedia("(prefers-color-scheme: dark)").matches?t("dark"):window.matchMedia("(prefers-color-scheme: light)").matches?t("light"):t("dark")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="navbar navbar--fixed-top"><div class="navbar__inner"><div class="navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/"><div class="navbar__logo"><img src="/img/logo-black.svg" alt="Subspace Labs Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/img/logo-white.svg" alt="Subspace Labs Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/docs/protocol_specifications">Specifications</a><div class="navbar__item dropdown dropdown--hoverable"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link">Network Resources</a><ul class="dropdown__menu"><li><a href="https://explorer.subspace.network/" target="_blank" rel="noopener noreferrer" class="dropdown__link">Subspace Explorer<svg width="12" height="12" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li><a href="https://telemetry.subspace.network" target="_blank" rel="noopener noreferrer" class="dropdown__link">Subspace Telemetry<svg width="12" height="12" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li><a href="https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Feu-1.gemini-2a.subspace.network%2Fws#/explorer" target="_blank" rel="noopener noreferrer" class="dropdown__link">PolkadotJS Portal<svg width="12" height="12" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li></ul></div></div><div class="navbar__items navbar__items--right"><a href="https://docs.subspace.network" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Documentation<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a><a href="https://github.com/subspace" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="Switch between dark and light mode (currently dark mode)" aria-label="Switch between dark and light mode (currently dark mode)" aria-live="polite"><svg viewBox="0 0 24 24" width="24" height="24" class="lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" class="darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><button type="button" class="DocSearch DocSearch-Button" aria-label="Search"><span class="DocSearch-Button-Container"><svg width="20" height="20" class="DocSearch-Search-Icon" viewBox="0 0 20 20"><path d="M14.386 14.386l4.0877 4.0877-4.0877-4.0877c-2.9418 2.9419-7.7115 2.9419-10.6533 0-2.9419-2.9418-2.9419-7.7115 0-10.6533 2.9418-2.9419 7.7115-2.9419 10.6533 0 2.9419 2.9418 2.9419 7.7115 0 10.6533z" stroke="currentColor" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="DocSearch-Button-Placeholder">Search</span></span><span class="DocSearch-Button-Keys"></span></button></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/docs/protocol_specifications">Protocol Specifications</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/docs/crypto_primitives">Cryptographic Primitives</a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" aria-expanded="false" href="/docs/category/consensus">Consensus</a><button aria-label="Expand sidebar category &#x27;Consensus&#x27;" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist menu__link--active" aria-expanded="true" href="/docs/category/decoupled-execution">Decoupled Execution</a><button aria-label="Collapse sidebar category &#x27;Decoupled Execution&#x27;" type="button" class="clean-btn menu__caret"></button></div><ul style="display:block;overflow:visible;height:auto" class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decex/overview">Domains Overview</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decex/interfaces">Domains Interfaces</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decex/bundles_blocks">Bundles and Domain Blocks</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decex/workflow">Workflow</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decex/staking">Staking</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/docs/decex/fraud_proofs">Fraud Proofs</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/decex/xdm">Cross-Domain Messaging (XDM)</a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="menu__link menu__link--sublist" aria-expanded="false" href="/docs/category/fees-and-rewards">Fees and Rewards</a><button aria-label="Expand sidebar category &#x27;Fees and Rewards&#x27;" type="button" class="clean-btn menu__caret"></button></div></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/docs/runtime">Runtime</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/docs/glossary">Glossary</a></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="Breadcrumbs"><ul class="breadcrumbs" itemscope="" itemtype="https://schema.org/BreadcrumbList"><li class="breadcrumbs__item"><a aria-label="Home page" class="breadcrumbs__link" href="/"><svg viewBox="0 0 24 24" class="breadcrumbHomeIcon_YNFT"><path d="M10 19v-5h4v5c0 .55.45 1 1 1h3c.55 0 1-.45 1-1v-7h1.7c.46 0 .68-.57.33-.87L12.67 3.6c-.38-.34-.96-.34-1.34 0l-8.36 7.53c-.34.3-.13.87.33.87H5v7c0 .55.45 1 1 1h3c.55 0 1-.45 1-1z" fill="currentColor"></path></svg></a></li><li itemscope="" itemprop="itemListElement" itemtype="https://schema.org/ListItem" class="breadcrumbs__item"><a class="breadcrumbs__link" itemprop="item" href="/docs/category/decoupled-execution"><span itemprop="name">Decoupled Execution</span></a><meta itemprop="position" content="1"></li><li itemscope="" itemprop="itemListElement" itemtype="https://schema.org/ListItem" class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link" itemprop="name">Fraud Proofs</span><meta itemprop="position" content="2"></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>Fraud Proofs</h1></header><p>Every domain operator executes the domain block (<a href="/docs/decex/workflow#domain-block-execution-on-the-operator-node">as described</a>), derived deterministically from the consensus block, and submits this computational result to the consensus chain as an execution receipt within the next bundle this operator produces, thereby committing to the execution result. By default, the computation result is optimistically assumed correct until challenged by a fraud proof during the challenge period of <code>BlockTreePruningDepth</code> blocks. All domain nodes scrutinize the submitted execution results, and upon detecting any discrepancies, they challenge the execution by submitting a fraud proof to the consensus chain as an unsigned extrinsic.
+A fraud proof either explicitly includes all necessary data and the state of the domain required for the verification process or via a runtime storage proof. This way, a fraud can be executed by a node on the consensus chain, which has access to the MMR roots for historical state, but not the full domain state. If the node who detected fraud is also a registered operator of this domain, they can submit a new execution receipt to the consensus chain with their next bundle, which will override the fraudulent one in the <a href="/docs/decex/interfaces#block-tree">block tree</a> once the fraud proof is accepted by the consensus chain.</p>
+<p>Any domain node (a node that has an up-to-date state of domain A) can submit fraud proofs for domain A. Whether the node is acting honestly or not in this particular instance is determined by the validity of the fraud proof. The node does not have to stake or run operator (produce bundles) to report fraud.</p>
+<p>Fraud proofs are verified on the client side, first in the transaction pool and then on importing the block.</p>
+<p>Broadly, fraud proofs can be categorized into those caused by invalid execution receipt fields and those caused by invalid state transitions.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="structure">Structure<a href="#structure" class="hash-link" aria-label="Direct link to Structure" title="Direct link to Structure">​</a></h2>
+<p>A fraud proof contains the following fields:</p>
+<ul>
+<li><code>domain_id</code>: domain identifier of the domain this fraud proof targets</li>
+<li><code>bad_receipt_hash</code>: hash of the claimed invalid execution receipt</li>
+<li><code>maybe_mmr_proof</code>: MMR proof for the consensus state root of the consensus block from which the Execution Receipt is derived, used to verify the storage proof. Only the  Invalid Extrinsics Root, Incorrect List of Inboxed Bundles fraud proofs are using the MMR proof during verification, for other fraud proofs it is set to <code>None</code>.</li>
+<li><code>maybe_domain_runtime_code_proof</code>: domain runtime code storage proof and MMR proof for the parent block. May be set to <code>None</code> if the specific fraud proof variant doesn&#x27;t require domain runtime code for verification or the required domain runtime code is available from the current runtime state. This field is usually required if the domain runtime code was upgraded during the challenge period.</li>
+<li><code>proof</code>: storage proof for specific variant of the fraud proof.</li>
+</ul>
+<p>We currently handle the following variants of fraud proofs:</p>
+<p>Execution Receipt invalid due to incorrect fields:</p>
+<ul>
+<li><a href="#invalid-block-fees">Invalid Block Fees</a> - incorrect fees information</li>
+<li><a href="#invalid-transfers">Invalid Transfers</a>  - incorrect bookkeeping of transferred or burnt coins on domain</li>
+<li><a href="#invalid-extrinsics-root">Invalid Extrinsics Root</a> - incorrect set or order of extrinsics executed in this ER</li>
+<li><a href="#invalid-domain-block-hash">Invalid Domain Block Hash</a> - incorrect domain block header hash</li>
+<li><a href="#incorrect-list-of-inboxed-bundles">Incorrect List of Inboxed Bundles</a> - some valid bundles were listed as invalid, or missing, and/or some executed bundles were invalid due to extrinsics in their body being invalid, in <a href="#invalid-bundle">order</a> of <code>InvalidBundleType</code>.</li>
+</ul>
+<p>Incorrect state transition:</p>
+<ul>
+<li><a href="#invalid-state-transition">Invalid State Transition</a></li>
+</ul>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="invalid-bundle">Invalid Bundle<a href="#invalid-bundle" class="hash-link" aria-label="Direct link to Invalid Bundle" title="Direct link to Invalid Bundle">​</a></h2>
+<p>An invalid bundle is a bundle that exhibits misbehavior either in its extrinsic content or the execution receipt. An invalid bundle may or may not go into the consensus block. If the consensus node can identify the invalidity of a bundle without requiring the transaction data, such bundles will be promptly detected and rejected by the consensus node. As a result, they will not be included in the consensus block. On the other hand, there may be other invalid bundles that the consensus node cannot identify without processing the complete transaction data. In such cases, these invalid bundles will be included in the consensus block and handled by the operators.</p>
+<p>Operators will be responsible for filtering out the invalid bundles included in the consensus block. A bundle can be invalid due to one or several extrinsics in its body being invalid, for the following reasons in this order (<code>InvalidBundleType</code>):</p>
+<ol>
+<li><code>UndecodableTx(extrinsic_index)</code></li>
+<li><code>OutOfRangeTx(extrinsic_index)</code></li>
+<li><code>InherentExtrinsic(extrinsic_index)</code></li>
+<li><code>IllegalTx(extrinsic_index)</code></li>
+<li><code>InvalidBundleWeight</code></li>
+</ol>
+<p>An operator executing a domain block will signal such invalid bundles with their <code>InvalidBundleType</code> in the execution receipt <code>ER::inboxed_bundles</code> field. Once the ER is confirmed, the authors of invalid bundles will be slashed.</p>
+<p>Once operators have signaled all invalid bundles, the remaining data for computation is considered clean, following conventional Fraud Proof principles. To prove the integrity of clean data later, auxiliary data is added to the receipt, including crucial information like <code>inboxed_bundles</code>, <code>domain_block_extrinsics_root</code>, and <code>domain_block_hash</code>. The transactions within the remaining bundles are compiled into the final extrinsic list of the domain block, which is subsequently executed. Any misbehavior from this execution would fall under an invalid state transition category.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="invalid-receipt">Invalid Receipt<a href="#invalid-receipt" class="hash-link" aria-label="Direct link to Invalid Receipt" title="Direct link to Invalid Receipt">​</a></h2>
+<p>An invalid execution receipt (ER) of a domain block may exhibit misbehavior either in its executed extrinsic content or auxiliary information fields. The execution receipt for the previous block are submitted by the operator together with their next bundle as a way to make operators commit to their ERs. For the complete list of ER fields see <a href="/docs/decex/bundles_blocks#execution-receipt">Execution Receipt</a></p>
+<p>When an honest operator detects an incorrect field in ER produced by another operator, they submit a fraud proof. If such proof is valid, the fraudulent operator is slashed off their stake immediately.</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="consensus-nodes">Consensus Nodes<a href="#consensus-nodes" class="hash-link" aria-label="Direct link to Consensus Nodes" title="Direct link to Consensus Nodes">​</a></h3>
+<p>The consensus node will verify as much as possible on receiving a bundle as <a href="/docs/decex/workflow#initial-domain-bundle-verification-by-consensus-nodes">described here</a>.Once the bundles are well-formed, the consensus node can include them in the block. Verifying other reasons for invalid bundles exceeds the ability of the consensus node and is deterred to operators.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="operators">Operators<a href="#operators" class="hash-link" aria-label="Direct link to Operators" title="Direct link to Operators">​</a></h2>
+<p>After the operator receives a new consensus block, they validate the bundles relevant to their domain included in that block. They check the bundle for cases where a dishonest operator may have attempted to manipulate it by adding extrinsics that are not supposed to be included or removing them.</p>
+<p>A class of fraudulent behaviors to be caught by honest operators within bundles are the discrepancies in the various domain state-related Execution Receipt (<code>ER</code>) fields (<code>domain_block_extrinsics_root</code>, <code>execution_trace</code>, etc.).</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="invalid-block-fees">Invalid Block Fees<a href="#invalid-block-fees" class="hash-link" aria-label="Direct link to Invalid Block Fees" title="Direct link to Invalid Block Fees">​</a></h2>
+<p>A dishonest operator may include incorrect info on fees extracted from the executed block, causing an incorrect <code>ER::block_fees</code> field.</p>
+<p>Detect if the external ER has a different <code>block_fees</code> field, if so the operator will need to construct a fraud proof that includes the correct <code>block_fees</code> field and data that prove the integrity of this correct <code>block_fees</code>.</p>
+<p><strong>Prover provides:</strong></p>
+<ul>
+<li><code>domain_id</code>: the id of the domain this fraud proof targeted</li>
+<li><code>bad_receipt_hash</code>: the targeted invalid ER</li>
+<li><code>maybe_domain_runtime_code_proof</code>: for the runtime code if it is not still present in the state.</li>
+<li><code>storage_proof</code>: the storage proof of the <code>BlockFees</code> storage item from the domain chain that attests correct <code>block_fees</code> value.</li>
+</ul>
+<p><strong>Verifier checks:</strong></p>
+<ol>
+<li>Verify <code>bad_receipt_hash</code> exists</li>
+<li>Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the <code>maybe_domain_runtime_code_proof</code> storage proof with MMR proof.</li>
+<li>Get the storage key for <code>BlockFees</code> from the runtime code and decode the value from the <code>storage_proof</code>.</li>
+<li>Verify that storage proofs included a value for <code>block_fees != bad_receipt_hash::block_fees</code>.</li>
+<li>If both are same ⇒ Ignore the fraud proof.</li>
+</ol>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="invalid-transfers">Invalid Transfers<a href="#invalid-transfers" class="hash-link" aria-label="Direct link to Invalid Transfers" title="Direct link to Invalid Transfers">​</a></h2>
+<p>A dishonest operator may include incorrect info on transfers sent or received in extrinsics of the executed block, causing an incorrect <code>ER::transfers</code> field.</p>
+<p>Detect if the external ER has a different <code>transfers</code> field, if so the operator will need to construct a fraud proof that includes the correct <code>transfers</code> field and data that prove the integrity of this correct <code>transfers</code>.</p>
+<p><strong>Prover provides:</strong></p>
+<ul>
+<li><code>domain_id</code>: the id of the domain this fraud proof targeted</li>
+<li><code>bad_receipt_hash</code>: the targeted invalid ER</li>
+<li><code>maybe_domain_runtime_code_proof</code>: for the runtime code if it is not still present in the state.</li>
+<li><code>storage_proof</code>: the storage proof of the <code>Transfers</code> storage item from the domain chain that attests correct <code>transfers</code> value.</li>
+</ul>
+<p><strong>Verifier checks:</strong></p>
+<ol>
+<li>Verify <code>bad_receipt_hash</code> exists.</li>
+<li>Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the <code>maybe_domain_runtime_code_proof</code> storage proof with MMR proof.</li>
+<li>Get the storage key for <code>Transfers</code> from the runtime code and decode the value from the <code>storage_proof</code>.</li>
+<li>Verify that storage proofs included a value for <code>transfers.transfers_in != bad_receipt_hash::transfers.transfers_in</code> or <code>transfers.transfers_out != bad_receipt_hash::transfers.transfers_out</code>.</li>
+<li>If both are same ⇒ Ignore the fraud proof.</li>
+</ol>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="invalid-extrinsics-root">Invalid Extrinsics Root<a href="#invalid-extrinsics-root" class="hash-link" aria-label="Direct link to Invalid Extrinsics Root" title="Direct link to Invalid Extrinsics Root">​</a></h2>
+<p>When building a domain block, a dishonest operator may incorrectly change the extrinsics ordering compiled from the bundles or include an incorrect timestamp or runtime code upgrade inherents, causing an incorrect <code>ER::domain_block_extrinsics_root</code> field. This field represents the Merkle root of the final compiled extrinsic list, obtained from the bundles and specifically used to construct the domain block</p>
+<ol>
+<li>Ordering transactions requires a known set of extrinsics, which, in turn, depends on identifying valid bundles. As such, this type of fraud proof depends on the <a href="#incorrect-list-of-inboxed-bundles">Incorrect List of Inboxed Bundles</a>, which should be reported first.</li>
+<li>Once we have a set of valid bundles from the host function, an honest operator can identify a mismatch in the <code>domain_block_extrinsics_root</code>, they can generate a fraud proof by providing all the bundles present in the corresponding consensus block.</li>
+</ol>
+<p>Upon receiving the proof, the consensus node can rerun the shuffle algorithm to reconstruct the final extrinsic list and obtain the correct <code>domain_block_extrinsics_root</code> value.</p>
+<p><strong>Prover provides:</strong></p>
+<ul>
+<li><code>domain_id</code>: ID of the domain this fraud proof targets.</li>
+<li><code>bad_receipt_hash</code>: the targeted invalid ER.</li>
+<li><code>mmr_proof</code>: MMR proof for the consensus block from which the receipt is derived.</li>
+<li><code>maybe_domain_runtime_code_proof</code>: for the runtime code if it is not still present in the state.</li>
+<li><code>valid_bundle_digests</code>: list of lists of extrinsics <code>(index, (signer,hash))</code> from all bundles.</li>
+<li><code>block_randomness_proof</code>: storage proof of the <code>BlockRandomness</code> storage item from the consensus chain that attests correct <code>block_randomness</code> value.</li>
+<li><code>domain_inherent_extrinsic_data_proof</code>: storage proofs of the inherent extrinsics (timestamp, runtime upgrade, cost of storage, etc.) that were present in the block.</li>
+</ul>
+<p><strong>Verifier checks:</strong></p>
+<ol>
+<li>Verify a <code>bad_receipt</code> with <code>bad_receipt_hash</code> exists</li>
+<li>Verify <code>mmr_proof</code> and obtain the corresponding state root for the consensus block number in the receipt.</li>
+<li>Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the <code>maybe_domain_runtime_code_proof</code> storage proof with MMR proof.</li>
+<li>Verify <code>domain_inherent_extrinsic_data_proof</code> and <code>block_randomness_proof</code> storage proofs.</li>
+<li>Obtain from the <code>block_randomness_proof</code> storage proof the <code>block_randomness</code> for <code>consensus_block_hash</code> in <code>bad_receipt</code>.</li>
+<li>Obtain from the <code>domain_inherent_extrinsic_data_proof</code> storage proof any inherent extrinsics: timestamp, domain allowlist update (if applicable), consensus chain byte fee, runtime upgrade <code>set_code</code> (if applicable). The inherents are not part of any bundle and are ingested directly into the domain block from the consensus chain.</li>
+<li>Check that <code>valid_bundle_digests</code> correspond to the bundle digests in the targeted ER</li>
+<li>Shuffle the extrinsics collected from <code>valid_bundle_digests</code>, timestamp and runtime upgrade extrinsics using <code>block_randomness</code> as a seed</li>
+<li>Compare if the root of the resulting ordered tree is different from <code>bad_receipt.domain_block_extrinsics_root</code> ⇒ Accept the fraud proof and punish the producer of <code>bad_receipt</code>.</li>
+<li>If the root is same ⇒ Ignore the fraud proof.</li>
+</ol>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="invalid-domain-block-hash">Invalid Domain Block Hash<a href="#invalid-domain-block-hash" class="hash-link" aria-label="Direct link to Invalid Domain Block Hash" title="Direct link to Invalid Domain Block Hash">​</a></h2>
+<p>Detect if the external ER has a different <code>ER::domain_block_hash</code> field, if so, the operator will need to construct a fraud proof that includes all components necessary to construct the domain block header and data that prove the integrity of these components:</p>
+<ul>
+<li><code>domain_id</code>: the id of the domain this fraud proof targeted</li>
+<li><code>bad_receipt_hash</code>, the targeted invalid ER hash</li>
+<li><code>digest_storage_proof</code>, the storage proof of the <code>pallet_system::Digest</code> storage item of the domain chain</li>
+</ul>
+<p>This fraud proof depends on <a href="#invalid-extrinsics-root">Invalid Extrinsics Root</a> and <a href="#invalid-state-transition">Invalid State Transition</a> proof being produced first and any fraud proofs for the parent domain block execution receipt.</p>
+<p><strong>Verifier checks:</strong></p>
+<ol>
+<li>Verify the <code>bad_receipt</code> with <code>bad_receipt_hash</code> exists.</li>
+<li>Verify that <code>maybe_domain_runtime_code_proof</code> is <code>None</code> as this fraud proof variant does not require domain runtime code.</li>
+<li>Verify <code>bad_receipt.parent_domain_block_receipt_hash</code> corresponds to an existing <code>parent_receipt</code></li>
+<li>Verify the <code>digest</code> storage proof with <code>ER::final_state_root</code></li>
+<li>Construct the <code>derived_domain_block_hash</code> from <code>(bad_receipt.domain_block_number, bad_receipt.domain_block_extrinsic_root, bad_receipt.final_state_root, parent_receipt.domain_block_hash, digest)</code> by reconstructing a new header and hashing it.</li>
+<li>Verify that <code>derived_domain_block_hash != bad_receipt.domain_block_hash</code> ⇒ Accept the fraud proof and punish the producer of <code>bad_receipt</code>.</li>
+<li>If both <code>domain_block_hash</code> are same ⇒ Ignore the fraud proof.</li>
+</ol>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="incorrect-list-of-inboxed-bundles">Incorrect List of Inboxed Bundles<a href="#incorrect-list-of-inboxed-bundles" class="hash-link" aria-label="Direct link to Incorrect List of Inboxed Bundles" title="Direct link to Incorrect List of Inboxed Bundles">​</a></h2>
+<p>A dishonest operator may misrepresent which bundles in the domain block were deemed invalid and excluded from execution or flag valid bundles as invalid, causing an incorrect <code>ER::inboxed_bundles</code> field of structure<code>(Valid or Invalid(InvalidBundleType), extrinsics_root)</code>.</p>
+<p>A fraud proof for this field only reports the first mismatch and does not need to report if there are multiple, as a single mismatch is sufficient to demonstrate the filed is incorrect.</p>
+<p>There are several variants of why <code>inboxed_bundles</code> in the receipt can be wrong:</p>
+<ol>
+<li><strong>Valid Bundle</strong>
+A valid bundle is listed as valid, but the bundle digest (list of extrinsic signers and hashes) is different.</li>
+<li><strong>True Invalid Bundle</strong>
+<ol>
+<li>An dishonest operator tries to pass an invalid bundle as valid. If an invalid bundle is marked as <code>Valid</code> in the bad ER, a fraud proof can be generated to demonstrate the bundle is actually wrong due to one of the above listed reasons (<code>IllegalTx</code>, <code>OutOfRangeTx</code>, etc.).</li>
+<li>An dishonest operator lists an invalid bundle as <code>Invalid</code>, but the reason why it is invalid (<code>InvalidBundleType</code>) is incorrect (i.e. locally checked <code>InvalidBundleType</code> is of higher precedence (in <a href="#invalid-bundle">this</a> order) than listed in the ER or happens at an earlier extrinsic.)</li>
+</ol>
+</li>
+<li><strong>False Invalid Bundle</strong>
+<ol>
+<li>An dishonest operator tries to present a valid bundle as <code>Invalid</code>. A fraud proof to show that <code>InvalidBundleType</code> is unjustified.</li>
+<li>An dishonest operator lists an invalid bundle as <code>Invalid</code>, but the reason why it is invalid (<code>InvalidBundleType</code>) is incorrect (i.e. a valid extrinsic is marked as invalid, an invalid extrinsic is marked invalid for a wrong reason, etc.)</li>
+</ol>
+</li>
+</ol>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="valid-bundle">Valid Bundle<a href="#valid-bundle" class="hash-link" aria-label="Direct link to Valid Bundle" title="Direct link to Valid Bundle">​</a></h3>
+<p><strong>Prover provides:</strong></p>
+<ul>
+<li><code>domain_id</code>: ID of the domain this fraud proof targets.</li>
+<li><code>bad_receipt_hash</code>: the targeted invalid ER.</li>
+<li><code>mmr_proof</code>: MMR proof for the consensus block from which the receipt is derived.</li>
+<li><code>maybe_domain_runtime_code_proof</code>: for the runtime code if it is not still present in the state.</li>
+<li><code>bundle_with_proof</code>: including <code>bundle_index</code> index of mismatched bundle; <code>bundle</code> bundle body; and <code>bundle_storage_proof</code> storage proof.</li>
+</ul>
+<p><strong>Verifier checks:</strong></p>
+<ol>
+<li>Verify the <code>bad_receipt</code> with <code>bad_receipt_hash</code> exists.</li>
+<li>Verify <code>mmr_proof</code> and obtain the corresponding state root for the consensus block number in the receipt.</li>
+<li>Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the <code>maybe_domain_runtime_code_proof</code> storage proof with MMR proof.</li>
+<li>Verify the <code>bundle_storage_proof</code>.</li>
+<li>Obtain from <code>bundle_with_proof</code> the <code>bundle</code> body of the bundle in question.</li>
+<li>Compute <code>valid_bundle_digest</code> from extrinsics in the <code>bundle</code> using domain runtime code.</li>
+<li>Compare that the digest is different from the one in <code>bad_receipt</code>at the given <code>bundle_index</code> ⇒ Accept the fraud proof and punish the producer of <code>bad_receipt</code>.</li>
+<li>If the digest is same ⇒ Ignore the fraud proof.</li>
+</ol>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="truefalse-invalid-bundle">True/False Invalid Bundle<a href="#truefalse-invalid-bundle" class="hash-link" aria-label="Direct link to True/False Invalid Bundle" title="Direct link to True/False Invalid Bundle">​</a></h3>
+<p><strong>Prover provides:</strong></p>
+<ul>
+<li><code>domain_id</code>: ID of the domain this fraud proof targets.</li>
+<li><code>bad_receipt_hash</code>: the targeted invalid ER.</li>
+<li><code>mmr_proof</code>: MMR proof for the consensus block from which the receipt is derived.</li>
+<li><code>maybe_domain_runtime_code_proof</code>: for the runtime code if it is not still present in the state.</li>
+<li><code>bundle_index</code>: index of mismatched bundle</li>
+<li><code>invalid_bundle_type</code>: the <code>InvalidBundleType</code> indicator with the mismatched extrinsic index where applicable.</li>
+<li><code>is_true_invalid_fraud_proof</code>: whether the variant of this proof is <code>TrueInvalid</code>(<code>true</code>) or <code>FalseInvalid</code>(<code>false</code>)</li>
+<li><code>proof_data</code>: specific data for the fraud proof variant.</li>
+</ul>
+<p><strong>Verifier checks:</strong></p>
+<ol>
+<li>Verify the <code>bad_receipt</code> with <code>bad_receipt_hash</code> exists.</li>
+<li>Verify <code>mmr_proof</code> and obtain the corresponding state root for the consensus block number in the receipt.</li>
+<li>Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the <code>maybe_domain_runtime_code_proof</code> storage proof with MMR proof.</li>
+<li>Determine the fraud proof variant. If <code>is_true_invalid_fraud_proof==true</code> then it’s <code>TrueInvalid</code>, else <code>FalseInvalid</code>.</li>
+<li>Determine which scenario the fraud proof corresponds to (if any) based on its structure:<!-- -->
+<ol>
+<li>For <code>FalseInvalid</code>, the <code>invalid_bundle_type</code> in the fraud proof and <code>bad_receipt</code> should be same for <code>bundle_index</code> (because the fraud proof will try to show it is wrong).</li>
+<li>For <code>TrueInvalid</code>, either:<!-- -->
+<ol>
+<li>The proof trying to prove the bundle at <code>bundle_index</code> is invalid due to <code>invalid_bundle_type</code> while <code>bad_receipt</code> claims bundle at <code>bundle_index</code> is <code>Valid</code>.</li>
+<li>The proof trying to prove there is an invalid extrinsic that the <code>bad_receipt</code> thinks is valid in the questioned bundle, so the proof should point to an extrinsic with a smaller <code>extrinsic_index</code> than that in of the <code>bad_receipt</code>.</li>
+<li>The proof trying to prove the invalid extrinsic at <code>extrinsic_index</code> can not pass a validity check (e.g. <code>OutOfRangeTx</code>) that the <code>bad_receipt</code> thinks it can, so the proof should point to the same extrinsic and a check that is performed before the one in <code>bad_receipt</code> (in this <a href="#invalid-bundle">order</a>).</li>
+<li>The proof is trying to prove an incorrect bundle weight estimate provided in the header.</li>
+</ol>
+</li>
+<li>If none of the above match the fields of the fraud proof ⇒ Ignore the fraud proof.</li>
+</ol>
+</li>
+<li>Check if the fraud proof is targetting a bad receipt that claims an extrinsic at a non-exist <code>extrinsic_index</code> is invalid.</li>
+<li>If <code>extrinsic_index</code> exists in the bundle, verify <code>invalid_bundle_type(extrinsic_index)</code> as defined below.</li>
+</ol>
+<p>The list below constitutes the possible fraudulent behaviors an operator can check for in a set of extrinsics included in a bundle.</p>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="undecodable-transaction">Undecodable Transaction<a href="#undecodable-transaction" class="hash-link" aria-label="Direct link to Undecodable Transaction" title="Direct link to Undecodable Transaction">​</a></h3>
+<p>A dishonest operator may have included an extrinsic that fails to decode or excluded a decodable extrinsic as invalid.</p>
+<p><strong>Proof data:</strong></p>
+<ul>
+<li><code>extrinsic_proof</code>: storage proof of inclusion for the extrinsic at the index given in the <code>invalid_bundle_type</code>.</li>
+</ul>
+<p><strong>Verifier checks:</strong></p>
+<ol>
+<li>Verify the storage proof <code>extrinsic_proof</code> and get the <code>encoded_extrinsic</code>.</li>
+<li>Attempt to decode the <code>encoded_extrinsic</code>.</li>
+<li>If the attempt fails, the extrinsic is truly <code>Undecodable</code>.</li>
+<li>For a <code>TrueInvalid</code> fraud proof, the tx must be <code>Undecodable</code> for the fraud proof to be considered valid.</li>
+<li>For a <code>FalseInvalid</code> fraud proof, the tx must be decodable for the fraud proof to be considered valid.</li>
+</ol>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="out-of-range-transaction">Out Of Range Transaction<a href="#out-of-range-transaction" class="hash-link" aria-label="Direct link to Out Of Range Transaction" title="Direct link to Out Of Range Transaction">​</a></h3>
+<p>A dishonest operator may have included a transaction not in the respective tx range defined here when producing a bundle or excluded a transaction within range as being out of range.</p>
+<p><strong>Proof data:</strong></p>
+<ul>
+<li><code>bundle_with_proof</code>: including <code>bundle_index</code> index of mismatched bundle; <code>bundle</code> bundle body; and <code>bundle_storage_proof</code> storage proof.</li>
+</ul>
+<p><strong>Verifier checks:</strong></p>
+<ol>
+<li>Verify the <code>bundle_storage_proof</code>.</li>
+<li>Obtain from <code>bundle_with_proof</code> the <code>bundle</code> body of the bundle in question.</li>
+<li>Get the extrinsic at <code>extrinsic_index</code>.</li>
+<li>Request a check from a stateless domain runtime call on whether the transaction is within the range according to the rule defined in <a href="/docs/decex/workflow#transaction-selection-for-bundle-production">Transaction Selection for Bundle Production</a></li>
+<li>For a <code>TrueInvalid</code> fraud proof, the tx must be outside of the range for fraud proof to be considered valid.</li>
+<li>For a <code>FalseInvalid</code> fraud proof, the tx must be within the range for fraud proof to be considered valid.</li>
+</ol>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="inherent-extrinsic">Inherent Extrinsic<a href="#inherent-extrinsic" class="hash-link" aria-label="Direct link to Inherent Extrinsic" title="Direct link to Inherent Extrinsic">​</a></h3>
+<p>A dishonest operator may have included an inherent extrinsic, which should not have been bundled or excluded a valid transaction that is not inherent. The inherent extrinsic data is data external to the domain from the consensus chain.</p>
+<p><strong>Proof data:</strong></p>
+<ul>
+<li><code>extrinsic_proof</code>: storage proof of inclusion for the extrinsic at the index given in the <code>invalid_bundle_type</code></li>
+</ul>
+<p><strong>Verifier checks:</strong></p>
+<ol>
+<li>Verify <code>extrinsic_proof</code> and get the extrinsic at <code>extrinsic_index</code> from the <code>extrinsic_proof</code>.</li>
+<li>Request a check from a stateless domain runtime call on whether the extrinsic is an inherent extrinsic.</li>
+<li>For a <code>TrueInvalid</code> fraud proof, the tx must be an inherent extrinsic.</li>
+<li>For a <code>FalseInvalid</code> fraud proof, the tx must not be an inherent extrinsic.</li>
+</ol>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="illegal-transaction">Illegal Transaction<a href="#illegal-transaction" class="hash-link" aria-label="Direct link to Illegal Transaction" title="Direct link to Illegal Transaction">​</a></h3>
+<p>When producing a bundle, a dishonest operator may include a transaction that fails to pass the basic transaction validity check wasting the blockspace, or exclude a valid transaction. The basic checks of transaction validity are <a href="https://github.com/paritytech/polkadot-sdk/blob/0e49ed72aa365475e30069a5c30e251a009fdacf/substrate/primitives/runtime/src/transaction_validity.rs#L40" target="_blank" rel="noopener noreferrer">defined in Substrate</a>, including account balance too low, bad signature, invalid XDM.</p>
+<p><strong>Proof data:</strong></p>
+<ul>
+<li><code>bundle_with_proof</code>: including <code>bundle_index</code> index of mismatched bundle; <code>bundle</code> bundle body; and <code>bundle_storage_proof</code> storage proof.</li>
+<li><code>execution_proof</code>: storage proof recorded during computation which can be used to reconstruct a partial state trie to re-run the execution by someone who does not own the whole state.</li>
+</ul>
+<p><strong>Verifier checks:</strong></p>
+<ol>
+<li>Verify <code>bundle_storage_proof</code> and get the <code>bundle</code> body of the bundle in question.</li>
+<li>Request a check from a stateless domain runtime call of all extrinsics in the bundle within the same runtime context</li>
+<li>For a <code>TrueInvalid</code> fraud proof, the tx must be illegal for fraud proof to be considered valid.</li>
+<li>For a <code>FalseInvalid</code> fraud proof, the tx must be illegal for fraud proof to be considered valid.</li>
+</ol>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="invalid-bundle-weight">Invalid Bundle Weight<a href="#invalid-bundle-weight" class="hash-link" aria-label="Direct link to Invalid Bundle Weight" title="Direct link to Invalid Bundle Weight">​</a></h3>
+<p>A dishonest operator may have included in the bundle header an incorrect <code>estimated_bundle_weight</code> field for the transactions in the bundle body.</p>
+<p><strong>Proof data:</strong></p>
+<ul>
+<li><code>bundle_with_proof</code>: including <code>bundle_index</code> index of mismatched bundle; <code>bundle</code> bundle body; and <code>bundle_storage_proof</code> storage proof.</li>
+</ul>
+<p><strong>Verifier checks:</strong></p>
+<ol>
+<li>Verify the <code>bundle_storage_proof</code>.</li>
+<li>Obtain from <code>bundle_with_proof</code> the <code>bundle</code> body of the bundle in question (all extrinsics).</li>
+<li>Request a check from a stateless domain runtime call on whether the sum of the weights of all transactions in the bundle is equal to the <code>estimated_bundle_weight</code> field in the bundle header.</li>
+<li>For a <code>TrueInvalid</code> fraud proof, the sum of weights of all transactions in the bundle must be different from the <code>estimated_bundle_weight</code> field in the bundle header for fraud proof to be considered valid.</li>
+<li>For a <code>FalseInvalid</code> fraud proof, the sum of weights of all transactions in the bundle must be equal to the <code>estimated_bundle_weight</code> field in the bundle header for fraud proof to be considered valid.</li>
+</ol>
+<h3 class="anchor anchorWithStickyNavbar_LWe7" id="note">Note<a href="#note" class="hash-link" aria-label="Direct link to Note" title="Direct link to Note">​</a></h3>
+<p>Note, that a dishonest operator may also ignore some valid transactions by not including them in the bundle.</p>
+<p>The motivation behind such behavior could be due to the operator&#x27;s laziness or, in more concerning scenarios, the operator may be maliciously excluding valid transactions for personal gain (e.g., censorship). Unfortunately, detecting such behavior is challenging and is not feasible in any way. On the positive side, the users will resubmit their transactions, eventually going to some honest operators. In other words, our design is censorship-resistant.</p>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="invalid-state-transition">Invalid State Transition<a href="#invalid-state-transition" class="hash-link" aria-label="Direct link to Invalid State Transition" title="Direct link to Invalid State Transition">​</a></h2>
+<p>A dishonest operator may produce a domain block that results in an incorrect state root by modifying the state in an invalid way <code>ER::execution_trace</code>. The honest operator detects at which index of the execution trace the ER is incorrect.</p>
+<p>This fraud proof depends on any fraud proofs for the parent domain block execution receipt (<code>parent_receipt.domain_block_hash</code>).</p>
+<p>Proving and verification algorithm varies depending on which execution phase the transition was applied wrongly.</p>
+<p><strong>Prover provides:</strong></p>
+<ul>
+<li><code>domain_id</code>: ID of the domain this fraud proof targets.</li>
+<li><code>bad_receipt_hash</code>: hash of the fraudulent receipt in which the trace mismatch was found.</li>
+<li><code>maybe_domain_runtime_code_proof</code>: for the runtime code if it is not still present in the state.</li>
+<li><code>execution_ proof</code>: storage proof recorded during computation which can be used to reconstruct a partial state trie to re-run the execution by someone who does not own the whole state.</li>
+<li><code>execution_phase</code>: which <a href="/docs/decex/workflow#domain-block-execution-on-the-operator-node">execution phase</a> the alleged wrong state transition happened.<!-- -->
+<ol>
+<li>
+<p><code>InitializeBlock</code> phase</p>
+<p>The input data for <code>InitializeBlock</code> <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>B</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">B_n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em"><span style="top:-2.55em;margin-left:-0.0502em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em"><span></span></span></span></span></span></span></span></span></span> is the initialized block header <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mi>e</mi><mi>a</mi><mi>d</mi><mi>e</mi><msub><mi>r</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">Header_n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em"></span><span class="mord mathnormal">He</span><span class="mord mathnormal">a</span><span class="mord mathnormal">d</span><span class="mord mathnormal">e</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.02778em">r</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.1514em"><span style="top:-2.55em;margin-left:-0.0278em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight">n</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em"><span></span></span></span></span></span></span></span></span></span> (see <code>initialize_block(header)</code> <a href="https://github.com/paritytech/substrate/blob/689da495a0c0c0c2466fe90a9ea187ce56760f2d/frame/executive/src/lib.rs#L396" target="_blank" rel="noopener noreferrer">definition</a>). There are five <a href="/docs/decex/bundles_blocks#domain-blocks">components</a> in the domain block <a href="https://github.com/paritytech/substrate/blob/689da495a0c0c0c2466fe90a9ea187ce56760f2d/primitives/runtime/src/generic/header.rs#L39" target="_blank" rel="noopener noreferrer">header</a>:</p>
+<ul>
+<li><code>parent_hash</code>: hash of parent domain block header <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>B</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">B_{n-1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8917em;vertical-align:-0.2083em"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.05017em">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em"><span style="top:-2.55em;margin-left:-0.0502em;margin-right:0.05em"><span class="pstrut" style="height:2.7em"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight">n</span><span class="mbin mtight">−</span><span class="mord mtight">1</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2083em"><span></span></span></span></span></span></span></span></span></span></li>
+<li><code>block_number</code>: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em"></span><span class="mord mathnormal">n</span></span></span></span></li>
+<li><code>state_root</code>: default value of Hash as it’s not executed yet</li>
+<li><code>extrinsics_root</code>: default value of Hash as it’s not initialized yet</li>
+<li><code>digest</code>: consensus block hash</li>
+</ul>
+<p>The fields are the default value or in the receipt, so the prover constructs a storage proof <code>proof</code> of the execution of the <code>InitializeBlock</code> phase with the above inputs.</p>
+</li>
+<li>
+<p><code>ApplyExtrinsic</code> phase, and specifically during application of which extrinsic with <code>(extrinsic_proof, mismatch_index)</code></p>
+<p>To prove the <code>ApplyExtrinsic</code> execution step, we provide:</p>
+<ul>
+<li><code>mismatch_index</code>: extrinsic index in the domain block after correct shuffling <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6595em"></span><span class="mord mathnormal">i</span></span></span></span></li>
+<li><code>extrinsic_proof</code>: Merkle proof of the extrinsic data at the index <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6595em"></span><span class="mord mathnormal">i</span></span></span></span> against <code>domain_block_extrinsics_root</code></li>
+</ul>
+<p>Verifier can fetch the full extrinsic data from the host function, so we do not have to include it.</p>
+<p>The prover constructs the storage <code>proof</code> for the execution delta of state right before (after executing all previous extrinsics) and right after (before executing the rest of the extrinsics).</p>
+</li>
+<li>
+<p><code>FinalizeBlock</code> phase, and <code>trace_length</code> to show after how many steps of execution trace the execution of the block should be finalized (length of trace).</p>
+<p>This phase requires no additional input data.</p>
+</li>
+</ol>
+</li>
+</ul>
+<p><strong>Verifier checks:</strong></p>
+<ol>
+<li>Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the <code>maybe_domain_runtime_code_proof</code> storage proof with MMR proof.</li>
+<li>Verify the correctness of transition data based on <code>execution_phase</code>:<!-- -->
+<ul>
+<li><code>InitializeBlock</code> phase: fetch <code>domain_block_hash</code> in the parent receipt</li>
+<li><code>ApplyExtrinsic</code> phase: verify the Merkle proof <code>extrinsic_proof</code> of extrinsic against <code>domain_block_extrinsics_root</code></li>
+<li><code>FinalizeBlock</code>
+<ul>
+<li>Let <code>M = bad_receipt.execution_trace.len()</code></li>
+<li>If <code>trace_length &gt;= M</code>, verify that the <code>bad_receipt</code>&#x27;s <code>execution_trace[M-2] -&gt; execution_trace[M-1]</code> is not a valid state transition of <code>finalize_block</code>, means the <code>execution_trace</code> should not stop at M.</li>
+<li>If <code>trace_length &lt; M</code>, verify that <code>bad_receipt</code>&#x27;s <code>execution_trace[trace_length-2] -&gt;</code> <code>execution_trace[trace_length-1]</code> is a valid state transition of <code>finalize_block</code>, means the <code>execution_trace</code> should stop at <code>trace_length</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Re-run the state transition and get the post-state root after the execution.</li>
+<li>If the post-state root matches the state root in the trace of the header being challenged, then the proof is invalid ⇒ ignore the proof</li>
+<li>If the post-state root does not match the state root in the trace, then the proof is valid ⇒ accept the proof and punish the authors of receipt identified by <code>bad_receipt_hash</code>.</li>
+</ol>
+<h2 class="anchor anchorWithStickyNavbar_LWe7" id="fraud-proof-priority-in-transaction-pool">Fraud proof priority in transaction pool<a href="#fraud-proof-priority-in-transaction-pool" class="hash-link" aria-label="Direct link to Fraud proof priority in transaction pool" title="Direct link to Fraud proof priority in transaction pool">​</a></h2>
+<p>To prune a chain of fraudulent Execution Receipts and slash the operators who submitted them, it is sufficient to include in a consensus block and process only a single fraud proof for the oldest fraudulent ER. If the fraud proof is valid, all the children blocks will be pruned and operators slashed automatically.
+A fraud proof that targets a bad ER has a priority is defined as <code>MAX - blocks_before_bad_er_confirm</code>, where <code>blocks_before_bad_er_confirm</code> is how many blocks remain until this ER is outside the challenge period. A fraud proof that targets a bad ER that is closer to being confirmed is more urgent and thus has a higher priority to be accepted by the transaction pool and to be included in the next consensus block. For a given domain, at most one fraud proof will be accepted by the transaction pool at a time; if an incoming fraud proof has a higher priority than the fraud proof already in the pool then it will replace the previous fraud proof, otherwise it will be rejected.</p>
+<p>For the bundle equivocation fraud proof, since it is not time-sensitive, its priority is a constant value <code>MAX - challenge_period - 1</code> thus lower than any other type of time-sensitive fraud proofs that target bad ERs. At most one bundle equivocation fraud proof will be accepted by the transaction pool at a time for a given operator. If there is already a bundle equivocation fraud proof in the pool, incoming bundle equivocation fraud proof that targets the same operator will be rejected.
+For comparison, bundles have a constant priority of 1.</p></div></article><nav class="pagination-nav docusaurus-mt-lg" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/docs/decex/staking"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Staking</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/docs/decex/xdm"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Cross-Domain Messaging (XDM)</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#structure" class="table-of-contents__link toc-highlight">Structure</a></li><li><a href="#invalid-bundle" class="table-of-contents__link toc-highlight">Invalid Bundle</a></li><li><a href="#invalid-receipt" class="table-of-contents__link toc-highlight">Invalid Receipt</a><ul><li><a href="#consensus-nodes" class="table-of-contents__link toc-highlight">Consensus Nodes</a></li></ul></li><li><a href="#operators" class="table-of-contents__link toc-highlight">Operators</a></li><li><a href="#invalid-block-fees" class="table-of-contents__link toc-highlight">Invalid Block Fees</a></li><li><a href="#invalid-transfers" class="table-of-contents__link toc-highlight">Invalid Transfers</a></li><li><a href="#invalid-extrinsics-root" class="table-of-contents__link toc-highlight">Invalid Extrinsics Root</a></li><li><a href="#invalid-domain-block-hash" class="table-of-contents__link toc-highlight">Invalid Domain Block Hash</a></li><li><a href="#incorrect-list-of-inboxed-bundles" class="table-of-contents__link toc-highlight">Incorrect List of Inboxed Bundles</a><ul><li><a href="#valid-bundle" class="table-of-contents__link toc-highlight">Valid Bundle</a></li><li><a href="#truefalse-invalid-bundle" class="table-of-contents__link toc-highlight">True/False Invalid Bundle</a></li><li><a href="#undecodable-transaction" class="table-of-contents__link toc-highlight">Undecodable Transaction</a></li><li><a href="#out-of-range-transaction" class="table-of-contents__link toc-highlight">Out Of Range Transaction</a></li><li><a href="#inherent-extrinsic" class="table-of-contents__link toc-highlight">Inherent Extrinsic</a></li><li><a href="#illegal-transaction" class="table-of-contents__link toc-highlight">Illegal Transaction</a></li><li><a href="#invalid-bundle-weight" class="table-of-contents__link toc-highlight">Invalid Bundle Weight</a></li><li><a href="#note" class="table-of-contents__link toc-highlight">Note</a></li></ul></li><li><a href="#invalid-state-transition" class="table-of-contents__link toc-highlight">Invalid State Transition</a></li><li><a href="#fraud-proof-priority-in-transaction-pool" class="table-of-contents__link toc-highlight">Fraud proof priority in transaction pool</a></li></ul></div></div></div></div></main></div></div></div><footer class="footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="col footer__col"><div class="footer__title">Subspace Network</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://subspace.network" target="_blank" rel="noopener noreferrer" class="footer__link-item">Official Website<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://github.com/subspace/subspace-desktop" target="_blank" rel="noopener noreferrer" class="footer__link-item">Subspace Desktop<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Ftest-rpc.subspace.network#/explorer" target="_blank" rel="noopener noreferrer" class="footer__link-item">Subspace Explorer<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://testnet-relayer.subspace.network/" target="_blank" rel="noopener noreferrer" class="footer__link-item">Subspace Relayer<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li></ul></div><div class="col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/subspace" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://discord.gg/subspace-network" target="_blank" rel="noopener noreferrer" class="footer__link-item">Discord<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://t.me/subspace_network" target="_blank" rel="noopener noreferrer" class="footer__link-item">Telegram<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li></ul></div><div class="col footer__col"><div class="footer__title">Social</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://www.youtube.com/channel/UCojYRCZOtVTJHJXivOYJzeQ" target="_blank" rel="noopener noreferrer" class="footer__link-item">YouTube<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://www.linkedin.com/company/subspace-blockchain" target="_blank" rel="noopener noreferrer" class="footer__link-item">LinkedIn<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://twitter.com/network_subspace" target="_blank" rel="noopener noreferrer" class="footer__link-item">Twitter<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://medium.com/subspace-network" target="_blank" rel="noopener noreferrer" class="footer__link-item">Medium<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li><li class="footer__item"><a href="https://app.subsocial.network/@NetworkSubspace" target="_blank" rel="noopener noreferrer" class="footer__link-item">Subsocial<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="margin-bottom--sm"><a href="https://subspace.network" rel="noopener noreferrer" class="footerLogoLink_BH7S"><img src="/img/banner-black.svg" alt="Subspace Labs Banner Logo" class="footer__logo themedComponent_mlkZ themedComponent--light_NVdE"><img src="/img/banner-white.svg" alt="Subspace Labs Banner Logo" class="footer__logo themedComponent_mlkZ themedComponent--dark_xIcU"></a></div><div class="footer__copyright">Copyright © 2024 Subspace Labs, Inc.</div></div></div></footer></div>
+</body>
+</html>
