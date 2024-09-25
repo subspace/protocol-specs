@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.1.1">
 <title data-rh="true">Cross-Domain Messaging (XDM) | Subspace Protocol</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://subspace.github.io/docs/decex/xdm"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Cross-Domain Messaging (XDM) | Subspace Protocol"><meta data-rh="true" name="description" content="Communication between domains and consensus chain"><meta data-rh="true" property="og:description" content="Communication between domains and consensus chain"><meta data-rh="true" name="keywords" content="xdm,decex,xcm,challenge period,cross-chain messaging,cross-domain messaging"><link data-rh="true" rel="icon" href="/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://subspace.github.io/docs/decex/xdm"><link data-rh="true" rel="alternate" href="https://subspace.github.io/docs/decex/xdm" hreflang="en"><link data-rh="true" rel="alternate" href="https://subspace.github.io/docs/decex/xdm" hreflang="x-default"><link data-rh="true" rel="preconnect" href="https://DQOBF9R1M4-dsn.algolia.net" crossorigin="anonymous"><link rel="search" type="application/opensearchdescription+xml" title="Subspace Protocol" href="/opensearch.xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css" integrity="sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM" crossorigin="anonymous"><link rel="stylesheet" href="/assets/css/styles.006e31aa.css">
-<script src="/assets/js/runtime~main.9039c261.js" defer="defer"></script>
+<script src="/assets/js/runtime~main.9bcd948c.js" defer="defer"></script>
 <script src="/assets/js/main.ed26ac3b.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -21,7 +21,7 @@
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="channel">Channel<a href="#channel" class="hash-link" aria-label="Direct link to Channel" title="Direct link to Channel">​</a></h3>
 <p>A Channel is a bi-directional connection between two domains. Channel connection is established when the <code>src_chain_id</code> initiates the channel connection open message, and  <code>dst_chain_id</code> responds with either approval or rejection. Once a connection is open, sending messages back and forth is possible. A Channel would be open until a maximum number of messages are sent. This could be configured or defaulted to the maximum possible value of the <code>Nonce</code> type.</p>
 <p>There is a deposit to open a channel between domains. Deposit should be high enough to discourage and make it economically inefficient to DDOS channel initiation connections between domains.</p>
-<p>A channel can be closed on either end by the channel owner. Once closed, the channel will stop sending and receiving any further messages. The Relayer will communicate to the other domain to close the channel and clean up.</p>
+<p>A channel can be closed on either end by the root user. Once closed, the channel will stop sending and receiving any further messages. The Relayer will communicate to the other domain to close the channel and clean up.</p>
 <p>A channel can be in one of the following states (<code>State</code>):</p>
 <ul>
 <li><code>Initiated</code>: When a channel is initiated but has not received acknowledgment from the other domain.</li>
@@ -148,16 +148,15 @@
 <p>Detailed description of each function required to be present in the protocol.</p>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="chain-allow-list">Chain Allow List<a href="#chain-allow-list" class="hash-link" aria-label="Direct link to Chain Allow List" title="Direct link to Chain Allow List">​</a></h2>
 <p>Consensus chain maintains a <code>ChainAllowList</code> to keep track of the authorized domain chains that can establish channels with the Consensus chain. <code>ChainAllowList</code> can be defined at Genesis and can be updated later by the sudo account adding or removing chains.</p>
-<p>When a Consensus chain receives an <code>initiate_channel</code> XDM to open the channel, if the <code>dst_chain_id</code> is in the allowlist, then channel is opened else the channel opening is rejected. In the latter case, the channel remains in <code>Initialized</code> state and the submitter can close it and get back the deposit.
+<p>When a Consensus chain receives an <code>initiate_channel</code> XDM to open the channel, if the <code>src_chain</code> is in the allowlist, then channel is opened else XDM is rejected.
 Practically, this means that a newly initialized domain chain needs to be approved by governance and added to the Consensus chain&#x27;s <code>ChainAllowList</code> before it can initiate a channel with the Consensus chain.</p>
 <p>Similarly, each domain chain maintains its own <code>DomainChainAllowList</code> to keep track of the authorized domains it can establish channels with. This allows the domains to control and restrict which other domains they want to interact with. Updating domain-specific lists is done within a domain by the domain&#x27;s sudo or governance, without consensus chain approval.</p>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="initiate-channel">Initiate Channel<a href="#initiate-channel" class="hash-link" aria-label="Direct link to Initiate Channel" title="Direct link to Initiate Channel">​</a></h3>
 <ol>
-<li>Channel <code>initiate_channel</code> transaction is sent by a user of the <code>src_chain_id</code> domain with the channel opening deposit.</li>
-<li>The next available <code>ChannelID</code> is assigned to the new channel.</li>
-<li>If no Channel exits, a Channel is created and set to <code>Initiated</code> status and cannot accept or receive any messages yet.</li>
-<li>If the <code>src_chain_id</code> is not in the allow list of <code>dst_chain_id</code>, destination chain does not open a channel, but rather leaves it in <code>Initiated</code> state and responds with an <code>Err</code>. When the error response is received on source chain, it also does not open then channel and leaves it in the <code>Initiated</code> state.</li>
-<li>If both chains are in the allow list of each other, the <code>Protocol</code> payload message to open the channel is added to the <code>src_chain_id</code> domain outbox with nonce <code>0</code>.</li>
+<li>Channel <code>initiate_channel</code> transaction is sent by the root user of the domain.</li>
+<li>If the domain is in the allow list, the next available <code>ChannelID</code> is assigned to the new channel.</li>
+<li>If no Channel exits, Channel is created and set to <code>Initiated</code> status and cannot accept or receive any messages yet.</li>
+<li><code>Protocol</code> payload message to open the channel is added to the <code>src_chain_id</code> domain outbox with nonce <code>0</code></li>
 </ol>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="open-channel">Open Channel<a href="#open-channel" class="hash-link" aria-label="Direct link to Open Channel" title="Direct link to Open Channel">​</a></h3>
 <p>Before sending any messages, domain needs to have an channel open with the <code>dst_chain_id</code>:</p>
@@ -169,17 +168,17 @@ Practically, this means that a newly initialized domain chain needs to be approv
 <li><code>src_domain</code> moves the channel state to <code>Open</code> and starts accepting messages to be sent over channel</li>
 </ol>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="close-channel">Close Channel<a href="#close-channel" class="hash-link" aria-label="Direct link to Close Channel" title="Direct link to Close Channel">​</a></h3>
-<p>Any domain of either end of an <code>Open</code> or <code>Initiated</code> channel can close the channel:</p>
+<p>Any domain of either end of the open channel can close the channel:</p>
 <ol>
-<li>Channel close transaction is sent by the channel owner. We allow closing channel request even if there the chain is not in the allow list so that reserve deposits can be claimed back. In the latter case, the initiator loses 20% of the deposit.</li>
-<li>Channel state is set to <code>Closed</code>.</li>
+<li>Channel close transaction is sent by the root user.</li>
+<li>Channel state is set to <code>Closed</code></li>
 <li><code>Protocol</code> payload message to close channel is added to the <code>src_chain_id</code> outbox</li>
 <li>Operator on <code>src_chain_id</code> gossips the message</li>
 <li>Operator on <code>dst_chain_id</code> receives a message with the corresponding <code>Protocol</code> <code>ChannelClose</code> payload.</li>
 <li>Channel close response is submitted to <code>src_chain_id</code></li>
 </ol>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="send-message">Send message<a href="#send-message" class="hash-link" aria-label="Direct link to Send message" title="Direct link to Send message">​</a></h3>
-<p>When user wants to send message from endpoint on <code>src_chain_id</code> to an endpoint on <code>dst_chain_id</code>  with an open channel to <code>dst_chain_id</code>.</p>
+<p>When user wants to send message from endpoint on <code>src_chain_id</code> to an endpoint on <code>dst_chain_id</code>  with open channel to <code>dst_chain_id</code>.</p>
 <ol>
 <li>User sends a transaction that results in a message to an endpoint on <code>dst_chain_id</code>.</li>
 <li>Transaction is included in the runtime state of <code>src_chain_id</code>.</li>
@@ -193,10 +192,9 @@ Practically, this means that a newly initialized domain chain needs to be approv
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="receive-message">Receive message<a href="#receive-message" class="hash-link" aria-label="Direct link to Receive message" title="Direct link to Receive message">​</a></h3>
 <p>When a relayer from <code>src_chain_id</code> submits the message to the inbox of the <code>dst_chain_id</code>:</p>
 <ol>
-<li><code>dst_chain_id</code> verifies if <code>src_chain_id</code> is in the allow list. If the chain is not in allow list, then <code>dst_chain_id</code> will return an error to <code>src_chain_id</code> with <code>ChainNotAllowedError</code> and skip next steps. Once the <code>src_chain_id</code> receives the response, it will revert necessary actions taken at the time of sending the request.
-For transporter, all the SSC burned will be minted back since the dst_chain did not return a mint Ok response.</li>
 <li><code>dst_chain_id</code> verifies the message by verifying the storage proof from the point of view of the consensus chain as follows:<!-- -->
 <ol>
+<li>Check if the MMR proof is constructed at a finalized consensus block to ensure the <code>MMR::verify_proof</code> result is deterministic regardless of the consensus chain fork.</li>
 <li>Verifies MMR proof using consensus chain <code>MMR::verify_proof</code> function to extract the MMR leaf data and the corresponding state root of consensus chain.</li>
 <li>Using <code>consensus_chain_state_root</code>, <code>domain_confirmed_proof</code> is verified and associated domain’s <code>state_root</code> is extracted from <code>DomainBlockInfo</code></li>
 <li>Using <code>domain_state_root</code>, <code>message_proof</code> is verified and actual XDM is extracted from the storage proof.</li>
@@ -211,7 +209,7 @@ For transporter, all the SSC burned will be minted back since the dst_chain did 
 <p>Relayer from the <code>dst_chain_id</code> will submit the message response to the <code>src_chain_id</code>:</p>
 <ol>
 <li><code>src_chain_id</code> verifies the message response and adds it to the message response queue.</li>
-<li><code>src_chain_id</code> listens for next message response and submits the response to the caller module on the <code>src_chain_id</code></li>
+<li><code>src_chain_id</code> listens for next message response and submits the response to the caller module on the <code>src_domain</code></li>
 <li><code>src_chain_id</code> marks the message nonce as the last confirmed message which is included in the next message bound to <code>dst_chain_id</code></li>
 <li><code>src_chain_id</code> then deletes the state pertaining to the original message from the runtime.</li>
 </ol>
