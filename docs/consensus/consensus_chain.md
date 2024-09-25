@@ -9,8 +9,8 @@ keywords:
     - transaction
     - synchronization
 last_update:
-  date: 05/07/2024
-  author: Saeid Yazdinejad
+  date: 09/25/2024
+  author: Dariia Porechna
 ---
 
 Unless specified otherwise below, consensus chain primitives are inherited from Substrate.
@@ -73,7 +73,7 @@ such that total size and weight fit within block storage and compute limits. The
 
 Justifications contain a set of all PoT checkpoints since the parent block up to `future_proof_of_time`. See more in [PoT specification](proof_of_time.md#farming).
 
-# Synchronization
+## Synchronization
 
 ***Sync from DSN implementation***
 
@@ -86,7 +86,7 @@ Justifications contain a set of all PoT checkpoints since the parent block up to
     In case the number of obtained `segment_header`s doesn’t change twice in a row, we may have gotten a response from all available nodes that support the segment-header request response protocol.
     
 3. Find the `segment_header` that largest subset of peers agree on as their newest (mode) from their last 2 segment headers.
-4. Download the chain of archived `segment_headers` backwards from newest to oldest, checking that every older segment header is part of the next (by hash, as described in [Archiving](#archiving))
+4. Download the chain of archived `segment_headers` backwards from newest to oldest, checking that every older segment header is part of the next (by hash, as described in [Archiving](proof_of_archival_storage.md#archiving))
 5. Download full segments in forward direction, verifying each piece against `segment_commitment` in from corresponding `segment_header` along the way:
     1. Split piece into `record`, `record_commitment` and `record_witness`
     2. Hash the `record_commitment` to obtain the `record_commitment_hash`
@@ -108,13 +108,13 @@ Justifications contain a set of all PoT checkpoints since the parent block up to
 
 ## Fast sync
 
-1. Obtain segment headers from DSN as described in steps 1 to 4 of [sync from DSN implementation](#Synchronization)
+1. Obtain segment headers from DSN as described in steps 1 to 4 of [sync from DSN implementation](#synchronization)
 2. Download and reconstruct all blocks from the last segment of archived history
     * Note: In most cases it'll be necessary to download second last segment as well due to the first block being partially included in latest segment
 3. Download state that corresponds to the first block received in the previous step using Substrate State Sync
 4. Import the first block of the last segment with its state into the blockchain DB bypassing the blockchain checks of missing parent block, it is important for this to be an atomic operation
 5. Import and execute other remaining blocks from the last segment as they would normally
-6. Pass the control to [sync from DSN implementation](#Synchronization). It will either download the new archived segment if any or pass the control to [Substrate Sync](#substrate-sync).
+6. Pass the control to [sync from DSN implementation](#synchronization). It will either download the new archived segment if any or pass the control to [Substrate Sync](#substrate-sync).
 
 ## Substrate Sync
 

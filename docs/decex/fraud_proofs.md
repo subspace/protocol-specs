@@ -8,14 +8,14 @@ keywords:
     - fraud proof
     - challenge period
 last_update:
-  date: 05/24/2024
+  date: 09/25/2024
   author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
 
 Every domain operator executes the domain block ([as described](workflow.md#domain-block-execution-on-the-operator-node)), derived deterministically from the consensus block, and submits this computational result to the consensus chain as an execution receipt within the next bundle this operator produces, thereby committing to the execution result. By default, the computation result is optimistically assumed correct until challenged by a fraud proof during the challenge period of `BlockTreePruningDepth` blocks. All domain nodes scrutinize the submitted execution results, and upon detecting any discrepancies, they challenge the execution by submitting a fraud proof to the consensus chain as an unsigned extrinsic. 
-A fraud proof either explicitly includes all necessary data and the state of the domain required for the verification process or via a runtime storage proof. This way, a fraud can be executed by a node on the consensus chain, which has access to the MMR roots for historical state, but not the full domain state. If the node who detected fraud is also a registered operator of this domain, they can submit a new execution receipt to the consensus chain with their next bundle, which will override the fraudulent one in the [block tree](interfaces.md#block_tree) once the fraud proof is accepted by the consensus chain.
+A fraud proof either explicitly includes all necessary data and the state of the domain required for the verification process or via a runtime storage proof. This way, a fraud can be executed by a node on the consensus chain, which has access to the MMR roots for historical state, but not the full domain state. If the node who detected fraud is also a registered operator of this domain, they can submit a new execution receipt to the consensus chain with their next bundle, which will override the fraudulent one in the [block tree](interfaces.md#block-tree) once the fraud proof is accepted by the consensus chain.
 
 Any domain node (a node that has an up-to-date state of domain A) can submit fraud proofs for domain A. Whether the node is acting honestly or not in this particular instance is determined by the validity of the fraud proof. The node does not have to stake or run operator (produce bundles) to report fraud.
 
@@ -41,7 +41,7 @@ Execution Receipt invalid due to incorrect fields:
 - [Invalid Transfers](#invalid-transfers)  - incorrect bookkeeping of transferred or burnt coins on domain
 - [Invalid Extrinsics Root](#invalid-extrinsics-root) - incorrect set or order of extrinsics executed in this ER
 - [Invalid Domain Block Hash](#invalid-domain-block-hash) - incorrect domain block header hash
-- [Incorrect List of Inboxed Bundles](#incorrect-list-of-inboxed-bundles) - some valid bundles were listed as invalid, or missing, and/or some executed bundles were invalid due to extrinsics in their body being invalid, in [order](#invalid_bundle) of `InvalidBundleType`.
+- [Incorrect List of Inboxed Bundles](#incorrect-list-of-inboxed-bundles) - some valid bundles were listed as invalid, or missing, and/or some executed bundles were invalid due to extrinsics in their body being invalid, in [order](#invalid-bundle) of `InvalidBundleType`.
 
 Incorrect state transition:
 
