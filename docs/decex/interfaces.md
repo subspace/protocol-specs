@@ -166,7 +166,7 @@ This operation can only be initiated by a root user. It is used to ensure domain
         - `runtime_id`: a pointer to the `RuntimeRegistry` entry for this domain
         - `max_block_size`: the max block size for this domain; may not exceed the system-wide `MaxDomainBlockSize` limit.
         - `max_block_weight`: the max block weight for this domain, may not exceed the system-wide `MaxDomainBlockWeight` limit
-        - `bundle_slot_probability`: the expected number of a successful bundles in a slot. This defines the expected bundle production rate; must be `> 0` and `<1`. A value below 1 means not all slots will have a bundle. Recommended value: 1.
+        - `bundle_slot_probability`: the expected number of a successful bundles in a slot. This defines the expected bundle production rate; must be `> 0` and `<= 1`. A value below 1 means not all slots will have a bundle. Recommended value: 1.
 
 ### Domain Staking Summary
 

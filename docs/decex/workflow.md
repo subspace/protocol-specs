@@ -59,7 +59,7 @@ The `domain_config` contains:
 2. `runtime_id`: domain runtime type that exists in `RuntimeRegistry`.
 3. `domain_id`: identifier assigned to an instance of the domain.
 4. specific configuration items, such as:
-    - `bundle_slot_probability`: the number of successful bundle expected to be produced in a slot (active slots coefficient); defines the expected number of bundles in the consensus block. Must be `> 0` and `<1`, recommended value `1` .
+    - `bundle_slot_probability`: the number of successful bundle expected to be produced in a slot (active slots coefficient); defines the expected number of bundles in the consensus block. Must be `> 0` and `<= 1`, recommended value `1` .
     - `max_bundle_size`: the max bundle size for this domain; may not exceed the system-wide `MaxDomainBlockSize` limit; The average domain block size is then expected to be below `bundle_slot_probability * max_bundle_size / SLOT_PROBABILITY` on average.
     - `max_bundle_weight`: the max bundle weight for this domain; may not exceed the system-wide `MaxDomainBlockWeight` limit; The average domain block weight is then expected to be below `bundle_slot_probability * max_bundle_weight / SLOT_PROBABILITY` on average.
 5. `allowlist`: list of addresses allowed to run operators on this domain
