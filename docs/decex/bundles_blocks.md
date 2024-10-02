@@ -7,7 +7,7 @@ keywords:
     - decex
     - bundle
 last_update:
-  date: 05/31/2024
+  date: 10/02/2024
   author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -41,7 +41,7 @@ an ordered list of all new extrinsics being proposed by this operator for the ne
 The size of bundle body in bytes and it's `estimated_bundle_weight` are limited by the `max_bundle_size` and `max_bundle_weight` [domain configuration](workflow.md#domain-genesis-config) items as well as the consensus block size and weight limits based on the expected number of bundles `bundle_slot_probability/SLOT_PROBABILITY` in a single block.
 
 The `max_bundle_size` item should be defined such that the average bundle size by expected number of bundles fits within the consensus block size limit.
-The `max_bundle_weight` item should be defined based on hardware expectations for this domain. The operators should be able to handle execution of domain blocks with up to `bundle_slot_probability/SLOT_PROBABILITY + 2*Sqrt(bundle_slot_probability/SLOT_PROBABILITY)+1)` bundles (95.74% of blocks are expected to be below this value).
+The `max_bundle_weight` item should be defined based on hardware expectations for this domain. The operators would on average have to handle execution of domain blocks with `bundle_slot_probability/SLOT_PROBABILITY` bundles.
 
 For example, given the consensus `SLOT_PROBABILITY=1/6` if `bundle_slot_probability = 1`, each domain block is expected to have 6 bundles on average with 95.74% of blocks having 11 or fewer bundles. In this case, `max_bundle_weight` should be defined so that the operator can execute the total weight of 6 full bundles within the target block weight limit of 1500 ms. Similarly, `max_bundle_size` should be defined to fit 6 full bundles within the consensus block size limit of 3.75 MiB for normal extrinsics. The domain config would then have:
 - `bundle_slot_probability = 1`
