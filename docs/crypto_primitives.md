@@ -5,7 +5,7 @@ description: Cryptographic Primitives used in the protocol.
 keywords:
     - cryptography
 last_update:
-  date: 04/11/2024
+  date: 10/03/2024
   author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';

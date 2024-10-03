@@ -10,7 +10,7 @@ keywords:
     - cross-chain messaging
     - cross-domain messaging
 last_update:
-  date: 04/12/2024
+  date: 10/03/2024
   author: Dariia Porechna
 ---
 

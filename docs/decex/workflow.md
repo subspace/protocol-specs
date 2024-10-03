@@ -7,8 +7,8 @@ keywords:
     - decex
     - instantiation
 last_update:
-  date: 07/09/2024
-  author: Vedhavyas Singareddi
+  date: 10/03/2024
+  author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -59,9 +59,9 @@ The `domain_config` contains:
 2. `runtime_id`: domain runtime type that exists in `RuntimeRegistry`.
 3. `domain_id`: identifier assigned to an instance of the domain.
 4. specific configuration items, such as:
-    - `max_block_size`: the max block size for this domain; may not exceed the system-wide `MaxDomainBlockSize` limit; used to compute [bundle size limit](bundles_blocks.md#bundle-limits).
-    - `max_block_weight`: the max block weight for this domain; may not exceed the system-wide `MaxDomainBlockWeight` limit; used to compute [bundle weight limit](bundles_blocks.md#bundle-limits).
-    - `bundle_slot_probability`: the probability of successful bundle in a slot (active slots coefficient); defines the expected bundle production rate, which must be `> 0` .
+    - `bundle_slot_probability`: the number of successful bundle expected to be produced in a slot (active slots coefficient); defines the expected number of bundles in the consensus block. Must be `> 0` and `<= 1`, recommended value `1` .
+    - `max_bundle_size`: the max bundle size for this domain; may not exceed the system-wide `MaxDomainBlockSize` limit; The average domain block size is then expected to be below `bundle_slot_probability * max_bundle_size / SLOT_PROBABILITY` on average.
+    - `max_bundle_weight`: the max bundle weight for this domain; may not exceed the system-wide `MaxDomainBlockWeight` limit; The average domain block weight is then expected to be below `bundle_slot_probability * max_bundle_weight / SLOT_PROBABILITY` on average.
 5. `allowlist`: list of addresses allowed to run operators on this domain
 6. `initial_balances`: list of initial balances on domain accounts
 7. Any further genesis config details can be included as required and be passed down. These specific genesis details ensure the `genesis_state_root` is unique for each instantiated domain and thereby making `genesis_er_hash` unique across different instances of the same domain runtime. 
@@ -86,7 +86,7 @@ For each time slot, each operator denoted with `operator_id` participates in the
     2. Generate a VRF signature by applying the VRF to the `global_challenge` and the operator's private key as `vrf_signature = vrf_sign(secret_key, transcript)`. The VRF signature contains a `vrf_signature.proof`, which can be used by others to verify that the VRF `vrf_signature.output` was correctly generated without knowing the operator’s private key.
 3. **Threshold Check**
     1. Compute the `threshold` based on the operators `operator_stake = current_total_stake` in `Operators` registry for this domain proportionally to the `total_domain_stake = current_total_stake` of all operators of this domain in `stake_summary` of the `DomainRegistry` as 
-    `threshold = MAX * (operator_stake / total_domain_stake) * target_bundles_per_slot`  
+    `threshold = MAX * (operator_stake / total_domain_stake) * bundle_slot_probability`  
         - Example
             
             If `threshold` is stored in `u128`, then `MAX` is $2^{128}-1$. If the operator has $1/10$ of total stake in this domain, according to the formula above they should check whether their VRF output numeric values is below $2^{128}/10$.

@@ -6,8 +6,8 @@ keywords:
     - glossary
     - terminology
 last_update:
-  date: 04/10/2024
-  author: Saeid Yazdinejad
+  date: 10/03/2024
+  author: Dariia Porechna
 ---
 
 <!-- A -->
