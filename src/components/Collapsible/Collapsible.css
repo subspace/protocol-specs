@@ -23,18 +23,19 @@
     outline-offset: 2px;
   }
   
-  .collapsible-content {
-    max-height: 0;
+  .collapsible .collapsible-content {
     overflow: hidden;
-    transition: max-height 0.5s ease-in-out;
-    background: var(--ifm-background-color); 
-    border-top: none;
-    padding: 0 1rem; 
-  }
-  
-  .collapsible-content.open {
-    max-height: 500px; 
-    padding-top: 0.5rem; 
-    padding-bottom: 1rem; 
-  }
+    background: var(--ifm-background-color);
+    transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
+    padding: 0;
+    margin: 0; 
+    display: none; 
+}
+
+.collapsible .collapsible-content.open {
+    display: block; 
+    padding: 0.5rem 1rem; 
+    max-height: auto; 
+}
+
   

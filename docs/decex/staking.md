@@ -10,7 +10,7 @@ keywords:
     - withdraw
     - unlock
 last_update:
-  date: 03/04/2024
+  date: 10/03/2024
   author: Dariia Porechna
 ---
 
@@ -41,7 +41,7 @@ The settings for nominators, which include:
 
 ## Nominator Registration
 
-Any user who has `MinNominatorStake` may choose to join this operator’s pool by calling the `nominate_operator` [extrinsic](interfaces.md/#nominate_operator) with the `deposit_amount` of SSC they wish to stake. 
+Any user who has `MinNominatorStake` may choose to join this operator’s pool by calling the `nominate_operator` [extrinsic](interfaces.md#nominate_operator) with the `deposit_amount` of SSC they wish to stake. 
 
 Note: the actual calculations are done in Shannons, and 1 SSC = $10^{18}$ Shannons
 
@@ -58,13 +58,20 @@ For subsequent nomination deposits see [Stake Deposits](#stake-deposits).
 
 ## Stake Withdrawals
 
-Any registered operator or nominator may initiate a withdrawal of their stake from the pool by submitting a `withdraw_stake` [extrinsic](interfaces.md/#withdraw_stake) with the desired `withdraw_shares`. If `withdraw_shares` are all staked shares, the nominator is completely unstaked, however the operator cannot withdraw below the `MinOperatorStake`.
+Any registered operator or nominator may initiate a withdrawal of their stake from the pool by submitting a `withdraw_stake` [extrinsic](interfaces.md#withdraw_stake) which support different types of withdrawal:
+- All, withdraw all the stake
+- Percent, withdraw a given percentage of the stake
+- Stake, withdraw a given amount of stake (i.e. balance)
+    The stake is calculated by the share price at this instant, it may not be accurate and may withdraw a bit more stake if there is reward happen later in this epoch
+- Share, withdraw a given amount of share
 
-A withdrawal is logically composed of 2 parts. First, a user request to withdraw shares (`withdraw_stake`) that unstakes a given amount of shares at the end of epoch, and second, a request to unlock (`unlock_funds` [extrinsic](interfaces.md/#unlock_funds)) and actually transfer to the balance account the amount of SSC for those shares after the locking period has passed.
+If the nominator's stake after withdrawal results in an amount below the operator's required `minimum_nominator_stake,` the nominator is automatically completely unstaked. Contrary, the operator cannot withdraw below the `MinOperatorStake`.
 
-A nominator can submit any number of `withdraw_shares` extrinsics. Withdrawals in the same epoch are aggregated and transferrable with the same `unlock_funds` extrinsic. However, for withdrawals in different epochs, separate `unlock_funds` extrinsics will have to be submitted, but they can be batched together if multiple have cleared the unlocking period. 
+A withdrawal is logically composed of 2 parts. First, a user request to withdraw shares (`withdraw_stake`) that unstakes a given amount of stake at the end of epoch, and second, a request to unlock (`unlock_funds` [extrinsic](interfaces.md#unlock_funds)) and actually transfer to the balance account the amount of SSC for those shares after the locking period has passed.
 
-1. Nominator submits a `withdraw_stake` extrinsic to withdraw either `All` or a specific `withdraw_shares` as `withdraw_shares(operator_id, nominator_id, withdraw_shares)`.
+A nominator can submit any number of `withdraw_stake` extrinsics. Withdrawals in the same epoch are aggregated and transferrable with the same `unlock_funds` extrinsic. However, for withdrawals in different epochs, separate `unlock_funds` extrinsics will have to be submitted, but they can be batched together if multiple have cleared the unlocking period. 
+
+1. Nominator submits a `withdraw_stake` extrinsic.
 2. If there are any pending deposits `PendingDeposit` for this nominator for any previous epoch `n`, then use the `OperatorEpochSharePrice` stored for those specific deposit epoch `n` and calculate the `shares` and add it to existing `shares` in `KnownDeposit`.This would not be unbounded and at max be 1 `PendingDeposit` for a given nominator.
 3. If there are any withdrawals `withdrawals_in_shares` for this nominator for any previous epoch `n`, then use the `OperatorEpochSharePrice` stored for those specific epoch `n` and convert the `shares` to SSC, move the withdrawal into the converted `withdrawals` vector and add the amount to `total_withdrawal_amount`.
 4. Once the pending nominator deposit shares are calculated and added to known shares, 
@@ -95,7 +102,7 @@ Once the previous epoch (of `withdraw_shares` extrinsic) is completed and share 
 
 ## Stake Deposits
 
-Existing nominators may choose to add more stake to the same operator’s pool they are already nominating using the same `nominate_operator` [extrinsic](interfaces.md/#nominate_operator) with the `deposit_amount` of SSC they wish to stake. 
+Existing nominators may choose to add more stake to the same operator’s pool they are already nominating using the same `nominate_operator` [extrinsic](interfaces.md#nominate_operator) with the `deposit_amount` of SSC they wish to stake. 
 
 1. Nominator with balance account `nominator_id` submits an extrinsic to deposit for next epoch for a given `OperatorPool` as `nominate_operator(OperatorPoolId, nominator_id, deposit_amount)`
 2. The `deposit_amount` is locked for  `nominator_id` account in `pallet_balances`.
@@ -113,11 +120,11 @@ Existing nominators may choose to add more stake to the same operator’s pool t
 
 ## Operator Deregistration
 
-See the corresponding `deregister_operator` [extrinsic](interfaces.md/#deregister_operator). 
+See the corresponding `deregister_operator` [extrinsic](interfaces.md#deregister_operator). 
 
 ## Slashing Stake
 
-If any `submit_fraud_proof` [extrinsic](interfaces.md/#submit_fraud_proof) is accepted by the chain, the operator’s entire pool is slashed.
+If any `submit_fraud_proof` [extrinsic](interfaces.md#submit_fraud_proof) is accepted by the chain, the operator’s entire pool is slashed.
 
 1. The pool is immediately frozen for withdrawals and deposits, by setting `status` in `Operators` registry entry of this operator to `Slashed`.
 2. All new deposits are canceled and returned to senders.

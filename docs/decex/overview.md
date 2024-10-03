@@ -6,7 +6,7 @@ keywords:
     - execution
     - decex
 last_update:
-  date: 05/31/2024
+  date: 10/03/2024
   author: Dariia Porechna
 ---
 
@@ -84,4 +84,10 @@ last_update:
     
     Any node who observes an `ExecutionReceipt` within any bundle for any consensus chain block that differs from what they produced locally has detected fraud. To handle the fraud they will produce a `submit_fraud_proof` extrinsic, which includes a proof. If the proof is valid, it will be included in the consensus chain, which will prune the `ExecutionReceipt` (and all children) from the `BlockTree` and slash all related operators. 
     
-    For more details, see [Execution Challenges Sub-Protocol](workflow.md#) and [Fraud Proofs](fraud_proofs.md).
+    For more details, see [Slashing Stake](staking.md#slashing-stake) and [Fraud Proofs](fraud_proofs.md).
+
+11. **Submit Missing Receipt**
+
+    After a fraud proof is accepted, the targetted bad receipt and all its descendant receipts will be pruned, this will create a gap between the latest domain block (i.e. `HeadDomainNumber`) and the latest receipt on chain (i.e. `HeadReceiptNumber`), when this happen the operator will start producing the `submit_receipt` extrinsic to fill up this gap, and after `HeadDomainNumber - HeadReceiptNumber = 1` the operator will resume producing `submit_bundle` extrinsic.
+
+    For more details, see [`submit_receipt`](interfaces.md#submit-receipt) and [Lagging operator protection](workflow.md#lagging-operator-protection).

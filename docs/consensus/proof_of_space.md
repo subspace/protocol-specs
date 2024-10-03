@@ -7,8 +7,8 @@ keywords:
     - tables
     - plotting
 last_update:
-  date: 03/12/2024
-  author: Saeid Yazdinejad
+  date: 10/03/2024
+  author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -73,10 +73,11 @@ Computes the 7 PoS tables.
     5. For each matched pair `(left_entry, right_entry) = (left_bucket[left_index], right_bucket[right_index])`, compute the current table’s function `(y, c) = compute_fn(table_number, left_entry.y, left_entry.metadata, right_entry.metadata)`
     6. Map the match pair entries `(left_entry, right_entry)` positions back from the bucket to their respective positions in the previous table, `left_position` and `right_position`.
     7. Push to the current table an entry `(ys, metadata, positions) = (y, c, {left_position, right_position})`
-    8. Sort the current table by `y` value.
+    8. Sort the current table by `(y, [left_position, right_position], metadata)` value.
 
         <Collapsible title="Note">
-        chiapos and spaceframe use k-way merge to deal with the fact that table might be too large to store in memory. Since we don’t have this problem we could use a faster algorithm.
+        - `chiapos` sorts the table by `y`, so the order may differ in our implementation.
+        - `chiapos` uses k-way merge to deal with the fact that table might be too large to store in memory. Since we don’t have this problem we could use a faster algorithm.
         </Collapsible>
             
 
@@ -166,7 +167,7 @@ an edge exists if that pair of entries is a match. The second condition defines 
 
 for all 0 ≤ $m$ < 64 = `PARAM_M`
 
-The second condition avoids cycles between inputs if the set is represented as a graph. These cycles can be compressed by saving fewer entries and deriving the rest, representing a potential attack because it would optimize storage (see Cycles Attack in [Chia Proof-of-Space Construction v1.1-1](https://www.chia.net/wp-content/uploads/2022/09/Chia_Proof_of_Space_Construction_v1.1-1.pdf)). This is also why `PARAM_B = 119` and `PARAM_B = 127` have those values. 
+The second condition avoids cycles between inputs if the set is represented as a graph. These cycles can be compressed by saving fewer entries and deriving the rest, representing a potential attack because it would optimize storage (see Cycles Attack in [Chia Proof-of-Space Construction v1.1-1](https://www.chia.net/wp-content/uploads/2022/09/Chia_Proof_of_Space_Construction_v1.1-1.pdf)). This is also why `PARAM_B = 119` and `PARAM_C = 127` have those values. 
 
 ### get_left_targets
 

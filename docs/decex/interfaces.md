@@ -6,7 +6,7 @@ keywords:
     - execution
     - decex
 last_update:
-  date: 05/30/2024
+  date: 10/03/2024
   author: Dariia Porechna
 ---
 
@@ -32,7 +32,7 @@ last_update:
 <!-- - `MaxFraudProofSize`: The maximum size of a fraud proof, as enforced by the fraud proof storage metering scheme. This ensures that fraud proof size is not unbounded. The default is 1 MiB. -->
 - `DomainInstantiationDeposit`: The amount of funds to be locked up for the domain instance creator. The initial value is 100 SSC *(Value TBD)*
 - `MaxDomainNameLength`: The maximum domain name length limit for all domains. The default is 32 bytes.
-- `MaxNominators`: The maximum number of nominators one domain operator can take. Currently 256.
+- `MAX_NOMINATORS_TO_SLASH`: The number of nominators to slash during a single bundle processing. The default is 10.
 
 ## Runtime Calls
 
@@ -48,7 +48,13 @@ Any staked operator who is elected may produce and submit a new bundle. The bund
 
 `submit_fraud_proof(domain_id, execution_receipt_hash, proof)`
 
-Challenges an ER committed to in the `BlockTree` of a domain on the consensus chain with proof. This proof could be one of several types, such as invalid state transition or bundle equivocation. Consensus nodes will verify the proof before broadcasting on the network. The next farmer elected to produce a block will include all valid challenges it has received. This will result in pruning the invalid ER, along with all of its children from the `BlockTree`, while de-registering and slashing all accompanying operators in the `Operators` registry. 
+Challenges an ER committed to in the `BlockTree` of a domain on the consensus chain with proof. This proof could be one of several types, such as invalid state transition or bundle equivocation. Consensus nodes will verify the proof before broadcasting on the network. The next farmer elected to produce a block will include all valid challenges it has received. This will result in pruning the invalid ER, along with all of its children from the `BlockTree`, while de-registering and slashing all accompanying operators in the `Operators` registry and their nominators. 
+
+### submit_receipt
+
+`submit_receipt(domain_id, execution_receipt)`
+
+This call is used to submit the receipt alone to the consensus chain when there is a gap between the latest domain block (i.e. `HeadDomainNumber`) and the latest receipt on chain (i.e. `HeadReceiptNumber`), which usually happens after a fraud proof is accepted. Similar to `submit_bundle`, `submit_receipt` also contains a proof-of-election and an execution receipt and performs the same check, but it doesn't contain any domain extrinsic thus doesn't derive a new domain block.
 
 ### register_domain_runtime
 
@@ -68,9 +74,9 @@ This is a permissioned operation, which follows the workflow of a forkless runti
 
 ### register_operator
 
-`register_operator(origin_account_id, domain_id, amount, operator_config) → operator_id`
+`register_operator(origin_account_id, domain_id, amount, operator_config, signing_key_proof_of_ownership) → operator_id`
 
-Registers a new operator with `operator_id` and the corresponding staking pool in the `Operators` registry with a given `operator_config` (as defined [here](staking.md#operator-config)). The operator must transfer `amount ≥ MinOperatorStake` from `pallet_balances` to the staking table within the `Operators` registry **and choose a domain to stake on. An operator may only be staked on one domain at a time. Any user may submit this extrinsic. Note that the `origin_account_id` between the balance and staking tables are the same. Any resulting bundle rewards are automatically re-staked into the pool.
+Registers a new operator with `operator_id` and the corresponding staking pool in the `Operators` registry with a given `operator_config` (as defined [here](staking.md#operator-config)). The operator must transfer `amount ≥ MinOperatorStake` from `pallet_balances` to the staking table within the `Operators` registry and choose a domain to stake on. Presently, an operator may only be staked on one domain at a time. The extrinsic must be submitted with a correct `signing_key_proof_of_ownership`, which is a signature verifiable with the `signing_key` that the operator passes inside the config. Note that the `origin_account_id` between the balance and staking tables are the same. Any resulting bundle rewards are automatically re-staked into the pool.
 
 For permissioned domains (that implement `allowlist`), the operator id should be present in the allowlist.
 
@@ -80,7 +86,7 @@ For permissioned domains (that implement `allowlist`), the operator id should be
 
 Adds a `PendingDeposit` with `account_id` to the storage of the operator `operator_id` in and deposits SSC from an account balance (i.e., in *`pallet_balances`*) into the staking pool `Deposits` of a registered operator, awarding the nominator pro-rata shares in the pool when the share price for this epoch will become known. The nominator must transfer `amount` ≥ `min_nominator_stake` (as defined within the operator’s config). The nominator will receive shares in the operator's pool, which they can later withdraw for SSC. 
 
-This is a permissionless operation; however, currently, only `MaxNominators` nominators per operator are supported. Note that `account_id` between the balance and staking account are the same.
+This is a permissionless operation. Note that `account_id` between the balance and staking account are the same.
 If the operator is no longer registered, the funds will be returned to the reward address in *`pallet_balances`*.
 
 ### instantiate_domain
@@ -109,16 +115,16 @@ To unlock funds, the nominator has to submit an `unlock_funds(operator_id, nomin
 
 ### unlock_funds
 
-`unlock_funds(operator_id, nominator_id)`
+`unlock_funds(nominator, operator_id)`
 
 To complete an initiated withdrawal, the nominator has to submit an unlock extrinsic after the locking period has passed.
 If a withdrawal has passed the `StakeWithdrawalLockingPeriod`, the funds are unlocked in the nominator’s account in `pallet_balances`.
 
-### unlock_operator
+### unlock_nominator
 
-`unlock_operator(operator_id, nominator_id)`
+`unlock_nominator(nominator, operator_id)`
 
-To complete an initiated deregistration of an operator, they need to submit an unlock extrinsic after the locking period has passed. This withdraws all the stake and fees to all nominators according to their shares.
+Unlocks the nominator funds under a given deregistered operator. A nominator can initiate their unlock given operator is already deregistered, by submitting an unlock extrinsic after the locking period has passed. This withdraws all the stake and fees to the nominator according to their shares.
 If a withdrawal has passed the `StakeWithdrawalLockingPeriod`, the funds are unlocked in the operator’s and nominators’ accounts in `pallet_balances`.
 
 ### update_domain_operator_allow_list

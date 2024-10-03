@@ -6,7 +6,7 @@ description: List of the Subspace Network Specifications
 keywords:
     - Overview
 last_update:
-  date: 03/01/2024
+  date: 10/03/2024
   author: Dariia Porechna
 ---
 
@@ -30,8 +30,16 @@ The purpose of this page is to serve as a gateway to existing technical specific
 
 ## Decoupled Execution
 
-- [Domains General Specification](./decex/overview.md) 
+- [Domains General Overview](./decex/overview.md) 
+
+- [Interfaces](./decex/interfaces.md)
+
+- [Domain Bundles and Blocks](./decex/bundles_blocks.md)
+
+- [Operation Workflow](./decex/workflow.md)
 
 - [Staking](./decex/staking.md)
 
 - [Fraud Proofs](./decex/fraud_proofs.md) 
+
+- [Cross-Domain Messaging (XDM)](./decex/xdm.md)
