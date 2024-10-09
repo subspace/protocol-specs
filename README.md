@@ -1,6 +1,6 @@
 <img src="./static/img/subspace-network.svg" align="center" />
 
-This repository contains the formal specifications of the Subspace Network protocol. For a more approachable description of the protocol, check out the [Subnomicon](https://subnomicon.subspace.network), which provides a comprehensive overview of the current state of protocol.
+This repository contains the formal specifications of the [Subspace Network](https://subspace.network/) protocol. For a more approachable description of the protocol, check out the [Subnomicon](https://subnomicon.subspace.network), which provides a comprehensive overview of the current state of protocol.
 
 Ideally, the specification in this repository should be considered the canonical source of truth for the Subspace Network protocol. Currently, the specifications do not cover the full stack, but it is one of the goals of the project to do so.
 
