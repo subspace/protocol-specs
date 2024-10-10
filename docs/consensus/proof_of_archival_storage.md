@@ -8,7 +8,7 @@ keywords:
     - plotting
     - auditing
 last_update:
-  date: 10/03/2024
+  date: 10/10/2024
   author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -140,7 +140,7 @@ This extra data is added to the end of the [SCALE-encoded](https://docs.substrat
     
     Determine which pieces are to be downloaded for this sector: 
     
-    1. Index the sectors sequentially and for each sector derive `sector_id = keyed_hash(public_key_hash, sector_index)`, where `sector_index` is the sector index in the plot.
+    1. Index the sectors sequentially and for each sector derive `sector_id = keyed_hash(public_key_hash, [sector_index, history_size])`, where `sector_index` is the sector index in the plot and `history_size` is the current history size at the time of sector creation.
     2. For each sector, for each `piece_offset` in `0..max_pieces_in_sector`, derive the `piece_index` in global blockchain history this slot will contain, as follows: 
         1. At the start of the chain, if `history_size <= RECENT_SEGMENTS / RECENT_HISTORY_FRACTION` the pieces for this sector are selected uniformly as `piece_index = keyed_hash(piece_offset, sector_id) mod (history_size * NUM_PIECES)` for `piece_offset` in `0..max_pieces_in_sector`
         2. Later, when history grows (`history_size > RECENT_SEGMENTS / RECENT_HISTORY_FRACTION`) to make sure recent archived history is plotted on farmer storage as soon as possible we select `RECENT_HISTORY_FRACTION` of pieces for each sector from the last `RECENT_SEGMENTS` archived segments.
@@ -177,7 +177,7 @@ For each piece in the sector:
         - (Optimization, Implemented) It is faster to do FFT over domain $2^{16}$ with `extend` and throw away all values that are not in `proven_indices` then evaluate at proven indices. FFT complexity is expected at $O(2nlog(2n)) \approx 2^{16}*16 = 2^{20}$ while direct evaluation is $O(n^2)\approx (2^{15})^2 = 2^{30}$
     </Collapsible>
 
-4. Derive an `evaluation_seed` from `sector_id` and `piece_offset` within this sector as `evaluation_seed = hash(sector_id || piece_offset || history_size)`
+4. Derive an `evaluation_seed` from `sector_id` and `piece_offset` within this sector as `evaluation_seed = hash(sector_id || piece_offset)`
 5. Derive a Chia proof-of-space table `pos_table = generate(K, evaluation_seed)`
 6. Initialize `num_successfully_encoded_chunks = 0` to indicate how many chunks were encoded so far.
 7. Iterate through each `(s_bucket, chunk)` in `extended_chunks`:
@@ -298,7 +298,7 @@ Otherwise, submit a vote extrinsic with `solution`.
 7. Verify that `piece_offset ≤ max_pieces_in_sector`
 8. Re-derive `sector_id`
     1. Compute `public_key_hash = hash(public_key)`
-    2. Re-derive the `sector_id = keyed_hash(public_key_hash, sector_index)`
+    2. Re-derive the `sector_id = keyed_hash(public_key_hash, [sector_index, history_size])`
 9. Verify that the `sector_id` submitted has not expired:
     1. Compute `sector_expiration_check_history_size = history_size + MIN_SECTOR_LIFETIME` and `sector_max_lifetime = MIN_SECTOR_LIFETIME + 4 * history_size`.
     2. Take the archived segment `segment_commitment` at `sector_expiration_check_history_size`.
@@ -306,7 +306,7 @@ Otherwise, submit a vote extrinsic with `solution`.
     4. Check that `expiration_history_size` is smaller than current history size of the chain.
 10. Re-derive the `sector_slot_challenge = global_challenge XOR sector_id`
 11. Re-derive the `s_bucket_audit_index = sector_slot_challenge mod NUM_S_BUCKETS`
-12. Re-derive the `evaluation_seed` for the record from the `sector_id` and `piece_offset` as `hash(sector_id || piece_offset || history_size)`
+12. Re-derive the `evaluation_seed` for the record from the `sector_id` and `piece_offset` as `hash(sector_id || piece_offset)`
 13. Verify `proof_of_space` with `Is_Proof_Valid(K, evaluation_seed, s_bucket_audit_index, proof_of_space)`
 14. Ensure the `chunk` satisfies the challenge criteria:
     1. Compute the `masked_chunk` as `Encode(chunk, hash(proof_of_space))`
@@ -337,7 +337,7 @@ The above steps assume standard block and transaction verification.
 1. From the record’s `encoded_chunks_used` bitfield determine which s-buckets contain chunks of this record.
 2. Read all the `plotted_chunks` of the parent record from their respective s-buckets. Set the encoded chunk value `None` in places where `encoded_chunks_used` is `0`.
 Total length of `plotted_chunks` should be `NUM_CHUNKS/ERASURE_CODING_RATE`.
-3. Derive the `evaluation_seed` for the record from `sector_id` and `piece_offset` within this sector as `evaluation_seed = hash(sector_id || piece_offset || history_size)`
+3. Derive the `evaluation_seed` for the record from `sector_id` and `piece_offset` within this sector as `evaluation_seed = hash(sector_id || piece_offset)`
 4. Derive a Chia proof-of-space table `pos_table = generate(K, evaluation_seed)` 
 5. Iterate through each `(s_bucket, plotted_chunk)` in `plotted_chunks`:
     1. If `plotted_chunk` is `None`, continue to next chunk.
