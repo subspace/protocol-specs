@@ -8,7 +8,7 @@ keywords:
     - plotting
     - auditing
 last_update:
-  date: 10/10/2024
+  date: 10/11/2024
   author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -140,7 +140,7 @@ This extra data is added to the end of the [SCALE-encoded](https://docs.substrat
     
     Determine which pieces are to be downloaded for this sector: 
     
-    1. Index the sectors sequentially and for each sector derive `sector_id = keyed_hash(public_key_hash, [sector_index, history_size])`, where `sector_index` is the sector index in the plot and `history_size` is the current history size at the time of sector creation.
+    1. Index the sectors sequentially and for each sector derive `sector_id = keyed_hash(public_key_hash, sector_index || history_size)`, where `sector_index` is the sector index in the plot and `history_size` is the current history size at the time of sector creation.
     2. For each sector, for each `piece_offset` in `0..max_pieces_in_sector`, derive the `piece_index` in global blockchain history this slot will contain, as follows: 
         1. At the start of the chain, if `history_size <= RECENT_SEGMENTS / RECENT_HISTORY_FRACTION` the pieces for this sector are selected uniformly as `piece_index = keyed_hash(piece_offset, sector_id) mod (history_size * NUM_PIECES)` for `piece_offset` in `0..max_pieces_in_sector`
         2. Later, when history grows (`history_size > RECENT_SEGMENTS / RECENT_HISTORY_FRACTION`) to make sure recent archived history is plotted on farmer storage as soon as possible we select `RECENT_HISTORY_FRACTION` of pieces for each sector from the last `RECENT_SEGMENTS` archived segments.
@@ -298,7 +298,7 @@ Otherwise, submit a vote extrinsic with `solution`.
 7. Verify that `piece_offset ≤ max_pieces_in_sector`
 8. Re-derive `sector_id`
     1. Compute `public_key_hash = hash(public_key)`
-    2. Re-derive the `sector_id = keyed_hash(public_key_hash, [sector_index, history_size])`
+    2. Re-derive the `sector_id = keyed_hash(public_key_hash, sector_index || history_size)`
 9. Verify that the `sector_id` submitted has not expired:
     1. Compute `sector_expiration_check_history_size = history_size + MIN_SECTOR_LIFETIME` and `sector_max_lifetime = MIN_SECTOR_LIFETIME + 4 * history_size`.
     2. Take the archived segment `segment_commitment` at `sector_expiration_check_history_size`.
