@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.1.1">
 <title data-rh="true">Workflow | Subspace Protocol</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://subspace.github.io/protocol-specs/docs/decex/workflow"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Workflow | Subspace Protocol"><meta data-rh="true" name="description" content="Complete workflow of domain operation."><meta data-rh="true" property="og:description" content="Complete workflow of domain operation."><meta data-rh="true" name="keywords" content="execution,decex,instantiation"><link data-rh="true" rel="icon" href="/protocol-specs/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://subspace.github.io/protocol-specs/docs/decex/workflow"><link data-rh="true" rel="alternate" href="https://subspace.github.io/protocol-specs/docs/decex/workflow" hreflang="en"><link data-rh="true" rel="alternate" href="https://subspace.github.io/protocol-specs/docs/decex/workflow" hreflang="x-default"><link data-rh="true" rel="preconnect" href="https://DQOBF9R1M4-dsn.algolia.net" crossorigin="anonymous"><link rel="search" type="application/opensearchdescription+xml" title="Subspace Protocol" href="/protocol-specs/opensearch.xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css" integrity="sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM" crossorigin="anonymous"><link rel="stylesheet" href="/protocol-specs/assets/css/styles.006e31aa.css">
-<script src="/protocol-specs/assets/js/runtime~main.6ca0fe6b.js" defer="defer"></script>
+<script src="/protocol-specs/assets/js/runtime~main.4baf4132.js" defer="defer"></script>
 <script src="/protocol-specs/assets/js/main.10a979d7.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -37,9 +37,9 @@
 <li><code>domain_id</code>: identifier assigned to an instance of the domain.</li>
 <li>specific configuration items, such as:<!-- -->
 <ul>
-<li><code>max_block_size</code>: the max block size for this domain; may not exceed the system-wide <code>MaxDomainBlockSize</code> limit; used to compute <a href="/protocol-specs/docs/decex/bundles_blocks#bundle-limits">bundle size limit</a>.</li>
-<li><code>max_block_weight</code>: the max block weight for this domain; may not exceed the system-wide <code>MaxDomainBlockWeight</code> limit; used to compute <a href="/protocol-specs/docs/decex/bundles_blocks#bundle-limits">bundle weight limit</a>.</li>
-<li><code>bundle_slot_probability</code>: the probability of successful bundle in a slot (active slots coefficient); defines the expected bundle production rate, which must be <code>&gt; 0</code> .</li>
+<li><code>bundle_slot_probability</code>: the number of successful bundle expected to be produced in a slot (active slots coefficient); defines the expected number of bundles in the consensus block. Must be <code>&gt; 0</code> and <code>&lt;= 1</code>, recommended value <code>1</code> .</li>
+<li><code>max_bundle_size</code>: the max bundle size for this domain; may not exceed the system-wide <code>MaxDomainBlockSize</code> limit; The average domain block size is then expected to be below <code>bundle_slot_probability * max_bundle_size / SLOT_PROBABILITY</code> on average.</li>
+<li><code>max_bundle_weight</code>: the max bundle weight for this domain; may not exceed the system-wide <code>MaxDomainBlockWeight</code> limit; The average domain block weight is then expected to be below <code>bundle_slot_probability * max_bundle_weight / SLOT_PROBABILITY</code> on average.</li>
 </ul>
 </li>
 <li><code>allowlist</code>: list of addresses allowed to run operators on this domain</li>
@@ -68,7 +68,7 @@
 <li><strong>Threshold Check</strong>
 <ol>
 <li>Compute the <code>threshold</code> based on the operators <code>operator_stake = current_total_stake</code> in <code>Operators</code> registry for this domain proportionally to the <code>total_domain_stake = current_total_stake</code> of all operators of this domain in <code>stake_summary</code> of the <code>DomainRegistry</code> as
-<code>threshold = MAX * (operator_stake / total_domain_stake) * target_bundles_per_slot</code>
+<code>threshold = MAX * (operator_stake / total_domain_stake) * bundle_slot_probability</code>
 <ul>
 <li>
 <p>Example</p>

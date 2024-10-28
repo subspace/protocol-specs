@@ -5,7 +5,7 @@
 <meta name="generator" content="Docusaurus v3.1.1">
 <title data-rh="true">Staking | Subspace Protocol</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://subspace.github.io/protocol-specs/docs/decex/staking"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Staking | Subspace Protocol"><meta data-rh="true" name="description" content="Staking sub-protocols."><meta data-rh="true" property="og:description" content="Staking sub-protocols."><meta data-rh="true" name="keywords" content="execution,decex,staking,deposit,withdraw,unlock"><link data-rh="true" rel="icon" href="/protocol-specs/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://subspace.github.io/protocol-specs/docs/decex/staking"><link data-rh="true" rel="alternate" href="https://subspace.github.io/protocol-specs/docs/decex/staking" hreflang="en"><link data-rh="true" rel="alternate" href="https://subspace.github.io/protocol-specs/docs/decex/staking" hreflang="x-default"><link data-rh="true" rel="preconnect" href="https://DQOBF9R1M4-dsn.algolia.net" crossorigin="anonymous"><link rel="search" type="application/opensearchdescription+xml" title="Subspace Protocol" href="/protocol-specs/opensearch.xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css" integrity="sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM" crossorigin="anonymous"><link rel="stylesheet" href="/protocol-specs/assets/css/styles.006e31aa.css">
-<script src="/protocol-specs/assets/js/runtime~main.6ca0fe6b.js" defer="defer"></script>
+<script src="/protocol-specs/assets/js/runtime~main.4baf4132.js" defer="defer"></script>
 <script src="/protocol-specs/assets/js/main.10a979d7.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
@@ -57,11 +57,12 @@ The stake is calculated by the share price at this instant, it may not be accura
 </ul>
 <p>If the nominator&#x27;s stake after withdrawal results in an amount below the operator&#x27;s required <code>minimum_nominator_stake,</code> the nominator is automatically completely unstaked. Contrary, the operator cannot withdraw below the <code>MinOperatorStake</code>.</p>
 <p>A withdrawal is logically composed of 2 parts. First, a user request to withdraw shares (<code>withdraw_stake</code>) that unstakes a given amount of stake at the end of epoch, and second, a request to unlock (<code>unlock_funds</code> <a href="/protocol-specs/docs/decex/interfaces#unlock_funds">extrinsic</a>) and actually transfer to the balance account the amount of SSC for those shares after the locking period has passed.</p>
-<p>A nominator can submit any number of <code>withdraw_stake</code> extrinsics. Withdrawals in the same epoch are aggregated and transferrable with the same <code>unlock_funds</code> extrinsic. However, for withdrawals in different epochs, separate <code>unlock_funds</code> extrinsics will have to be submitted, but they can be batched together if multiple have cleared the unlocking period.</p>
+<p>A nominator can submit <code>withdraw_stake</code> extrinsics to request withdrawal. Withdrawals requested in the same epoch are aggregated into one, and there are at most <code>WithdrawalLimit</code> number of withdrawal allowed for a given nominator at the same time, once this limit is reached, the nominator need to submit <code>unlock_funds</code> extrinsic to unlock the withdrawal before requesting a new one.</p>
 <ol>
 <li>Nominator submits a <code>withdraw_stake</code> extrinsic.</li>
 <li>If there are any pending deposits <code>PendingDeposit</code> for this nominator for any previous epoch <code>n</code>, then use the <code>OperatorEpochSharePrice</code> stored for those specific deposit epoch <code>n</code> and calculate the <code>shares</code> and add it to existing <code>shares</code> in <code>KnownDeposit</code>.This would not be unbounded and at max be 1 <code>PendingDeposit</code> for a given nominator.</li>
 <li>If there are any withdrawals <code>withdrawals_in_shares</code> for this nominator for any previous epoch <code>n</code>, then use the <code>OperatorEpochSharePrice</code> stored for those specific epoch <code>n</code> and convert the <code>shares</code> to SSC, move the withdrawal into the converted <code>withdrawals</code> vector and add the amount to <code>total_withdrawal_amount</code>.</li>
+<li>Ensure the total number of withdrawals in the <code>withdrawals</code> vector is less than <code>WithdrawalLimit</code></li>
 <li>Once the pending nominator deposit shares are calculated and added to known shares,<!-- -->
 <ol>
 <li>If there are no withdrawals initiated this epoch yet, a <code>Withdrawal</code> item is created with<!-- -->
@@ -73,6 +74,7 @@ The stake is calculated by the share price at this instant, it may not be accura
 </ol>
 </li>
 <li>If there is already a withdrawal for the same <code>allowed_since_domain_epoch</code>, <code>Withdrawal</code> storage is incremented with intended #<code>withdraw_shares</code> and <code>storage_fee_refund</code> to withdraw, and <code>unlock_at_confirmed_domain_block_number</code> is updated to a higher value <code>LatestConfirmedDomainBlockNumber(domain_id) + StakeWithdrawalLockingPeriod</code>. All the withdrawals submitted in the same epoch are unlocked at the unlocking time of the last withdrawal of that epoch.</li>
+<li>Similar to <code>total_withdrawal_amount</code>, add <code>storage_fee_refund</code> to <code>total_storage_fee_withdrawal</code></li>
 <li><code>Nominator</code> shares and storage fee deposit in their known deposits <code>KnownDeposit</code> are reduced:<!-- -->
 <ol>
 <li><code>shares = shares - withdraw_shares</code></li>
@@ -81,20 +83,26 @@ The stake is calculated by the share price at this instant, it may not be accura
 </li>
 </ol>
 </li>
-<li><code>operator_id</code> ‘s <code>withdrawals_in_epoch</code> are incremented with total of <code>withdraw_shares</code> from all nominators withdraw requests for the next epoch.
-The total of all nominator storage fee deposits (<code>total_storage_fee_deposit</code>) is decremented by <code>storage_fee_refund</code>.</li>
+<li><code>operator_id</code> ‘s <code>withdrawals_in_epoch</code> are incremented with total of <code>withdraw_shares</code> from all nominators withdraw requests for the next epoch.</li>
+<li>The total of all nominator storage fee deposits (<code>total_storage_fee_deposit</code>) is decremented by <code>storage_fee_refund</code>.</li>
 <li>The <code>storage_fee_refund</code> amount is locked in the operator’s <code>storage_fund_account</code> and not used to pay for any future bundles.</li>
 </ol>
 <h3 class="anchor anchorWithStickyNavbar_LWe7" id="unlock-withdrawn-funds">Unlock withdrawn funds<a href="#unlock-withdrawn-funds" class="hash-link" aria-label="Direct link to Unlock withdrawn funds" title="Direct link to Unlock withdrawn funds">​</a></h3>
-<p>Once the previous epoch (of <code>withdraw_shares</code> extrinsic) is completed and share price for that epoch is noted, nominators can withdraw the amount per requested shares after the unlocking period is completed.</p>
+<p>Once the previous epoch (of <code>withdraw_shares</code> extrinsic) is completed and share price for that epoch is noted, nominators can withdraw the requested shares that had passed the unlocking period.</p>
 <ol>
 <li>Nominator submits <code>unlock_funds(operator_id, nominator_id)</code></li>
-<li>Operator picks the <code>nominator_id</code>’s first (oldest) withdrawal from the list. If the <code>StakeWithdrawalLockingPeriod</code> period is not complete (the <code>unlock_at_confirmed_domain_block_number</code> is higher than <code>LatestConfirmedDomainBlockNumber(domain_id)</code>), then error out.</li>
+<li>Operator iterate the <code>nominator_id</code>&#x27;s withdrawal from the oldest to newest<!-- -->
+<ol>
+<li>If the withdrawal&#x27;s <code>StakeWithdrawalLockingPeriod</code> period is not complete (the <code>unlock_at_confirmed_domain_block_number</code> is higher than <code>LatestConfirmedDomainBlockNumber(domain_id)</code>), then stop iterating.</li>
+<li>Remove the withdrawal from the the <code>withdrawals</code> vector</li>
 <li>Calculate <code>amount_to_unlock</code> as SSC amount for withdrawn shares using share value for epoch stored at <code>OperatorEpochSharePrice</code> the withdraw is allowed from.</li>
-<li>Retain <code>storage_fee_refund</code> as it was.</li>
-<li>Deduct <code>amount_to_unlock</code> from <code>total_withdrawal_amount.</code></li>
-<li>If <code>amount_to_unlock</code> is more than SSC amount that was locked for staking on this operator, the excess is minted and locked to nominator account.</li>
-<li>Finally, <code>amount_to_unlock</code> of SSC is released from locked to transferrable state for nominator account.</li>
+<li>Add the <code>amount_to_unlock</code> to <code>total_amount_to_unlock</code> and the <code>storage_fee_refund</code> to <code>total_storage_fee_refund</code></li>
+</ol>
+</li>
+<li>Deduct <code>total_amount_to_unlock</code> from <code>total_withdrawal_amount</code> and <code>total_storage_fee_refund</code> from <code>total_storage_fee_withdrawal</code></li>
+<li>Release <code>total_storage_fee_refund</code> from locked to transferrable state for nominator account.</li>
+<li>If <code>total_amount_to_unlock</code> is more than SSC amount that was locked for staking on this operator, the excess is minted and locked to nominator account.</li>
+<li>Finally, <code>total_amount_to_unlock</code> of SSC is released from locked to transferrable state for nominator account.</li>
 </ol>
 <h2 class="anchor anchorWithStickyNavbar_LWe7" id="stake-deposits">Stake Deposits<a href="#stake-deposits" class="hash-link" aria-label="Direct link to Stake Deposits" title="Direct link to Stake Deposits">​</a></h2>
 <p>Existing nominators may choose to add more stake to the same operator’s pool they are already nominating using the same <code>nominate_operator</code> <a href="/protocol-specs/docs/decex/interfaces#nominate_operator">extrinsic</a> with the <code>deposit_amount</code> of SSC they wish to stake.</p>
