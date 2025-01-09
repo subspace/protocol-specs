@@ -6,8 +6,8 @@ keywords:
     - execution
     - decex
 last_update:
-  date: 10/03/2024
-  author: Dariia Porechna
+  date: 01/09/2025
+  author: Saeid Yazdinejad
 ---
 
 ## Terminology
@@ -32,7 +32,7 @@ last_update:
     
     Given a genesis block and at least one genesis farmer, we will have block production on the consensus chain. On its own, the consensus chain will only issue rewards to farmers and allow for balance transfers of SSC. 
     
-    <!-- TODO verify the page is up to date For more information, see **[SSC Transfers](Domains%20v2%20Specification%203fb0ec6e4d204c4881a7df50ef58da8f.md)**. -->
+    <!-- TODO verify the page is up to date For more information, see **Link TBD**. -->
     
 2. **Domain Creation**
     
@@ -90,4 +90,4 @@ last_update:
 
     After a fraud proof is accepted, the targetted bad receipt and all its descendant receipts will be pruned, this will create a gap between the latest domain block (i.e. `HeadDomainNumber`) and the latest receipt on chain (i.e. `HeadReceiptNumber`), when this happen the operator will start producing the `submit_receipt` extrinsic to fill up this gap, and after `HeadDomainNumber - HeadReceiptNumber = 1` the operator will resume producing `submit_bundle` extrinsic.
 
-    For more details, see [`submit_receipt`](interfaces.md#submit-receipt) and [Lagging operator protection](workflow.md#lagging-operator-protection).
+    For more details, see [`submit_receipt`](interfaces.md#submit_receipt) and [Lagging operator protection](workflow.md#lagging-operator-protection).
