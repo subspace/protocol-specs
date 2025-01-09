@@ -14,7 +14,7 @@ last_update:
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
 
-Every domain operator executes the domain block ([as described](workflow.md#domain-block-execution-on-the-operator-node)), derived deterministically from the consensus block, and submits this computational result to the consensus chain as an execution receipt within the next bundle this operator produces, thereby committing to the execution result. By default, the computation result is optimistically assumed correct until challenged by a fraud proof during the challenge period of `BlockTreePruningDepth` blocks. All domain nodes scrutinize the submitted execution results, and upon detecting any discrepancies, they challenge the execution by submitting a fraud proof to the consensus chain as an unsigned extrinsic. 
+Every domain operator executes the domain block ([as described](workflow.md#domain-block-execution-on-the-operator-node)), derived deterministically from the consensus block, and submits this computational result to the consensus chain as an execution receipt (ER) within the next bundle this operator produces, thereby committing to the execution result. By default, the computation result is optimistically assumed correct until challenged by a fraud proof during the challenge period of `BlockTreePruningDepth` blocks. All domain nodes scrutinize the submitted execution results, and upon detecting any discrepancies, they challenge the execution by submitting a fraud proof to the consensus chain as an unsigned extrinsic. 
 A fraud proof either explicitly includes all necessary data and the state of the domain required for the verification process or via a runtime storage proof. This way, a fraud can be executed by a node on the consensus chain, which has access to the MMR roots for historical state, but not the full domain state. If the node who detected fraud is also a registered operator of this domain, they can submit a new execution receipt to the consensus chain with their next bundle, which will override the fraudulent one in the [block tree](interfaces.md#block-tree) once the fraud proof is accepted by the consensus chain.
 
 Any domain node (a node that has an up-to-date state of domain A) can submit fraud proofs for domain A. Whether the node is acting honestly or not in this particular instance is determined by the validity of the fraud proof. The node does not have to stake or run operator (produce bundles) to report fraud.
@@ -133,25 +133,34 @@ Upon receiving the proof, the consensus node can rerun the shuffle algorithm to 
 **Prover provides:**
 
 - `domain_id`: ID of the domain this fraud proof targets.
-- `bad_receipt_hash`: the targeted invalid ER.
-- `mmr_proof`: MMR proof for the consensus block from which the receipt is derived.
-- `maybe_domain_runtime_code_proof`: for the runtime code if it is not still present in the state.
+- `bad_receipt_hash`: the targeted invalid execution receipt's hash.
+- `mmr_proof`: MMR proof for the consensus block from which the ER is derived.
+- `maybe_domain_runtime_code_proof`: storage proof for the runtime code if it is not still present in the state.
 - `valid_bundle_digests`: list of lists of extrinsics `(index, (signer,hash))` from all bundles.
-- `block_randomness_proof`: storage proof of the `BlockRandomness` storage item from the consensus chain that attests correct `block_randomness` value.
-- `domain_inherent_extrinsic_data_proof`: storage proofs of the inherent extrinsics (timestamp, runtime upgrade, cost of storage, etc.) that were present in the block.
+- `invalid_inherent_extrinsic_proofs.extrinsics_shuffling_seed`: the `Randomness` value from the consensus chain used to shuffle extrinsics, as part of a combined storage proof.
+- storage proofs of the inherent extrinsics (timestamp, runtime upgrade, cost of storage, etc.) that were present in the block, currently implemented in:
+    - `invalid_inherent_extrinsic_proofs.*`: combined storage proof for small inherent extrinsics, and
+    - `InvalidExtrinsicsRootProof.*`: storage proofs for inherent extrinsics that are larger or otherwise difficult to combine.
 
 **Verifier checks:**
 
-1. Verify a `bad_receipt` with `bad_receipt_hash` exists
+1. Verify a `bad_receipt` with `bad_receipt_hash` exists.
 2. Verify `mmr_proof` and obtain the corresponding state root for the consensus block number in the receipt.
-3. Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the `maybe_domain_runtime_code_proof` storage proof with MMR proof.
-4. Verify `domain_inherent_extrinsic_data_proof` and `block_randomness_proof` storage proofs.
-5. Obtain from the `block_randomness_proof` storage proof the `block_randomness` for `consensus_block_hash` in `bad_receipt`.
-6. Obtain from the `domain_inherent_extrinsic_data_proof` storage proof any inherent extrinsics: timestamp, domain allowlist update (if applicable), consensus chain byte fee, runtime upgrade `set_code` (if applicable). The inherents are not part of any bundle and are ingested directly into the domain block from the consensus chain.
-7. Check that `valid_bundle_digests` correspond to the bundle digests in the targeted ER
-8. Shuffle the extrinsics collected from `valid_bundle_digests`, timestamp and runtime upgrade extrinsics using `block_randomness` as a seed 
-9. Compare if the root of the resulting ordered tree is different from `bad_receipt.domain_block_extrinsics_root` ⇒ Accept the fraud proof and punish the producer of `bad_receipt`.
-10. If the root is same ⇒ Ignore the fraud proof.
+3. Get the domain runtime code that used to derive the target receipt: if the runtime code is still present in the state then get it from the state, otherwise from the `maybe_domain_runtime_code_proof` storage proof, using the MMR proof.
+4. Verify the `invalid_inherent_extrinsic_proofs`, including the `extrinsics_shuffling_seed`.
+5. Obtain from the `invalid_inherent_extrinsic_proofs` storage proof the `extrinsics_shuffling_seed` value for `consensus_block_hash` in `bad_receipt`.
+6. Obtain from the `invalid_inherent_extrinsic_proofs` storage proof the required inherent extrinsics:
+    - timestamp, and
+    - consensus transaction byte fee.
+   The inherents are not part of any bundle and are ingested directly into the domain block from the consensus chain.
+7. Obtain from the `InvalidExtrinsicsRootProof.*` storage proofs any optional inherent extrinsics, if applicable:
+    - runtime upgrade `set_code`,
+    - domain allowlist update, and/or
+    - domain sudo call.
+8. Check that `valid_bundle_digests` correspond to the bundle digests in the targeted ER.
+9. Shuffle the extrinsics collected from `valid_bundle_digests` using `extrinsics_shuffling_seed` as a seed.
+10. Check if the root of the resulting ordered tree is different from `bad_receipt.domain_block_extrinsics_root` ⇒ Accept the fraud proof and punish the producer of `bad_receipt`.
+11. If the root is same ⇒ Ignore the fraud proof.
 
 ## Invalid Domain Block Hash
 
