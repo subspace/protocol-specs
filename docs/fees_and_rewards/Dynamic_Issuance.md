@@ -7,8 +7,8 @@ keywords:
     - rewards
     - WIP
 last_update:
-  date: 10/03/2024
-  author: Dariia Porechna
+  date: 01/09/2025
+  author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -119,7 +119,9 @@ Once an issuance component has been initialized, the issued reward for each indi
 
 
 <div align="center">
-    <img src="/img/dynamic-issuance-1.png" alt="" />
+
+![](/img/dynamic-issuance-1.png)
+
     Figure 1
 </div>
 
@@ -241,8 +243,10 @@ For Gemini-3h the following initial parameters are used to set the issuance curv
 The total issuance curve (green) is a sum of 2 exponential components: component 1 (blue) starts to decay immediately, component 2 that has flat issuance for a while and starts to decay later. Without loss of generality both curves are assumed to start issuance at block 0. After deployment to gemini-3h the block numbers are shifted with respect to how many blocks were already produced.
 
 <div align="center">
-    <img src="/img/dynamic-issuance-2.png" alt="" />
-    Figure 2
+
+![](/img/dynamic-issuance-2.png)
+Figure 2
+
 </div>
 To be able to use linear approximations in different decay phases (as illustrated in Figure 1), we need to compute certain checkpoint values of reference subsidy on the green curve. For Gemini-3h, we have identified the following start blocks of decay phases:
 
