@@ -8,8 +8,8 @@ keywords:
     - plotting
     - auditing
 last_update:
-  date: 10/11/2024
-  author: Dariia Porechna
+  date: 01/09/2025
+  author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -152,8 +152,10 @@ This extra data is added to the end of the [SCALE-encoded](https://docs.substrat
 7. Retrieve each piece from the Distributed Storage Network (DSN) and verify against segment commitment obtained from the node.
 
 <div align="center">
-    <img src="/img/Raw_Sector-light.svg#gh-light-mode-only" alt="Raw_Sector" />
-    <img src="/img/Raw_Sector-dark.svg#gh-dark-mode-only" alt="Raw_Sector" />
+
+![Raw Sector Light](/img/Raw_Sector-light.svg#gh-light-mode-only)
+![Raw Sector Dark](/img/Raw_Sector-dark.svg#gh-dark-mode-only)
+
 </div>
 
 <center>Figure 4: Verifiable Sector Construction.</center><br />
