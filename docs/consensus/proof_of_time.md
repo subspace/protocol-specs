@@ -7,7 +7,7 @@ keywords:
     - timekeeper
     - randomness
 last_update:
-  date: 03/12/2024
+  date: 01/09/2025
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -64,8 +64,11 @@ Takes a `seed` and number of iterations `pot_iterations` and repeatedly evaluate
 5. Output `checkpoints`
 
 <div align="center">
-    <img src="/img/Proof of Time light.svg#gh-light-mode-only" alt="Proof of Time light" />
-    <img src="/img/Proof of Time dark.svg#gh-dark-mode-only" alt="Proof of Time dark" />
+
+![Proof of Time Light](/img/Proof_of_Time_light.svg#gh-light-mode-only)
+![Proof of Time Dark](/img/Proof_of_Time_dark.svg#gh-dark-mode-only)
+
+
 </div>
 
 
