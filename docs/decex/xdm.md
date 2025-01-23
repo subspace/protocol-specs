@@ -43,7 +43,7 @@ A Channel is a bi-directional connection between two domains. Channel connection
     
 There is a deposit to open a channel between domains. Deposit should be high enough to discourage and make it economically inefficient to DDOS channel initiation connections between domains. 
     
-A channel can be closed on either end by the root user. Once closed, the channel will stop sending and receiving any further messages. The Relayer will communicate to the other domain to close the channel and clean up.
+A channel can be closed on either end by the channel owner. Once closed, the channel will stop sending and receiving any further messages. The Relayer will communicate to the other domain to close the channel and clean up.
     
 A channel can be in one of the following states (`State`):
     
@@ -259,18 +259,19 @@ Detailed description of each function required to be present in the protocol.
 
 Consensus chain maintains a `ChainAllowList` to keep track of the authorized domain chains that can establish channels with the Consensus chain. `ChainAllowList` can be defined at Genesis and can be updated later by the sudo account adding or removing chains.
 
-When a Consensus chain receives an `initiate_channel` XDM to open the channel, if the `src_chain` is in the allowlist, then channel is opened else XDM is rejected.
+When a Consensus chain receives an `initiate_channel` XDM to open the channel, if the `dst_chain_id` is in the allowlist, then channel is opened else the channel opening is rejected. In the latter case, the channel remains in `Initialized` state and the submitter can close it and get back the deposit.
 Practically, this means that a newly initialized domain chain needs to be approved by governance and added to the Consensus chain's `ChainAllowList` before it can initiate a channel with the Consensus chain.
 
 Similarly, each domain chain maintains its own `DomainChainAllowList` to keep track of the authorized domains it can establish channels with. This allows the domains to control and restrict which other domains they want to interact with. Updating domain-specific lists is done within a domain by the domain's sudo or governance, without consensus chain approval.
 
 ### Initiate Channel
 
-1. Channel `initiate_channel` transaction is sent by any user of the domain as a Channel owner.
+1. Channel `initiate_channel` transaction is sent by any user of the `src_chain_id` domain with the channel opening deposit as a Channel owner.
 2. If the domain is in the allow list, the next available `ChannelID` is assigned to the new channel.
 3. If no Channel exits, Channel is created and set to `Initiated` status and cannot accept or receive any messages yet.
-4. When the channel is open, reserve deposit is taken from the channel and will be returned when Channel is closed.
-5. `Protocol` payload message to open the channel is added to the `src_chain_id` domain outbox with nonce `0` 
+5. When the channel is initiated, reserve deposit is taken from the channel and will be returned when Channel is closed.
+6. If the `src_chain_id` is not in the allow list of `dst_chain_id`, destination chain does not open a channel, but rather leaves it in `Initiated` state and responds with an `Err`. When the error response is received on source chain, it also does not open then channel and leaves it in the `Initiated` state.
+7. If both chains are in the allow list of each other, `Protocol` payload message to open the channel is added to the `src_chain_id` domain outbox with nonce `0` 
 
 ### Open Channel
 
@@ -284,10 +285,10 @@ Before sending any messages, domain needs to have a channel open with the `dst_c
 
 ### Close Channel
 
-Any domain of either end of the open channel can close the channel:
+Any domain of either end of an `Open` or `Initiated` channel can close the channel:
 
-1. Channel close transaction is sent by the root user or Channel Owner.
-2. Channel state is set to `Closed`
+1. Channel close transaction is sent by the root user or Channel Owner. We allow closing channel request even if there the chain is not in the allow list so that reserve deposits can be claimed back. In the latter case, the initiator loses 20% of the deposit.
+2. Channel state is set to `Closed`.
 3. `Protocol` payload message to close channel is added to the `src_chain_id` outbox
 4. Operator on `src_chain_id` gossips the message
 5. Operator on `dst_chain_id` receives a message with the corresponding `Protocol` `ChannelClose` payload.
@@ -296,7 +297,7 @@ Any domain of either end of the open channel can close the channel:
 
 ### Send message
 
-When user wants to send message from endpoint on `src_chain_id` to an endpoint on `dst_chain_id`  with open channel to `dst_chain_id`.
+When user wants to send message from endpoint on `src_chain_id` to an endpoint on `dst_chain_id`  with an open channel to `dst_chain_id`.
 
 1. User sends a transaction that results in a message to an endpoint on `dst_chain_id`.
 2. Transaction is included in the runtime state of `src_chain_id`.
@@ -311,7 +312,9 @@ When user wants to send message from endpoint on `src_chain_id` to an endpoint o
 
 When a relayer from `src_chain_id` submits the message to the inbox of the `dst_chain_id`:
 
-1. `dst_chain_id` verifies the message by verifying the storage proof from the point of view of the consensus chain as follows:
+1. `dst_chain_id` verifies if `src_chain_id` is in the allow list. If the chain is not in allow list, then `dst_chain_id` will return an error to `src_chain_id` with `ChainNotAllowedError` and skip next steps. Once the `src_chain_id` receives the response, it will revert necessary actions taken at the time of sending the request.
+For transporter, all the SSC burned will be minted back since the dst_chain did not return a mint Ok response.
+2. `dst_chain_id` verifies the message by verifying the storage proof from the point of view of the consensus chain as follows:
     1. Check if the MMR proof is constructed at a finalized consensus block to ensure the `MMR::verify_proof` result is deterministic regardless of the consensus chain fork.
     2. Verifies MMR proof using consensus chain `MMR::verify_proof` function to extract the MMR leaf data and the corresponding state root of consensus chain.
     3. Using `consensus_chain_state_root`, `domain_confirmed_proof` is verified and associated domain’s `state_root` is extracted from `DomainBlockInfo`
@@ -326,9 +329,9 @@ When a relayer from `src_chain_id` submits the message to the inbox of the `dst_
 Relayer from the `dst_chain_id` will submit the message response to the `src_chain_id`:
 
 1. `src_chain_id` verifies the message response and adds it to the message response queue.
-2. `src_chain_id` listens for next message response and submits the response to the caller module on the `src_domain`
+2. `src_chain_id` listens for next message response and submits the response to the caller module on the `src_chain_id`
 3. `src_chain_id` marks the message nonce as the last confirmed message which is included in the next message bound to `dst_chain_id`
-4.  `src_chain_id` then deletes the state pertaining to the original message from the runtime. 
+4. `src_chain_id` then deletes the state pertaining to the original message from the runtime. 
 
 ## XDM delays
 
