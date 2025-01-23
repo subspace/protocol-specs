@@ -7,7 +7,7 @@ keywords:
     - rewards
     - WIP
 last_update:
-  date: 05/07/2024
+  date: 01/09/2025
   author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -29,9 +29,11 @@ import Collapsible from '@site/src/components/Collapsible/Collapsible';
 <Collapsible title="Stock & Flow">
 
 
-<!-- <div align="center">
-    <img src="/img/Fees & Rewards Specification_Stack_and_flow.png" alt="Fees & Rewards Specification Stack and Flow" />
-</div> -->
+<div align="center">
+
+![Fees & Rewards Specification Stack and Flow](/img/Fees_&_Rewards_Specification_Stack_and_flow.png)
+
+</div>
 
 ### **Farmers Balance**
 
@@ -230,9 +232,10 @@ If the operator or nominator withdraws below minimum stake (or deregisters) they
 
 
 <div align="center">
-    <img src="/img/Fees & Rewards Specification_Bundle-st-fee.png" alt="Bundle Storage Fees" />
-</div>
 
+![Bundle Storage Fees](/img/Fees_&_Rewards_Specification_Bundle-st-fee.png)
+
+</div>
 
 **Refund**
 

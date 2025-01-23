@@ -6,7 +6,7 @@ description: Subspace runtime configuration
 keywords:
     - runtime
 last_update:
-  date: 04/16/2024
+  date: 10/03/2024
   author: Dariia Porechna
 ---
 A runtime in Subspace refers to the runtime logic that defines the state transition function of the chain.

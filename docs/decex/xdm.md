@@ -10,8 +10,8 @@ keywords:
     - cross-chain messaging
     - cross-domain messaging
 last_update:
-  date: 06/10/2024
-  author: Dariia Porechna
+  date: 01/23/2025
+  author: Vedhavyas Singareddi
 ---
 
 This document describes the current messaging protocol between domains in a trusted code environment (permissioned runtime instantiation). This protocol describes messaging between the consensus chain and any domain and between two domains.
@@ -54,24 +54,24 @@ A channel can be in one of the following states (`State`):
 A Channel is defined as follows
     
 ```rust
-    type Channel {
+    struct Channel {
     	// Unique channel identifier within DomainID namespace
-    	channel_id: ChannelID
+    	channel_id: ChannelID,
     	// State of the channel
-    	state: State
+    	state: State,
     	// Next valid Inbox nonce
-    	next_inbox_nonce: Nonce
+    	next_inbox_nonce: Nonce,
     	// Next valid Outbox nonce
-    	next_outbox_nonce: Nonce
-      // Latest outbox message nonce for which response was received from dst_chain.
-    	latest_response_received_message_nonce: Nonce
+    	next_outbox_nonce: Nonce,
+        // Latest outbox message nonce for which response was received from dst_chain.
+    	latest_response_received_message_nonce: Nonce,
     	// Fee Model for this channel
-    	fee: FeeModel
+    	fee: FeeModel,
     	// Max number of messages to be in outbox at a given time on both domains.
-    	max_outgoing_messages: u32
+    	max_outgoing_messages: u32,
     	/// Owner of the channel
-   	/// Owner maybe None if the channel was initiated on the other chain.
-	maybe_owner: Option<AccountId>,
+   	    /// Owner maybe None if the channel was initiated on the other chain.
+	    maybe_owner: Option<AccountId>,
     }
 ```
     
@@ -111,12 +111,11 @@ The proof consists of the following components:
 ```rust
     pub struct MMRProof {
     	// consensus block number below archiving depth at which this MMR proof was generated
-    	consensus_block_number	
-    	// Leaf data that contains consensus storage root 
-    	// storage root is used to verify the `ConfirmedDomainBlocks` storage
-    	leaf_data
+    	consensus_block_number,
+    	// Leaf data, that contains consensus storage root, is used to verify the `ConfirmedDomainBlocks` storage
+    	leaf_data,
     	// merkle proof for this MMR
-    	proof
+    	proof,
     }
 ```
     
@@ -124,14 +123,12 @@ The proof consists of the following components:
     
 ```rust
     pub struct Proof<BlockNumber, BlockHash, StateRoot> {
-    	// MMR proof, which provides the state root of consensus hash
-    	MMRProof
-      
+      /// MMR proof, which provides the state root of consensus hash MMRProof,
+      pub proof: MMRProof,
       /// Storage proof that src chain state_root is confirmed on Consensus chain.
       /// This is optional when the src_chain is Consensus.
-      pub domain_confirmed_proof: Option<StorageProof>,
-    
-    	// Storage proof that message is processed on src_chain.
+      pub domain_confirmed_proof: Option<StorageProof>, 
+      /// Storage proof that message is processed on src_chain.
       pub message_proof: StorageProof,
     }
 ```
@@ -209,7 +206,7 @@ The minted fees are added to `dst_chain_id` bookkeeping balance (if it’s a dom
     4. Relay fee for the relayers on `src_chain_id` for relaying the response.
 3. Message is sent to `dst_chain_id`.
 4. Once the response is received from `dst_chain_id`, `src_chain_id` distributes the rewards from `sender` to operators.
-5. This message nonce is sent to `dst_chain_id` as `last_delivered_message_response_nonce` as an acknowledgement so that it can rewards its operators.
+5. This message nonce is sent to `dst_chain_id` as `last_delivered_message_response_nonce` as an acknowledgement so that it can reward its operators.
     
 **Inbox Message Fees**
     
@@ -269,15 +266,16 @@ Similarly, each domain chain maintains its own `DomainChainAllowList` to keep tr
 
 ### Initiate Channel
 
-1. Channel `initiate_channel` transaction is sent by a user of the `src_chain_id` domain with the channel opening deposit.
-2. The next available `ChannelID` is assigned to the new channel.
-3. If no Channel exits, a Channel is created and set to `Initiated` status and cannot accept or receive any messages yet.
-4. If the `src_chain_id` is not in the allow list of `dst_chain_id`, destination chain does not open a channel, but rather leaves it in `Initiated` state and responds with an `Err`. When the error response is received on source chain, it also does not open then channel and leaves it in the `Initiated` state.
-5. If both chains are in the allow list of each other, the `Protocol` payload message to open the channel is added to the `src_chain_id` domain outbox with nonce `0`. 
+1. Channel `initiate_channel` transaction is sent by any user of the `src_chain_id` domain with the channel opening deposit as a Channel owner.
+2. If the domain is in the allow list, the next available `ChannelID` is assigned to the new channel.
+3. If no Channel exits, Channel is created and set to `Initiated` status and cannot accept or receive any messages yet.
+5. When the channel is initiated, reserve deposit is taken from the channel and will be returned when Channel is closed.
+6. If the `src_chain_id` is not in the allow list of `dst_chain_id`, destination chain does not open a channel, but rather leaves it in `Initiated` state and responds with an `Err`. When the error response is received on source chain, it also does not open then channel and leaves it in the `Initiated` state.
+7. If both chains are in the allow list of each other, `Protocol` payload message to open the channel is added to the `src_chain_id` domain outbox with nonce `0` 
 
 ### Open Channel
 
-Before sending any messages, domain needs to have an channel open with the `dst_chain_id`:
+Before sending any messages, domain needs to have a channel open with the `dst_chain_id`:
 
 1. Channel is initiated by `src_chain_id` as described in [Initiate Channel](#initiate-channel)
 2. Operator on `dst_chain_id` receives a message with the corresponding `Protocol` `ChannelOpen` payload and `nonce=0`.
@@ -289,12 +287,13 @@ Before sending any messages, domain needs to have an channel open with the `dst_
 
 Any domain of either end of an `Open` or `Initiated` channel can close the channel:
 
-1. Channel close transaction is sent by the channel owner. We allow closing channel request even if there the chain is not in the allow list so that reserve deposits can be claimed back. In the latter case, the initiator loses 20% of the deposit.
+1. Channel close transaction is sent by the root user or Channel Owner. We allow closing channel request even if there the chain is not in the allow list so that reserve deposits can be claimed back. In the latter case, the initiator loses 20% of the deposit.
 2. Channel state is set to `Closed`.
 3. `Protocol` payload message to close channel is added to the `src_chain_id` outbox
 4. Operator on `src_chain_id` gossips the message
 5. Operator on `dst_chain_id` receives a message with the corresponding `Protocol` `ChannelClose` payload.
 6. Channel close response is submitted to `src_chain_id` 
+7. Channel reserve deposit is returned back to the channel owner once closed.
 
 ### Send message
 
@@ -316,13 +315,14 @@ When a relayer from `src_chain_id` submits the message to the inbox of the `dst_
 1. `dst_chain_id` verifies if `src_chain_id` is in the allow list. If the chain is not in allow list, then `dst_chain_id` will return an error to `src_chain_id` with `ChainNotAllowedError` and skip next steps. Once the `src_chain_id` receives the response, it will revert necessary actions taken at the time of sending the request.
 For transporter, all the SSC burned will be minted back since the dst_chain did not return a mint Ok response.
 2. `dst_chain_id` verifies the message by verifying the storage proof from the point of view of the consensus chain as follows:
-    1. Verifies MMR proof using consensus chain `MMR::verify_proof` function to extract the MMR leaf data and the corresponding state root of consensus chain.
-    2. Using `consensus_chain_state_root`, `domain_confirmed_proof` is verified and associated domain’s `state_root` is extracted from `DomainBlockInfo`
-    3. Using `domain_state_root`, `message_proof` is verified and actual XDM is extracted from the storage proof.
-3. `dst_chain_id` adds the message to its inbox.
-4. `dst_chain_id` listens for next message to process from the inbox in the nonce order.
-5. Message is passed to the endpoint and eventually executed and response is stored for that message.
-6. `dst_chain_id` takes the latest delivered message nonce on `src_chain_id` and distributes the rewards to the operators and deletes any stored state pertaining to any message with nonce below the confirmed nonce.
+    1. Check if the MMR proof is constructed at a finalized consensus block to ensure the `MMR::verify_proof` result is deterministic regardless of the consensus chain fork.
+    2. Verifies MMR proof using consensus chain `MMR::verify_proof` function to extract the MMR leaf data and the corresponding state root of consensus chain.
+    3. Using `consensus_chain_state_root`, `domain_confirmed_proof` is verified and associated domain’s `state_root` is extracted from `DomainBlockInfo`
+    4. Using `domain_state_root`, `message_proof` is verified and actual XDM is extracted from the storage proof.
+2. `dst_chain_id` adds the message to its inbox.
+3. `dst_chain_id` listens for next message to process from the inbox in the nonce order.
+4. Message is passed to the endpoint and eventually executed and response is stored for that message.
+5. `dst_chain_id` takes the latest delivered message nonce on `src_chain_id` and distributes the rewards to the operators and deletes any stored state pertaining to any message with nonce below the confirmed nonce.
 
 ### Receive message response
 
@@ -342,11 +342,11 @@ The use cases such as transfer or sending some payload where response is just an
 Where `K = Archiving depth` (currently 100 consensus blocks) and `D = Domain challenge period` (currently 14400 domain blocks)
 
 | Domain → Any chain | Consensus → Any domain |
-| --- | --- |
-| K + D | K |
+|--------------------|------------------------|
+| K + D              | K + D                  |
 
 For XDM where response is required from, the following table captures the time in blocks
 
 | Domain → Consensus → Domain | Consensus → Domain → Consensus | Domain A → Domain B → Domain A |
-| --- | --- | --- |
-| 2 * K + D | D + 2 * K | 2 * K + 2 * D |
+|-----------------------------|--------------------------------|--------------------------------|
+| 2 * (K + D)                 | 2 * (K + D)                    | 2 * (K + D)                    |

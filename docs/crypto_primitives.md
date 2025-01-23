@@ -5,8 +5,8 @@ description: Cryptographic Primitives used in the protocol.
 keywords:
     - cryptography
 last_update:
-  date: 04/11/2024
-  author: Dariia Porechna
+  date: 01/09/2025
+  author: Saeid Yazdinejad
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -156,10 +156,10 @@ The Ethereum community conducted its MPC ceremony using the "Powers of Tau" meth
 For a visual representation please see the figure below:
 
 <div align="center">
-    <img src="/img/Multi Participants.png" alt="ETH KZG Ceremony" />
+
+![ETH KZG Ceremony](/img/Multi_Participants.png)
+
 </div>
-
-
 Further exploration of trusted setups can be found in [Vitalik Buterin's comprehensive post on trusted setups](https://vitalik.eth.limo/general/2022/03/14/trustedsetup.html).
 
 
@@ -271,11 +271,13 @@ Currently, the space parameter `k` is set to 20 with resulting in 160-byte *proo
 
 The plot seed is obtained from farmer public key, current sector and piece offset within the sector.
 
-<div align="center">
-    <img src="/img/PoS_Table-light.svg#gh-light-mode-only" alt="PoS_Table" />
-    <img src="/img/PoS_Table-dark.svg#gh-dark-mode-only" alt="PoS_Table" />
-</div>
 
+<div align="center">
+
+![PoS Table Light](/img/PoS_Table-light.svg#gh-light-mode-only)
+![PoS Table Dark](/img/PoS_Table-dark.svg#gh-dark-mode-only)
+
+</div>
 <center>Figure 1: Structure of Chia PoS table</center>
 
 ### find_proof
@@ -285,10 +287,11 @@ The plot seed is obtained from farmer public key, current sector and piece offse
 For a given `challenge_index` samples the `pos_table` for a valid full *proof-of-space* if the corresponding proof exists at this index, returns `None` otherwise.
 
 <div align="center">
-    <img src="/img/PoS_Lookup-light.svg#gh-light-mode-only" alt="PoS_Lookup" />
-    <img src="/img/PoS_Lookup-dark.svg#gh-dark-mode-only" alt="PoS_Lookup" />
-</div>
 
+![PoS Lookup Light](/img/PoS_Lookup-light.svg#gh-light-mode-only)
+![PoS Lookup Dark](/img/PoS_Lookup-dark.svg#gh-dark-mode-only)
+
+</div>
 <center>Figure 2: Querying the PoS table at a challenge index. On average 37% of indices are missing a proof.</center>
 
 

@@ -6,7 +6,7 @@ description: List of the Subspace Network Specifications
 keywords:
     - Overview
 last_update:
-  date: 04/12/2024
+  date: 10/03/2024
   author: Dariia Porechna
 ---
 
