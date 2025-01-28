@@ -364,7 +364,7 @@ Anyone can initiate a channel to `dst_chain` given both `dst_chain` and `src_cha
 User would need to deposit fee to initiate channel open and the deposit is reversed once the channel is closed.
 
 Once the channel is initiated, `dst_chain` gets a message to open channel and reverts back to `src_chain` to confirm the 
-channel open. Once, both chains open channels, xdm messages can be sent through the channel.
+channel open. It would 2 challenge periods to open channel on both the chains. Once, both chains open channels, xdm messages can be sent through the channel.
 
 Note: Ensure both `src_chain` and `dst_chain` has other chain in their allowlist. 
 To add chain to the allowlist 
@@ -375,8 +375,7 @@ To add chain to the allowlist
 
 `close_channel(chain_id: ChainId, channel_id: ChannelId)`
 
-Either channel owner, who initiated the channel, or Sudo user can Close the open channel. Once the channel is closed, 
-channel owner will receive the deposit back. 
+Either channel owner, who initiated the channel, or Sudo user can Close the open channel. Once the channel is closed, channel owner will receive the deposit back.
 
 Once the channel is closed, no further xdm messages can be sent through the channel.
 
@@ -388,6 +387,8 @@ Only a sudo user can add `dst_chain` to the Consensus allowlist. Once the chain 
 `consensus chain` or `dst_chain` can initiate channel open.
 
 ### Add `dst_chain` to Domain allowlist
+
+`initiate_domain_update_chain_allowlist(domain_id: DomainId, update: ChainAllowlistUpdate)`
 
 Only a `src_domain` owner can add `dst_chain` to the `src_domain` allowlist. Once the `dst_chain` is added to the 
 `src_domain` allowlist, either of the chains can initiate channel open. Ensure that `dst_chain` also included `src_domain`
