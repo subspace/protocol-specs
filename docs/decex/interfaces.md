@@ -6,8 +6,8 @@ keywords:
     - execution
     - decex
 last_update:
-  date: 10/03/2024
-  author: Dariia Porechna
+  date: 01/28/2025
+  author: Teor
 ---
 
 ## Global Parameters
@@ -173,6 +173,13 @@ This operation can only be initiated by a root user. It is used to ensure domain
         - `max_block_size`: the max block size for this domain; may not exceed the system-wide `MaxDomainBlockSize` limit.
         - `max_block_weight`: the max block weight for this domain, may not exceed the system-wide `MaxDomainBlockWeight` limit
         - `bundle_slot_probability`: the expected number of a successful bundles in a slot. This defines the expected bundle production rate; must be `> 0` and `<= 1`. A value below 1 means not all slots will have a bundle. Recommended value: 1.
+        - `operator_allow_list`: the accounts initially allowed to become operators on this domain.
+        - `initial_balances`: the initial account balances on this domain.
+        - `domain_runtime_config`: configurations that are specific to each domain type:
+            - `Evm`:
+                - `evm_chain_id`: an auto-assigned EVM chain ID. Only present inside the registry, can't be configured before instantiation.
+                - `initial_contract_creation_allow_list`: The accounts that are initially allowed to create contracts on this EVM domain.
+            - `AutoId`: _currently empty_
 
 ### Domain Staking Summary
 
