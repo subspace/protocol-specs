@@ -11,7 +11,7 @@ keywords:
     - cross-domain messaging
 last_update:
   date: 01/28/2025
-  author: Teor
+  author: Vedhavyas Singareddi
 ---
 
 This document describes the current messaging protocol between domains in a trusted code environment (permissioned runtime instantiation). This protocol describes messaging between the consensus chain and any domain and between two domains.
@@ -269,9 +269,9 @@ Similarly, each domain chain maintains its own `DomainChainAllowList` to keep tr
 1. Channel `initiate_channel` transaction is sent by any user of the `src_chain_id` domain with the channel opening deposit as a Channel owner.
 2. If the domain is in the allow list, the next available `ChannelID` is assigned to the new channel.
 3. If no Channel exits, Channel is created and set to `Initiated` status and cannot accept or receive any messages yet.
-5. When the channel is initiated, reserve deposit is taken from the channel and will be returned when Channel is closed.
-6. If the `src_chain_id` is not in the allow list of `dst_chain_id`, destination chain does not open a channel, but rather leaves it in `Initiated` state and responds with an `Err`. When the error response is received on source chain, it also does not open then channel and leaves it in the `Initiated` state.
-7. If both chains are in the allow list of each other, `Protocol` payload message to open the channel is added to the `src_chain_id` domain outbox with nonce `0` 
+4. When the channel is initiated, reserve deposit is taken from the channel and will be returned when Channel is closed.
+5. If the `src_chain_id` is not in the allow list of `dst_chain_id`, destination chain does not open a channel, but rather leaves it in `Initiated` state and responds with an `Err`. When the error response is received on source chain, it also does not open then channel and leaves it in the `Initiated` state.
+6. If both chains are in the allow list of each other, `Protocol` payload message to open the channel is added to the `src_chain_id` domain outbox with nonce `0` 
 
 ### Open Channel
 
@@ -350,3 +350,46 @@ For XDM where response is required from, the following table captures the time i
 | Domain → Consensus → Domain | Consensus → Domain → Consensus | Domain A → Domain B → Domain A |
 |-----------------------------|--------------------------------|--------------------------------|
 | 2 * (K + D)                 | 2 * (K + D)                    | 2 * (K + D)                    |
+
+
+## Runtime calls
+
+Listed in the order of call index in the runtime.
+
+### Initiate Channel
+
+`initiate_channel(dst_chain_id: ChainId)`
+
+Anyone can initiate a channel to `dst_chain` given both `dst_chain` and `src_chain` allow other chain to open channel.
+User would need to deposit fee to initiate channel open and the deposit is reversed once the channel is closed.
+
+Once the channel is initiated, `dst_chain` gets a message to open channel and reverts back to `src_chain` to confirm the 
+channel open. It would 2 challenge periods to open channel on both the chains. Once, both chains open channels, xdm messages can be sent through the channel.
+
+Note: Ensure both `src_chain` and `dst_chain` has other chain in their allowlist. 
+To add chain to the allowlist 
+- To add a chain to Domain, use [Add `dst_chain` to Domain Allowlist](#add-dst_chain-to-domain-allowlist)
+- To add a chain to Consensus, use [Add `dst_chain` to Consensus Allowlist](#add-dst_chain-to-consensus-allowlist)
+
+### Close channel
+
+`close_channel(chain_id: ChainId, channel_id: ChannelId)`
+
+Either channel owner, who initiated the channel, or Sudo user can Close the open channel. Once the channel is closed, channel owner will receive the deposit back.
+
+Once the channel is closed, no further xdm messages can be sent through the channel.
+
+### Add `dst_chain` to Consensus Allowlist
+
+`update_consensus_chain_allowlist(update: ChainAllowlistUpdate,)`
+
+Only a sudo user can add `dst_chain` to the Consensus allowlist. Once the chain is added to the allow list, either 
+`consensus chain` or `dst_chain` can initiate channel open.
+
+### Add `dst_chain` to Domain allowlist
+
+`initiate_domain_update_chain_allowlist(domain_id: DomainId, update: ChainAllowlistUpdate)`
+
+Only a `src_domain` owner can add `dst_chain` to the `src_domain` allowlist. Once the `dst_chain` is added to the 
+`src_domain` allowlist, either of the chains can initiate channel open. Ensure that `dst_chain` also included `src_domain`
+in its allow list.
