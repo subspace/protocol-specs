@@ -178,7 +178,9 @@ This operation can only be initiated by a root user. It is used to ensure domain
         - `domain_runtime_config`: configurations that are specific to each domain type:
             - `Evm`:
                 - `evm_chain_id`: an auto-assigned EVM chain ID. Only present inside the registry, can't be configured before instantiation.
-                - `initial_contract_creation_allow_list`: The accounts that are initially allowed to create contracts on this EVM domain.
+                - `evm_type`
+                    - `Public`: a public EVM domain, where all accounts can create contracts (and the allow list cant be changed).
+                    - `Private { initial_contract_creation_allow_list }`: The accounts that are initially allowed to create contracts on this private EVM domain.
             - `AutoId`: _currently empty_
 
 ### Domain Staking Summary
