@@ -8,9 +8,10 @@ keywords:
     - evm
     - ethereum
 last_update:
-  date: 01/28/2025
+  date: 02/19/2025
   author: Teor
 ---
+
 A "private" EVM instance uses an allow list to limit which users can create contracts.
 After contract deployment, any user can call existing contracts.
 
@@ -22,14 +23,17 @@ The pallet filters contract creation calls based on an Ethereum account ID allow
 
 Contract calls nested within `pallet-utility` calls  are allowed or rejected accurately, regardless of their nesting depth. (Nested transactions use some temporary memory, but don't use stack-based recursion.)
 
+Contract creation calls nested within `pallet-domain-sudo` calls are always allowed.
+
 Rejected transactions have a custom error code `ERR_CONTRACT_CREATION_NOT_ALLOWED`.
 
 ## Pallets
 
-The private EVM functionality is implemented via a runtime pallet:
-- `EVMNoncetracker`: A custom pallet used to track EVM nonces, and the EVM contract creation allow list. The crate is called `pallet-evm-tracker`, but existing runtimes keep the `EVMNoncetracker` name to preserve their storage.
+The private EVM functionality is implemented via two runtime pallets:
+- `EVMNoncetracker`: A custom pallet used to track EVM nonces, and the EVM contract creation allow list. The crate is called `pallet-evm-tracker`, but existing runtimes keep the `EVMNoncetracker` name to preserve their storage names.
+- `Domains`: The `send_evm_domain_set_contract_creation_allowed_by_call` in `pallet-domains` can be used by sudo or the domain owner to change the allow list on private EVMs.
 
-This pallet depends on some upstream pallets:
+`pallet-evm-tracker` depends on some upstream pallets:
 - `Utility`: A pallet allowing calls to be batched or wrapped inside other calls. (Its other low-level functionality is not used by `pallet-evm-tracker`.)
 - `Ethereum`: Ethereum-compatible transactions.
 - `EVM`: An EVM hosted on Substrate, using a Substrate-specific transaction format.
@@ -45,28 +49,52 @@ The `DomainConfig` can be used to configure the initial contract creation allow 
 `DomainConfig`
     - `domain_runtime_config`: configurations that are specific to each domain type:
         - `Evm`:
-            - `initial_contract_creation_allow_list`: The accounts that are initially allowed to create contracts on this EVM domain.
+            - `Public`: a public EVM where the contract creation allow list can't be changed (even by the domain owner or sudo)
+            - `Private { initial_contract_creation_allow_list }`: A private EVM, with the accounts that are initially allowed to create contracts on this EVM domain.
 
-If no list is configured, the default configuration allows anyone to create Ethereum contracts.
+The default configuration is `Public`.
 
 ## Pallet Calls
 
-Listed in the order of call index in the pallet.
+### pallet-domains
 
-### set_contract_creation_allowed_by
+#### send_evm_domain_set_contract_creation_allowed_by_call
+
+`send_evm_domain_set_contract_creation_allowed_by_call(domain_id, contract_creation_allowed_by)`
+
+The sudo account or domain owner can replace the current contract creation allow list with a new list. This list applies to future contract creation transactions.
+
+Existing contracts remain deployed, even if they were created by accounts that are no longer in the allow list.
+
+### pallet-evm-tracker
+
+#### set_contract_creation_allowed_by
 
 `set_contract_creation_allowed_by(contract_creation_allowed_by)`
 
-The domain owner can replace the current contract creation allow list with a new list. This list applies to future contract creation transactions.
-Existing contracts remain deployed, even if they were created by accounts that are no longer in the allow list.
+The `send_evm_domain_set_contract_creation_allowed_by_call` is turned into an inherent, which updates the pallet storage via this call.
 
 ## Pallet Storage Items
 
-### AccountNonce
+### pallet-domains
 
-`AccountNonce` is used to track Ethereum account nonces. (It is not used in implementing Private EVM.)
+#### DomainRegistry
 
-### ContractCreationAllowedBy
+Used to check if the domain is a private EVM, before accepting the `send_evm_domain_set_contract_creation_allowed_by_call`.
+
+Also holds the `initial_contract_creation_allow_list`, which is applied to private EVM domain storage at domain instantiation.
+
+#### EvmDomainContractCreationAllowedByCalls
+
+Temporary storage for the `send_evm_domain_set_contract_creation_allowed_by_call` in this block, if there is one.
+
+### pallet-evm-tracker
+
+#### AccountNonce
+
+`AccountNonce` is used to track Ethereum account nonces. (It is not used in implementing private EVM.)
+
+#### ContractCreationAllowedBy
 
 `ContractCreationAllowedBy` is a list of accounts that are allowed to create contracts.
 
