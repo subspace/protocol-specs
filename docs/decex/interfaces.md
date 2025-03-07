@@ -48,7 +48,7 @@ Any staked operator who is elected may produce and submit a new bundle. The bund
 
 `submit_fraud_proof(domain_id, execution_receipt_hash, proof)`
 
-Challenges an ER committed to in the `BlockTree` of a domain on the consensus chain with proof. This proof could be one of several types, such as invalid state transition or bundle equivocation. Consensus nodes will verify the proof before broadcasting on the network. The next farmer elected to produce a block will include all valid challenges it has received. This will result in pruning the invalid ER, along with all of its children from the `BlockTree`, while de-registering and slashing all accompanying operators in the `Operators` registry and their nominators. 
+Challenges an ER committed to in the `BlockTree` of a domain on the consensus chain with proof. This proof could be one of several types, such as invalid state transition or invalid bundle. Consensus nodes will verify the proof before broadcasting on the network. The next farmer elected to produce a block will include all valid challenges it has received. This will result in pruning the invalid ER, along with all of its children from the `BlockTree`, while de-registering and slashing all accompanying operators in the `Operators` registry and their nominators. 
 
 ### submit_receipt
 
