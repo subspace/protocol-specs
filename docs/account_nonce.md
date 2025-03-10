@@ -24,4 +24,4 @@ To futher mitigate the potential replay attack for mortal transactions, in both 
 ## Compatibility
 The new default nonce value mechanism doesn't affect the nonce value of any existing account that is created before this mechanism is activated in the network.
 
-For new account that is created with this mechanism, its default nonce value won't not set to 0 or any constant value but the block number when the account is created. Thus when constructing a signed transaction for a new account, one should always query the account nonce from on-chain data instead of assuming a nonce value.
+For new accounts that are created (or re-created) with this mechanism, its default nonce value will be set to the block number in which the account is created. So when constructing a signed transaction for a new (or potentially reaped) account, tools and custom code should always query the account nonce from on-chain data, instead of assuming a nonce value.
