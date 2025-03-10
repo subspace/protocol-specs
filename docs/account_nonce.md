@@ -19,7 +19,7 @@ Refer to [Existential Deposit and Reaping](https://wiki.polkadot.network/docs/le
 Refer to [Replay Attack](https://wiki.polkadot.network/docs/transaction-attacks#replay-attack).
 
 ## Default nonce for new account
-To futher mitigate the potential replay attack for mortal transaction, in both the consensus chain and any domain chain, when a new account is created its default nonce value won't not set to 0 or any constant value but the current block number. This ensures if an account is reaped and then later re-created, in most of the cases, the new account's nonce is larger than the previous nonce before the account is reaped, thus invalidate the previous signed transaction.
+To futher mitigate the potential replay attack for mortal transactions, in both the consensus chain and any domain chain, when a new account is created its default nonce value is set to the current block number (rather than 0 or a any other constant value). This ensures if an account is reaped and then later re-created, in most cases, the new account's nonce is larger than the previous nonce before the account was reaped, which invalidates all previously signed transactions.
 
 ## Compatibility
 The new default nonce value mechanism doesn't affect the nonce value of any existing account that is created before this mechanism is activated in the network.
