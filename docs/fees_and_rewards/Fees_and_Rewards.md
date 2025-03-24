@@ -31,7 +31,7 @@ import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
 <div align="center">
 
-![Fees & Rewards Specification Stack and Flow](/img/Fees_&_Rewards_Specification_Stack_and_flow.png)
+![Fees & Rewards Specification Stack and Flow](/static/img/Fees_&_Rewards_Specification_Stack_and_flow.png)
 
 </div>
 
@@ -96,7 +96,7 @@ Balance held by users who do not pledge storage and participate in consensus by 
 
 ## Dynamic Issuance
 
-As opposed to having a fixed issuance rate, the Subspace Network implements a dynamic issuance rate based on network usage, where, roughly, the inflation rate is inversely proportional to the utilization rate of the blockspace. 
+As opposed to having a fixed issuance rate, the Subspace Network implements a dynamic issuance rate based on network usage, where, roughly, the inflation rate is inversely proportional to the utilization rate of the blockspace.
 
 TLDR: The farmer who proposed a block gets some fresh SSC + fees, and voters get some fresh SSC regardless of what the proposer got.
 
@@ -123,7 +123,7 @@ $\text{storage fee per byte}  = \frac{\text{total credit supply}}{\text{total sp
 $\text{storage fee} \left(\text{tx}\right) = \text{storage fee per byte}*\text{length(tx)}\ shannons$
 </center>
 
-Implemented as 
+Implemented as
 <center>
 ```rust
 transaction_byte_fee = credit_supply / max(TotalSpacePledged / MinReplicationFactor - BlockchainHistorySize, 1)
@@ -137,7 +137,7 @@ A `transaction_byte_fee()` value computed on block finalization is persisted in 
 
 A compute fee (per weight unit) pays for the computational resources spent to execute the extrinsic.
 
-Compute fees for the execution of extrinsics on the consensus chain (e.g., balance transfers) are collected by the block proposer. 
+Compute fees for the execution of extrinsics on the consensus chain (e.g., balance transfers) are collected by the block proposer.
 Compute fees for executing transaction bundles on domains are paid to the domain operators who submit the Execution Receipt containing this bundle (split between all operators who submit this ER) after the ER has cleared the challenge period.
 
 - `WeightToFee` is the conversion rate of the weight to the native currency on the chain, currently used to calculate transaction execution fees. Currently set to 1 Shannon/weight unit (static, actual value TBD).
@@ -174,7 +174,7 @@ Storage fee for the bundle is received by the consensus block proposer (farmer) 
 
 **Price**
 
-The price for storage to be deducted is injected into the domain by an inherent extrinsic carrying the `transaction_byte_fee` for the next consensus block. 
+The price for storage to be deducted is injected into the domain by an inherent extrinsic carrying the `transaction_byte_fee` for the next consensus block.
 
 The storage fee that the domain charges to the sender of the transaction is higher (e.g., `domain_transaction_byte_fee > 2.4 * transaction_byte_fee` converted to SSC, currently 3x) than that determined by the consensus chain to make up for possible duplication of txs taking up blockspace.
 
@@ -203,7 +203,7 @@ The user is charged when the domain block that includes the bundle is executed.
 
 The `ER::block_fees` field stores the fees split by storage and compute fees (similar to how the consensus chain stores block fees). The fraud proof for this field  ([**Invalid Block Fees** ](docs/decex/fraud_proofs.md#invalid-block-fees)) handles both parts. The [**Inherent Extrinsic**](docs/decex/fraud_proofs.md#inherent-extrinsic) fraud proof variant handles the invalid inherent proof for `transaction_byte_fee`.
 
-When registering onto a domain, a percentage $s$ (currently 20%) of the operator’s stake is transferred to a “storage fee fund”. A `storage_fund_account` is a separate account from stake, derived uniquely from operator public key. The storage fee for a bundle $B$ will be paid from this account. 
+When registering onto a domain, a percentage $s$ (currently 20%) of the operator’s stake is transferred to a “storage fee fund”. A `storage_fund_account` is a separate account from stake, derived uniquely from operator public key. The storage fee for a bundle $B$ will be paid from this account.
 We can estimate the minimum operator stake required to be able to produce bundles for a challenge period.
 
 Any subsequent operator&nominator stake deposits will automatically allocate the same percentage $s$ to the `storage_fund_account`. Unlike staking deposits that are locked in the nominator account in `pallet_balances`, a % required for storage fees is transferred to `storage_fund_account` sub-account for this operator.
@@ -233,13 +233,13 @@ If the operator or nominator withdraws below minimum stake (or deregisters) they
 
 <div align="center">
 
-![Bundle Storage Fees](/img/Fees_&_Rewards_Specification_Bundle-st-fee.png)
+![Bundle Storage Fees](/static/img/Fees_&_Rewards_Specification_Bundle-st-fee.png)
 
 </div>
 
 **Refund**
 
-When the domain block containing the bundle is confirmed, the total storage fees (`total_storage_fees=ER::total_fees.storage_fees`) are refunded back to the `storage_fund_account`s of the operators who authored the bundles included in this block. 
+When the domain block containing the bundle is confirmed, the total storage fees (`total_storage_fees=ER::total_fees.storage_fees`) are refunded back to the `storage_fund_account`s of the operators who authored the bundles included in this block.
 
 Let `paid_storage` be the amount of fees this operator paid for their bundle and `total_paid_storage` be the total all operators paid in this block. Because `total_storage_fees` in this block does not necessarily equal `total_paid_storage` (may be more due to higher price on domain or less due to unaccounted duplication) we refund operators proportionally to what they have paid.
 
@@ -250,7 +250,7 @@ Let `paid_storage` be the amount of fees this operator paid for their bundle and
 
 
 Operator $O$ has staked 100 SSC with a minimum nominator stake of 10 SSC and nomination tax of 5%. Assume the storage fee reserve is 20%. The operator has to reserve 20 SSC for storage fees. Operator $O$ has 2 nominators $N_1 $ and $N_2$ each staked 50 SSC and reserved 20% = 10 SSC each for storage fees. Initially $\text{shares\_per\_ssc} = 1$, so $O$ gets 80 shares, and $N_1$ and $N_2$ each get 40 shares and $
-\text{total\_shares}=80+40+40=160$ in the stake and the same shares in the storage fee reserve. 
+\text{total\_shares}=80+40+40=160$ in the stake and the same shares in the storage fee reserve.
 
 Deposits:
 
@@ -258,14 +258,14 @@ Deposits:
 - $N_1$: `shares`=40, `storage_fee_deposit`=10 SSC
 - $N_2$: `shares`=40, `storage_fee_deposit`=10 SSC
 
-total shares: 160, 
-total stake: 160, 
-shares per ssc: 1, 
+total shares: 160,
+total stake: 160,
+shares per ssc: 1,
 storage fee fund balance:40
 
 
 In the next epoch, the pool has earned 20 SSC of compute fees and refunded an extra 4 SSC of storage fees, and the operator took 5% of compute fees as a commission (1 SSC). The pool stake is now$ 160+20=180$ SSC and storage reserve is now $40+4=44$ SSC.
-The pool end-of-epoch $\text{shares\_per\_ssc}$ is now $160/(160 + 20 * (1-0.05)) = 0.893855$. Notice that 4 SSC of storage fees do not count into current epoch rewards used for this calculation, which allows us to sustain our current assumptions of increasing share value despite fluctuating size of storage fee reserve. 
+The pool end-of-epoch $\text{shares\_per\_ssc}$ is now $160/(160 + 20 * (1-0.05)) = 0.893855$. Notice that 4 SSC of storage fees do not count into current epoch rewards used for this calculation, which allows us to sustain our current assumptions of increasing share value despite fluctuating size of storage fee reserve.
 If a new nominator $N_3$ stakes 67.2 SSC, 13.44 SSC will be reserved for storage fee fund, and the $\text{shares}$ they will get is $((67.2-13.44) * 0.893855) = 48$. The pool total stake becomes $181+53.76=234.76$ SSC, total shares $160+24+1$=209 and storage fee reserve 57.44 SSC.
 
 
@@ -276,9 +276,9 @@ Deposits:
 - $N_2$: `shares`=40, `storage_fee_deposit`=10 SSC
 - $N_3$: `shares`=48, `storage_fee_deposit`=13.44 SSC
 
-total shares: 209, 
-total stake: 234.76, 
-shares per ssc: 0.893855, 
+total shares: 209,
+total stake: 234.76,
+shares per ssc: 0.893855,
 storage fee fund balance: 57.44
 
 **Generic withdrawal formula:**
@@ -291,7 +291,7 @@ withdrawn from storage fee fund =
 `withdraw_shares/shares * storage_fee_deposit/total_storage_fee_deposits * storage_fee_fund_account_balance`
 
 The nominator’s known deposit is updated
-`storage_fee_deposit = storage_fee_deposit(1 - withdraw_shares/shares)` 
+`storage_fee_deposit = storage_fee_deposit(1 - withdraw_shares/shares)`
 `shares = shares-withdraw_shares`
 
 The total of all nominator deposits is updated
@@ -312,9 +312,9 @@ The total of all nominator deposits is updated
 
 The fund gets divided according to their deposit share (not stake share). Everyone gets their deposit back and little extra.
 
-Assume storage fund is $57.44$ and `total_storage_fee_deposits`=$(20.05 + 10 + 10 + 13.44)=53.49$ 
+Assume storage fund is $57.44$ and `total_storage_fee_deposits`=$(20.05 + 10 + 10 + 13.44)=53.49$
 
-$O$  gets $20.05/53.49*57.44=21.5$, 
+$O$  gets $20.05/53.49*57.44=21.5$,
 $N_1$ and $N_2$ both get $10/53.49*57.44=10.74$,
 $N_3$ gets $13.44/53.49*57.44=14.43$
 
@@ -322,15 +322,15 @@ $N_3$ gets $13.44/53.49*57.44=14.43$
 
 The fund gets divided according to their deposit share (not stake share). Everyone loses a bit.
 
-Assume storage fund is $50$ and `total_storage_fee_deposits`=$(20.05 + 10 + 10 + 13.44)=53.49$ 
+Assume storage fund is $50$ and `total_storage_fee_deposits`=$(20.05 + 10 + 10 + 13.44)=53.49$
 
-$O$ gets $20.05/53.49*50=18.74$, 
+$O$ gets $20.05/53.49*50=18.74$,
 $N_1$ and $N_2$ both get $10/53.49*50=9.35$,
 $N_3$ gets $13.44/53.49*50=12.56$
 
 **Scenario 3: Nominator completely unstakes, storage fee fund > $\sum$ deposits**
 
-Assume storage fund is $57.44$ and `total_storage_fee_deposits`=$(20.05 + 10 + 10 + 13.44)=53.49$ 
+Assume storage fund is $57.44$ and `total_storage_fee_deposits`=$(20.05 + 10 + 10 + 13.44)=53.49$
 
  $N_2$ unstakes and gets $10/53.49*57.44=10.74$
 
@@ -339,7 +339,7 @@ Everyone else can still withdraw more than they deposited.
 
 **Scenario 4: Nominator completely unstakes, storage fee fund < $\sum$ deposits**
 
-Assume storage fund is $50$ and `total_storage_fee_deposits`=$(20.05 + 10 + 10 + 13.44)=53.49$ 
+Assume storage fund is $50$ and `total_storage_fee_deposits`=$(20.05 + 10 + 10 + 13.44)=53.49$
 
  $N_2$ unstakes and gets $10/53.49*50=9.35$
 
@@ -348,7 +348,7 @@ Everyone shares proportional loss unless they wait for the fund to fill up.
 
 **Scenario 5: Nominator partially unstakes, storage fee fund > $\sum$ deposits**
 
-Assume storage fund is $57.44$ and `total_storage_fee_deposits`=$(20.05 + 10 + 10 + 13.44)=53.49$ 
+Assume storage fund is $57.44$ and `total_storage_fee_deposits`=$(20.05 + 10 + 10 + 13.44)=53.49$
 
  $N_2$ unstakes $15$ of their $40$ shares and gets $15/40*10/53.49*57.44=4$
 
@@ -357,11 +357,11 @@ Everyone else can still withdraw more than they deposited. $N_2$ has gained $0.2
 
 **Scenario 6: Nominator partially unstakes, storage fee fund < $\sum$ deposits**
 
-Assume storage fund is $50$ and `total_storage_fee_deposits`=$(20.05 + 10 + 10 + 13.44)=53.49$ 
+Assume storage fund is $50$ and `total_storage_fee_deposits`=$(20.05 + 10 + 10 + 13.44)=53.49$
 
  $N_2$ unstakes $15$ of their $40$ shares and gets $15/40*10/53.49*50=3.5$
 
-$N_2$ known deposit is updated to `shares`$=40-15=25$ 
+$N_2$ known deposit is updated to `shares`$=40-15=25$
 `storage_fee_deposit`$=10*(1-15/40)=6.25$
 
 The storage fund becomes $46.5$ and `total_storage_fee_deposits`=$(20.05 + 10 + (1-15/40)*10 + 13.44)=49.74$

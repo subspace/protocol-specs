@@ -19,7 +19,7 @@ import Collapsible from '@site/src/components/Collapsible/Collapsible';
 ### Protocol Constants
 
 
-These parameters are fixed at the beginning of the protocol and used by all clients. 
+These parameters are fixed at the beginning of the protocol and used by all clients.
 
 - `SLOT_PROBABILITY`: the probability of successful block in a slot (active slots coefficient), currently 1/6. This defines the expected block production rate of 1 block every 6 seconds
 - `INITIAL_SOLUTION_RANGE`: solution range for proof-of-replication challenge for the first era
@@ -66,7 +66,7 @@ These parameters are derived from the blockchain and are dynamically updated ove
 
 ### Consensus Parameters
 
-These parameters are fixed at the beginning of the protocol and used by all clients, however they can be updated if necessary. 
+These parameters are fixed at the beginning of the protocol and used by all clients, however they can be updated if necessary.
 
 - `max_pieces_in_sector`: number of pieces to be retrieved from blockchain history by a farmer under Verifiable Sector Construction (VSC) and encoded in a single sector by an honest farmer, currently 1000
 - `sector_size`: size of a plotted sector on disk, currently ~1 GiB (`max_pieces_in_sector * RECORD_SIZE`)
@@ -75,16 +75,16 @@ These parameters are fixed at the beginning of the protocol and used by all clie
 
 ***Preparing the history***
 
-1. The genesis block is archived as soon as it produced. 
+1. The genesis block is archived as soon as it produced.
 We extend the encoding of the genesis block with extra pseudorandom data up to `RECORDED_HISTORY_SEGMENT_SIZE`, such that the very first archived segment can be produced right away, bootstrapping the farming process.
 This extra data is added to the end of the [SCALE-encoded](https://docs.substrate.io/reference/scale-codec/) block, so during decoding of the genesis block it'll be ignored.
 2. Once any block produced after genesis becomes `CONFIRMATION_DEPTH_K`-deep, it is included in the *recorded history*. Recorded history is added to a buffer of capacity `RECORDED_HISTORY_SEGMENT_SIZE`.
 3. When added to the buffer, blocks are turned into `SegmentItem`s.
 4. Each segment will have parent `segment_header` included as the first item. Each `segment_header` includes hash of the previous segment header and the segment commitment of the previous segment. Together segment headers form a chain that is used for quick and efficient verification that some `piece` corresponds to the actual archival history of the blockchain.
-5. Segment items are combined into segments. Each segment contains at least two of the following `SegmentItem`s, in this order: 
+5. Segment items are combined into segments. Each segment contains at least two of the following `SegmentItem`s, in this order:
     1. The previous segment’s `SegmentHeader`
     2. `BlockContinuation`, if remained from the previous segment
-    3. `Block`(s), as many as fit fully into the current segment, may be none 
+    3. `Block`(s), as many as fit fully into the current segment, may be none
     4. `BlockStart`, if the next block doesn't fit within the current segment
     5. `Padding` (zero or more) in case padding bytes are necessary to complete the segment to `RECORDED_HISTORY_SEGMENT_SIZE`
 6. When the buffer (after SCALE-encode) contains enough data to fill a record of `RAW_RECORD_SIZE` bytes, it is archived:
@@ -93,34 +93,34 @@ This extra data is added to the end of the [SCALE-encoded](https://docs.substrat
     3. Commit to the record polynomial under KZG and obtain the source `record_commitment` $C_i$ as `Commit(polynomial)`. This will allow us to later compute proofs that a chunk belongs to a particular record.
 7. Once `NUM_RAW_RECORDS` (128) records have been committed, stack them into a matrix of $n =$ `NUM_RAW_RECORDS` rows and $d$ columns. Each row is a record.
 8. **Erasure code records** column-wise with `extend(column, ERASURE_CODING_RATE)`
-    
-    This effectively doubles the number of rows and thus, records per segment to `NUM_PIECES` (256). 
-    
+
+    This effectively doubles the number of rows and thus, records per segment to `NUM_PIECES` (256).
+
 9. **Erasure code commitments** with `extend(record_commitments, ERASURE_CODING_RATE)`.
 
     <Collapsible title="Note">
     By doing this step we can effectively save almost half of the record commitment time in archival. Instead of directly committing to parity records we erasure code the commitments here, which should match the parity record commitments, but being much faster to compute.
     </Collapsible>
 
-10. Hash each `record_commitment`, both source and parity, into 254-bit scalar `record_commitment_hash`es values $h_0…h_{2n}$. 
-   
+10. Hash each `record_commitment`, both source and parity, into 254-bit scalar `record_commitment_hash`es values $h_0…h_{2n}$.
+
     <Collapsible title="Note">
      Commitments are hashed to 254 bits (we hash it as usual and set last 2 bits to 0) to bring them back down to field elements so it becomes possible to KZG commit to them (at cost of losing homomorphic properties). There is no direct way to commit to 48-byte KZG commitments without greatly increasing proof size and computation time (i.e. by using IPP proofs). Committing to the hashes effectively makes a one level Verkle tree.
     </Collapsible>
 
 11. Interpolate a polynomial `segment_polynomial` over these hashes and commit to it under KZG to get the `segment_commitment` $C_s$ as `commit(Poly(record_commitment_hashes))`.
-12. For each `record_commitment_hashes[i]` $h_i$, compute a `record_witness` $\pi_i$ to the `segment_commitment` $C_s$ as `create_witness(segment_polynomial, i)`. 
-    
-    This will allow us to prove that a record belongs to an archived history segment without having to provide all other segment commitments at a cost of storing additional 48 bytes per piece. 
-    
+12. For each `record_commitment_hashes[i]` $h_i$, compute a `record_witness` $\pi_i$ to the `segment_commitment` $C_s$ as `create_witness(segment_polynomial, i)`.
+
+    This will allow us to prove that a record belongs to an archived history segment without having to provide all other segment commitments at a cost of storing additional 48 bytes per piece.
+
 13. For each record, form a `piece = record || record_commitment || record_witness` $(r_i||C_i|| \pi_i)$
 14. Append the `segment_commitment` to the global `segment_commitments[]` table of the chain.
-15. The segment now consists of `NUM_PIECES` records of 1MiB each, `NUM_PIECES` piece commitments, `NUM_PIECES` proofs of 48 bytes each and one 48-byte `segment_commitment`. 
-    
-    The pieces with even indices ((0, 2, …, 254) of this segment) correspond to source records and the pieces with odd indices ((1, 3, …, 255)of this segment) correspond to parity records. The blockchain history data is effectively contained only in pieces with an even `piece_index`. 
-    
+15. The segment now consists of `NUM_PIECES` records of 1MiB each, `NUM_PIECES` piece commitments, `NUM_PIECES` proofs of 48 bytes each and one 48-byte `segment_commitment`.
 
-![Figure 3: Piece Building Process corresponds to steps 5-12 of Archiving.](/img/Archiving_Process.png)
+    The pieces with even indices ((0, 2, …, 254) of this segment) correspond to source records and the pieces with odd indices ((1, 3, …, 255)of this segment) correspond to parity records. The blockchain history data is effectively contained only in pieces with an even `piece_index`.
+
+
+![Figure 3: Piece Building Process corresponds to steps 5-12 of Archiving.](/static/img/Archiving_Process.png)
 
 <center>Figure 3: Piece Building Process corresponds to steps 5-12 of Archiving.</center>
 
@@ -131,21 +131,21 @@ This extra data is added to the end of the [SCALE-encoded](https://docs.substrat
 
 ***Determining and retrieving the assigned portion of the history***
 
-1. Given the total allocated disk space, reserve some space ($<2\%$) for commitments and other auxiliary information. 
+1. Given the total allocated disk space, reserve some space ($<2\%$) for commitments and other auxiliary information.
 2. Create a single plot of `plot_size = allocated_plotting_space`. Sizes of farmer plots are independent from size of blockchain history, but must be a multiple of `sector_size`.
 3. Generate a farmer identity, that is a key pair `public_key, secret_key` under the digital signature scheme. These signing keys are independent from reward address of an entity (exactly as payout address in Bitcoin mining) described in [Block reward address](docs/consensus/consensus_chain.md#block-reward-address).
 4. Derive an identifier `public_key_hash` as `hash(public_key)`. This farmer id will also serve as the basis for their single global network peer id in the DHT.
-5. Determine the `sector_count = plot_size / sector_size`. 
+5. Determine the `sector_count = plot_size / sector_size`.
 6. **Verifiable Sector Construction (VSC)**:
-    
-    Determine which pieces are to be downloaded for this sector: 
-    
+
+    Determine which pieces are to be downloaded for this sector:
+
     1. Index the sectors sequentially and for each sector derive `sector_id = keyed_hash(public_key_hash, sector_index || history_size)`, where `sector_index` is the sector index in the plot and `history_size` is the current history size at the time of sector creation.
-    2. For each sector, for each `piece_offset` in `0..max_pieces_in_sector`, derive the `piece_index` in global blockchain history this slot will contain, as follows: 
+    2. For each sector, for each `piece_offset` in `0..max_pieces_in_sector`, derive the `piece_index` in global blockchain history this slot will contain, as follows:
         1. At the start of the chain, if `history_size <= RECENT_SEGMENTS / RECENT_HISTORY_FRACTION` the pieces for this sector are selected uniformly as `piece_index = keyed_hash(piece_offset, sector_id) mod (history_size * NUM_PIECES)` for `piece_offset` in `0..max_pieces_in_sector`
         2. Later, when history grows (`history_size > RECENT_SEGMENTS / RECENT_HISTORY_FRACTION`) to make sure recent archived history is plotted on farmer storage as soon as possible we select `RECENT_HISTORY_FRACTION` of pieces for each sector from the last `RECENT_SEGMENTS` archived segments.
         3. For `piece_offset` in `0..max_pieces_in_sector * RECENT_HISTORY_FRACTION * 2`:
-            1. If `piece_offset` is odd, select a piece from recent history as `piece_index = keyed_hash(piece_offset, sector_id) mod (RECENT_SEGMENTS * NUM_PIECES) + ((history_size - RECENT_SEGMENTS) * NUM_PIECES)` 
+            1. If `piece_offset` is odd, select a piece from recent history as `piece_index = keyed_hash(piece_offset, sector_id) mod (RECENT_SEGMENTS * NUM_PIECES) + ((history_size - RECENT_SEGMENTS) * NUM_PIECES)`
             2. If `piece_offset` is even, select a piece uniformly from all history as `piece_index = keyed_hash(piece_offset, sector_id) mod (history_size * NUM_PIECES)`
         4. The rest of the pieces for this sector are selected uniformly as `piece_index = keyed_hash(piece_offset, sector_id) mod (history_size * NUM_PIECES)` for `piece_offset` in `(2 * RECENT_HISTORY_FRACTION * max_pieces_in_sector)..max_pieces_in_sector`
     3. Retain the `history_size` count at the time of sector creation. This sector will expire at a point in the future as described in [Sector Expiration](#sector-expiration).
@@ -153,8 +153,8 @@ This extra data is added to the end of the [SCALE-encoded](https://docs.substrat
 
 <div align="center">
 
-![Raw Sector Light](/img/Raw_Sector-light.svg#gh-light-mode-only)
-![Raw Sector Dark](/img/Raw_Sector-dark.svg#gh-dark-mode-only)
+![Raw Sector Light](/static/img/Raw_Sector-light.svg#gh-light-mode-only)
+![Raw Sector Dark](/static/img/Raw_Sector-dark.svg#gh-dark-mode-only)
 
 </div>
 
@@ -167,13 +167,13 @@ This extra data is added to the end of the [SCALE-encoded](https://docs.substrat
 
 ***Sealing the history***
 
-For each sector, given that all pieces assigned to the sector reside locally in memory, encode pieces row-wise (piece by piece or one piece at a time). 
+For each sector, given that all pieces assigned to the sector reside locally in memory, encode pieces row-wise (piece by piece or one piece at a time).
 
 For each piece in the sector:
 
-1. Extract the bundled record from the piece and retain the `record_witness` and  `record_commitment` alongside the plot. 
+1. Extract the bundled record from the piece and retain the `record_witness` and  `record_commitment` alongside the plot.
 2. Split the extracted record into `FULL_BYTES`-sized `record_chunks`, which are guaranteed to contain values that fit into the scalar field.
-3. Erasure code the record with `extended_chunks = extend(record_chunks, ERASURE_CODING_RATE)`  
+3. Erasure code the record with `extended_chunks = extend(record_chunks, ERASURE_CODING_RATE)`
 
     <Collapsible title="Implementation Note">
         - (Optimization, Implemented) It is faster to do FFT over domain $2^{16}$ with `extend` and throw away all values that are not in `proven_indices` then evaluate at proven indices. FFT complexity is expected at $O(2nlog(2n)) \approx 2^{16}*16 = 2^{20}$ while direct evaluation is $O(n^2)\approx (2^{15})^2 = 2^{30}$
@@ -186,11 +186,11 @@ For each piece in the sector:
     1. Query the `pos_table` for a valid proof-of-space `proof_of_space` for this chunk as `find_proof(pos_table, s_bucket)`.
     2. If it exists, encode the current chunk as `encode(chunk, hash(proof_of_space))` and increase `num_successfully_encoded_chunks` by 1. Otherwise, continue to the next chunk.
     3. Place the encoded chunk into a corresponding s-bucket for given index `s_bucket` and set corresponding bit in the `encoded_chunks_used` bitfield to `1`.
-    
+
     <Collapsible title="Implementation Note">
         There is one `encoded_chunks_used` bitfield per record  which indicates which s-buckets contain its encoded chunks.
     </Collapsible>
-    
+
 
 8. If `num_successfully_encoded_chunks >= NUM_CHUNKS` all chunks were encoded successfully, take the necessary `NUM_CHUNKS` and  proceed to the next record.
 9. Else, if `num_successfully_encoded_chunks < NUM_CHUNKS`, select extra chunks to store at the end after encoded chunks:
@@ -203,30 +203,30 @@ For each piece in the sector:
 
 10. Once all records are encoded, write the sector to disk, one s-bucket at time in order of the index, each followed by `encoded_chunks_used` bitfield corresponding to selected chunks.
 11. The final plotted sector consists of `max_pieces_in_sector` many `encoded_chunks_used` bitfields of size `NUM_S_BUCKETS` each,  `NUM_S_BUCKETS` s-buckets and commitments and witnesses of pieces in this sector.
-    
-    Each `encoded_chunks_used` indicator vector has bit set to `1` at places corresponding to the record positions whose chunks are encoded in this s-bucket and are eligible for farming.
-    
 
-![Figure 5: Complete Plotting process for an example sector of 4 pieces](/img/Plotting_Process.png)
+    Each `encoded_chunks_used` indicator vector has bit set to `1` at places corresponding to the record positions whose chunks are encoded in this s-bucket and are eligible for farming.
+
+
+![Figure 5: Complete Plotting process for an example sector of 4 pieces](/static/img/Plotting_Process.png)
 
 <center>Figure 5: Complete Plotting process for an example sector of 4 pieces</center>
 
 
 <Collapsible title="Implementation Note">
-    1. Plotting consists of transforming raw sectors into encoded sectors, which can be viewed as converting a row-wise matrix of raw records into a row-wise matrix of encoded records and viewing that as a column-wise matrix of s-buckets. 
+    1. Plotting consists of transforming raw sectors into encoded sectors, which can be viewed as converting a row-wise matrix of raw records into a row-wise matrix of encoded records and viewing that as a column-wise matrix of s-buckets.
     2. Sectors are written to disk in a manner that is optimized for sector audits (as opposed to efficient recovery of pieces).
 </Collapsible>
 
 ### Sector Expiration
 
-After `MIN_SECTOR_LIFETIME` segments were archived (since sector creation), the farmer should check whether the sector have expired and can no longer be farmed based on the “age” (history size at plotting) of each sector. 
+After `MIN_SECTOR_LIFETIME` segments were archived (since sector creation), the farmer should check whether the sector have expired and can no longer be farmed based on the “age” (history size at plotting) of each sector.
 For each sector `sector_id` and `history_size` when this sector was plotted:
 
 1.  When current history size of the chain reaches `sector_expiration_check_history_size = history_size + MIN_SECTOR_LIFETIME` farmer should check when to expire this sector based on corresponding `segment_commitment` of last archived segment.
 2. Compute `sector_max_lifetime = MIN_SECTOR_LIFETIME + 4 * history_size`. With this limitation on sector lifetime, a sector with expire with probability ~50% by the time history doubles since it’s initial plotting point and is guaranteed to expire by the time history doubles again.
 3. Compute `expiration_history_size = hash(sector_id || segment_commitment) mod (sector_max_lifetime - sector_expiration_check_history_size) + sector_expiration_check_history_size`
 4. When the current history size reaches `expiration_history_size`, expire this sector.
-5. Replot the sector for new history size as described in [Plotting](#plotting). 
+5. Replot the sector for new history size as described in [Plotting](#plotting).
 
 ## Farming
 
@@ -260,7 +260,7 @@ For each sector `sector_id` and `history_size` when this sector was plotted:
 10. Compute the `chunk_witness` for the decoded winning `chunk` that ties back to the `record_commitment` as `create_witness(extended_chunks_poly, s_bucket_audit_index)`, and attach both to the solution for verification against the original record commitment stored in the history.
 11. Retrieve the `record_witness` that ties back to the `segment_commitment`.
 12. Produce a `solution` consisting of
-    
+
     ```rust
     struct Solution {
     	public_key:          32 bytes
@@ -275,7 +275,7 @@ For each sector `sector_id` and `history_size` when this sector was plotted:
     	proof_of_space:     160 bytes
     }
     ```
-    
+
 
 ### Submitting a solution
 
@@ -292,8 +292,8 @@ Otherwise, submit a vote extrinsic with `solution`.
 ***Ensuring a solution comes from a valid plot***
 
 1. If the `public_key` of the block's farmer is in the block list, ignore the block.
-2. Verify that the consensus log in the block header is correct. This includes `solution_range` and `global_randomness`. 
-3. Verify that PoT items in the header are correct according to [New Blocks](./proof_of_time.md#new-blocks) 
+2. Verify that the consensus log in the block header is correct. This includes `solution_range` and `global_randomness`.
+3. Verify that PoT items in the header are correct according to [New Blocks](./proof_of_time.md#new-blocks)
 4. Verify that `solution_range` and `global_randomness` are correct for the `slot_number` of the block.
 5. Compute the `global_challenge = hash(global_randomness||slot_number)`.
 6. Verify that current chain history size in segments is greater than winning `piece_index / NUM_PIECES`.
@@ -331,7 +331,7 @@ The above steps assume standard block and transaction verification.
 
 ***Serving data from the plot***
 
-1. When requested a piece at `piece_index` identify `sector_index` and `piece_offset` where that piece is stored.    
+1. When requested a piece at `piece_index` identify `sector_index` and `piece_offset` where that piece is stored.
 2. For the record plotted at `piece_offset` in that sector perform record recovery and compose the piece.
 
 ### Recovering the Record
@@ -340,7 +340,7 @@ The above steps assume standard block and transaction verification.
 2. Read all the `plotted_chunks` of the parent record from their respective s-buckets. Set the encoded chunk value `None` in places where `encoded_chunks_used` is `0`.
 Total length of `plotted_chunks` should be `NUM_CHUNKS/ERASURE_CODING_RATE`.
 3. Derive the `evaluation_seed` for the record from `sector_id` and `piece_offset` within this sector as `evaluation_seed = hash(sector_id || piece_offset)`
-4. Derive a Chia proof-of-space table `pos_table = generate(K, evaluation_seed)` 
+4. Derive a Chia proof-of-space table `pos_table = generate(K, evaluation_seed)`
 5. Iterate through each `(s_bucket, plotted_chunk)` in `plotted_chunks`:
     1. If `plotted_chunk` is `None`, continue to next chunk.
     2. Else, query the `pos_table` for a valid proof-of-space`proof_of_space` for this chunk as `find_proof(pos_table, s_bucket)`. The proof should exist if the chunk was encoded and plotted.
@@ -370,17 +370,17 @@ $$
 To compute initial solution range for one sector, maximum possible solution range (`U64::MAX`) is divided by `num_chunks` and multiplied by slot probability:
 
 $$
-\frac{\text{U64::MAX}}{\text{num\_chunks}}*\text{SLOT\_PROBABILITY} 
+\frac{\text{U64::MAX}}{\text{num\_chunks}}*\text{SLOT\_PROBABILITY}
 $$
 
 `INITIAL_SOLUTION_RANGE` becomes `solution_range` for the first **era**.
 
 Global `solution_range` is adjusted every era accordingly to actual and expected blocks produced per era to keep block production at the same pace while space pledged on the network change:
 
-1. After every `ERA_DURATION_IN_BLOCKS` number of blocks, a new era begins. 
-2. At the start of a new era, compute and store new `solution_range` 
+1. After every `ERA_DURATION_IN_BLOCKS` number of blocks, a new era begins.
+2. At the start of a new era, compute and store new `solution_range`
 
-$\text{next\_solution\_range} = \max\left(\min\left(\frac{\text{era\_slot\_count}}{\text{ERA\_DURATION\_IN\_BLOCKS}}*\text{SLOT\_PROBABILITY}, 4\right), 1/4\right)*\text{solution\_range}$. 
+$\text{next\_solution\_range} = \max\left(\min\left(\frac{\text{era\_slot\_count}}{\text{ERA\_DURATION\_IN\_BLOCKS}}*\text{SLOT\_PROBABILITY}, 4\right), 1/4\right)*\text{solution\_range}$.
 
 ### Conversion Rate Between Solution Range and Space Pledged
 

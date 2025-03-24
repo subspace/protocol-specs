@@ -27,7 +27,7 @@ A Node or Consensus Node (unless otherwise noted as Timekeeper) is a PoT client 
 
 ## Primitives
 
-We construct a PoT function by iterating AES-128 a large number of times. The prover evaluation latency for the fastest available hardware platform is calculated as the number of iterations times the latency for a single iteration of AES-128 on that hardware platform. We may then tune the number of iterations based on the lowest-latency hardware platform at the time to guarantee the minimum wall-clock time required for anyone to evaluate the PoT. 
+We construct a PoT function by iterating AES-128 a large number of times. The prover evaluation latency for the fastest available hardware platform is calculated as the number of iterations times the latency for a single iteration of AES-128 on that hardware platform. We may then tune the number of iterations based on the lowest-latency hardware platform at the time to guarantee the minimum wall-clock time required for anyone to evaluate the PoT.
 
 ## Public Constants
 
@@ -37,7 +37,7 @@ We construct a PoT function by iterating AES-128 a large number of times. The pr
 <Collapsible title="Note">
 This parameter is $c$ in security analysis.
 </Collapsible>
-        
+
 - `POT_ENTROPY_INJECTION_LOOKBACK_DEPTH`: depth at which the injected block is taken, measured in multiples of `POT_ENTROPY_INJECTION_INTERVAL`s, currently `2` *(equal to 100 blocks, the archiving depth)*
 - `POT_ENTROPY_INJECTION_DELAY`: number of slots between when the injection condition is met at slot `t` and when the injection into the PoT chain happens at slot `t + POT_ENTROPY_INJECTION_DELAY`, currently equal to 15 slots
 - `NUM_CHECKPOINTS`: number of checkpoint values for the proof-of-time verification published in 1 slot, currently 8
@@ -65,8 +65,8 @@ Takes a `seed` and number of iterations `pot_iterations` and repeatedly evaluate
 
 <div align="center">
 
-![Proof of Time Light](/img/Proof_of_Time_light.svg#gh-light-mode-only)
-![Proof of Time Dark](/img/Proof_of_Time_dark.svg#gh-dark-mode-only)
+![Proof of Time Light](/static/img/Proof_of_Time_light.svg#gh-light-mode-only)
+![Proof of Time Dark](/static/img/Proof_of_Time_dark.svg#gh-dark-mode-only)
 
 
 </div>
@@ -98,10 +98,10 @@ Verifies that the `proof_of_time` was computed correctly for `pot_iterations` nu
 3. Set `key = hash(seed)`
 4. Iterate through `checkpoints` in `proof_of_time` in steps of 2. The first checkpoint is `seed`.
 5. For each pair of `checkpoints[i]` and `checkpoints[i+1]`run:
-    
-    
-    ![Subspace v2 Master - Consensus (2).png](/img/PoT_Verification.png)
-    
+
+
+    ![Subspace v2 Master - Consensus (2).png](/static/img/PoT_Verification.png)
+
     1. Loop evaluation of `aes_encrypt(key, checkpoints[i])` encryption routine for `checkpoint_iterations/2` iterations.
     2. Loop evaluation of `aes_decrypt(key, checkpoint[i+1])` decryption routine for `checkpoint_iterations/2` iterations.
 6. If all pairs are correct, return `True`, otherwise, return `False`
@@ -124,7 +124,7 @@ There are three ways a node may get the proofs to extend its local view of the P
 - [Evaluation](#evaluation): Proofs computed locally (common case for Timekeepers)
 1. When a node comes online (for the first time or otherwise), it should perform a major sync of the consensus chain ([Consensus Chain sync](#consensus-chain-sync)), if needed (if the best block tip is behind the chain tip), and get the latest “committed” PoT from the newest block header.
 2. If the node previously held a local view of the PoT tree, which is no longer consistent with the PoT synced consensus chain (i.e., proofs are outdated or orphaned), discard the outdated view and reorg the tip of the PoT chain and restart Timekeeper to build on top of this new tip.
-3. Listen to gossip for PoT messages newer than the last PoT included on the consensus chain. 
+3. Listen to gossip for PoT messages newer than the last PoT included on the consensus chain.
 4. Process the received gossip PoT proofs and extend the local PoT chain with each new slot proof verified as per [PoT Gossip Processing](#pot-gossip-processing).
 5. As soon as local best proof is up-to-date with observed gossip, Timekeepers should start evaluating on top of it.
 6. The `slot_number` in the best valid proof known to this node becomes the tip of the PoT chain in the view of this node for all intents and purposes.
@@ -136,7 +136,7 @@ When Chain reorg happens or when the new potential tip is received via Gossip, T
 
 ## Timekeeper Algorithms
 
-Timekeepers run PoT evaluation for a specified number of iterations for the next slot from the `best_proof` at each time slot. The `best_proof` is the latest PoT value considered valid by this Timekeeper. 
+Timekeepers run PoT evaluation for a specified number of iterations for the next slot from the `best_proof` at each time slot. The `best_proof` is the latest PoT value considered valid by this Timekeeper.
 
 ### Slot Inputs
 
@@ -159,7 +159,7 @@ For subsequent slots (with `slot_number > 0`), there are two cases for seed valu
 
 ### Slot Iterations
 
-Each slot requires `pot_slot_iterations` defined in the genesis config. 
+Each slot requires `pot_slot_iterations` defined in the genesis config.
 
 Occasionally, we may update the number of iterations per slot, which will take effect at the nearest injection slot. All subsequent slots will be evaluated and verified with respect to the updated number of iterations.
 
@@ -169,7 +169,7 @@ Occasionally, we may update the number of iterations per slot, which will take e
 2. Gossip the `ProofOfTime:{slot_number, seed, pot_slot_iterations, checkpoints}`  ([definition](#pot-gossipping)) to other nodes.
 
 
-![Subspace v2 Master - Consensus.png](/img/PoT_Evaluation.png)
+![Subspace v2 Master - Consensus.png](/static/img/PoT_Evaluation.png)
 
 
 Note for [Randomness Updates](proof_of_archival_storage.md#randomness-updates): The `global_randomness` that farmers will use for the slot `next_slot` is computed as `derive_global_randomness(new_proof_of_time.output())`
@@ -180,7 +180,7 @@ Entropy from the consensus chain is injected into the PoT chain every `POT_ENTRO
 
 1. **Entropy Sourcing**
     1. For every block where `block_number % POT_ENTROPY_INJECTION_INTERVAL == 0`, derive entropy as `entropy = hash(chunk || proof_of_time)`, where `chunk` is the winning PoS solution chunk and `proof_of_time` is the PoT output of the slot claimed by this block.
-    2. Store the `entropy` associated with `block_number` and undefined (for now) future `injection_slot` at which it will be injected into the PoT chain. 
+    2. Store the `entropy` associated with `block_number` and undefined (for now) future `injection_slot` at which it will be injected into the PoT chain.
 2. **Setting Injection Slot**
     1. Set `injection_slot = slot + POT_INJECTION_DELAY` for entropy entry associated with block `block_number - POT_ENTROPY_INJECTION_INTERVAL * POT_ENTROPY_INJECTION_LOOKBACK_DEPTH`, where `slot` corresponds to the slot claimed by current block  `block_number`.
     2. If no such entry exists because the subtraction from `block_number` underflows or hits genesis block number 0), no injection needs to be done.
@@ -229,7 +229,7 @@ Upon receiving a new gossiped proof `proof_of_time`, all up-to-date nodes:
 5. If the node doesn’t have a valid PoT for `slot_number-1`, they should save the `proof_of_time` in a tree and wait until they receive and verify the previous PoTs before proceeding.
 6. If the node already has a valid PoT for `slot_number-1`, they can verify the received proofs for `slot_number`:
     1. For all proofs for this slot, verify that the slot inputs (`seed` and `slot_iterations`) match the expected as defined in [Slot Inputs](#slot-inputs) accounting for eventual injection and iteration updates if necessary. Discard the proofs with incorrect inputs.
-    2. Let `num_proofs` be the number of proofs remaining for this slot after the input check. 
+    2. Let `num_proofs` be the number of proofs remaining for this slot after the input check.
     3. If `num_proofs < EXPECTED_POT_VERIFICATION_SPEEDUP`, attempt to find the correct proof by verifying the checkpoints were computed correctly with `verify(seed, slot_iterations, checkpoints)` for each proof, starting with proofs sent by most reputable peer.
         1. If a proof validates successfully, forward PoT message to their peers and proceed with the audit and solving.
         2. Ban the peers who sent all other proofs.
@@ -243,11 +243,11 @@ Upon receiving a new gossiped proof `proof_of_time`, all up-to-date nodes:
 2. For every `slot_number` farmer audits their plot as described in [Audit](proof_of_archival_storage.md#audit) for potential solutions for all as far into the future as revealed randomness allows based on the global randomness they have received from the node so far.
 3. If they win a challenge, they start solving and proving it, as described in [Proving](proof_of_archival_storage.md#proving), to later claim the slot and produce a block with the precomputed solution.
 4. In the block, the farmer should include the output of proof-of-time at the slot they claim for verifiability.
-    
+
     To keep the header minimal size, only the outputs of claimed slot `x` and `x + BLOCK_AUTHORING_DELAY` are included in block header pre-digest items. The output of claimed slot `x` is sufficient to verify PoS solution.
-    
+
     The `BLOCK_AUTHORING_DELAY` is required to make sure faster farmers (farmers that can produce PoS faster due to faster SSD and/or CPU) do not get advantage in the race to produce a block.
-    
+
     All checkpoints of all slots passed since the parent block’s future proof of time (if any) up to `slot_number + BLOCK_AUTHORING_DELAY` of current block are included in [justifications](https://substrate-developer-hub.github.io/rustdocs/latest/sp_runtime/generic/struct.SignedBlock.html) to allow more parallelism during PoT verification. Essentially all checkpoints that were not yet seen on chain must be included and subsequently archived as part of the block.
 
 ## Consensus Chain sync
@@ -272,14 +272,14 @@ Depending on how far `block_number` is from the `target` we define a few thresho
 1. For `diff ≤ 1581` blocks, return `true` to verify all blocks
 2. for `diff ≤ 6234` blocks, verify `sample_size = 1581` blocks
 3. for `diff ≤ 63240` blocks, verify `sample_size = 3162*(diff-3162)/(diff-1)` blocks
-4. for `diff ≤ 3 162 000` blocks, verify `sample_size = 3162` blocks 
+4. for `diff ≤ 3 162 000` blocks, verify `sample_size = 3162` blocks
 5. for `diff > 3 162 000` blocks, verify `sample_size = diff/1000` blocks
 
-Generate a random number `n` in the range `0..=(diff)` and if `n<sample_size` return `true`, otherwise return `false`. 
+Generate a random number `n` in the range `0..=(diff)` and if `n<sample_size` return `true`, otherwise return `false`.
 
 <Collapsible title="Explanation">
     Base sample size computed as $n=\frac{Z^2\ p\ (1−p)}{E^2}$, where $Z$ is the $Z$-score, which is 2.58 for a 99% confidence level, $*p*$ is the expected proportion of correct proofs 0.95, $E$ is the margin of error, which is 0.01 for 1% results in $n=3162$ under the assumption of infinitely large population $N$ (number of blocks to sync). However, quite often that is not the case, so we have to adjust the sample size for each of the bins. Usually that is done via finite population correction $FPC = \sqrt\frac{N-n}{N-1}$ and $n'=n*FPC^2$, however that doesn’t help in cases  $N\approx n$ and $N<n$
-    
+
     To simplify the implementation, I define the following bins with boundaries that personally make sense:
 
     - for $N≤1581$, verify all blocks as they are recent enough (~2.5 hrs) and may also have checkpoints available
@@ -290,14 +290,14 @@ Generate a random number `n` in the range `0..=(diff)` and if `n<sample_size` re
 
     Here’s a plot of verification probability of each block until example target 500 000 (Sep 19 2023 Gemini3f)
 
-    ![PoT_Explanation_SC_1.png](/img/PoT_Explanation_SC_1.png) 
+    ![PoT_Explanation_SC_1.png](/static/img/PoT_Explanation_SC_1.png)
 
 
     Close-up to last 15k blocks
 
-    ![PoT_Explanation_SC_2.png](/img/PoT_Explanation_SC_2.png)
+    ![PoT_Explanation_SC_2.png](/static/img/PoT_Explanation_SC_2.png)
 
-    
+
 </Collapsible>
 
 
