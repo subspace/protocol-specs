@@ -10,7 +10,7 @@ keywords:
     - cross-chain messaging
     - cross-domain messaging
 last_update:
-  date: 01/28/2025
+  date: 03/24/2025
   author: Vedhavyas Singareddi
 ---
 
@@ -186,7 +186,9 @@ The payload for the extrinsic could be a message-request or a message-response.
     
 Fees are collected from the sender of the message on `src_chain_id` to pay for relay and execution of their message on both `src_chain_id` and `dst_chain_id` respectively.
     
-Compute fees are computed based on weights of the exact calls performed on both `src_chain_id` and `dst_chain_id` in total. Collected compute fees for the portion of execution happening on `src_chain_id` is paid to operators of `src_chain_id` and the compute fees for the portion of execution happening `dst_chain_id`. The portion of fees that is to be distributed on `dst_chain_id` is burned on `src_chain_id` when message is added to outbox.  
+Compute fees are computed based on adjusted weights of the exact calls performed on both `src_chain_id` and `dst_chain_id` in total. Since we need to account for the block fullness of each src and dst chain, we also include a constant multiplier, currently 5, to the final fee collected from the user. 
+
+Collected compute fees for the portion of execution happening on `src_chain_id` is paid to operators of `src_chain_id` and the compute fees for the portion of execution happening `dst_chain_id`. The portion of fees that is to be distributed on `dst_chain_id` is burned on `src_chain_id` when message is added to outbox.  
     
 The burnt fees are subtracted from `src_chain_id` bookkeeping balance (if it’s a domain).
     
@@ -200,10 +202,8 @@ The minted fees are added to `dst_chain_id` bookkeeping balance (if it’s a dom
     
 1. User `sender` sends a message from `src_chain_id`
 2. `src_chain_id` collects `fees` to be paid by `sender` as follows:
-    1. Compute fee for message execution on `dst_chain_id`. This amount is burnt on `src_chain_id` and minted on `dst_chain_id` later.
-    2. Relay fee for the relayers on `dst_chain_id`. This amount is burnt on `src_chain_id` and minted on `dst_chain_id` later.
-    3. Compute fee for message response execution on `src_chain_id`. 
-    4. Relay fee for the relayers on `src_chain_id` for relaying the response.
+    1. Compute fee for message execution on `dst_chain_id` with XDM multiplier included. This amount is burnt on `src_chain_id` and minted on `dst_chain_id` later.
+    2. Compute fee for message response execution on `src_chain_id` with XDM multiplier included.
 3. Message is sent to `dst_chain_id`.
 4. Once the response is received from `dst_chain_id`, `src_chain_id` distributes the rewards from `sender` to operators.
 5. This message nonce is sent to `dst_chain_id` as `last_delivered_message_response_nonce` as an acknowledgement so that it can reward its operators.
@@ -319,10 +319,10 @@ For transporter, all the SSC burned will be minted back since the dst_chain did 
     2. Verifies MMR proof using consensus chain `MMR::verify_proof` function to extract the MMR leaf data and the corresponding state root of consensus chain.
     3. Using `consensus_chain_state_root`, `domain_confirmed_proof` is verified and associated domain’s `state_root` is extracted from `DomainBlockInfo`
     4. Using `domain_state_root`, `message_proof` is verified and actual XDM is extracted from the storage proof.
-2. `dst_chain_id` adds the message to its inbox.
-3. `dst_chain_id` listens for next message to process from the inbox in the nonce order.
-4. Message is passed to the endpoint and eventually executed and response is stored for that message.
-5. `dst_chain_id` takes the latest delivered message nonce on `src_chain_id` and distributes the rewards to the operators and deletes any stored state pertaining to any message with nonce below the confirmed nonce.
+3. `dst_chain_id` adds the message to its inbox.
+4. `dst_chain_id` listens for next message to process from the inbox in the nonce order.
+5. Message is passed to the endpoint and eventually executed and response is stored for that message.
+6. `dst_chain_id` takes the latest delivered message nonce on `src_chain_id` and distributes the rewards to the operators and deletes any stored state pertaining to any message with nonce below the confirmed nonce.
 
 ### Receive message response
 
@@ -351,6 +351,13 @@ For XDM where response is required from, the following table captures the time i
 |-----------------------------|--------------------------------|--------------------------------|
 | 2 * (K + D)                 | 2 * (K + D)                    | 2 * (K + D)                    |
 
+## XDM block processing limits
+
+At the moment, a maximum of 256 XDM messages per channel per chain are allowed to be included in a single Block.
+
+The XDM messages are prioritized over regular transactions.
+
+Example: If there are 2 channels between src and dst chain, Each of the chains will include at the most 256 * 2 XDM messages in a single block. 
 
 ## Runtime calls
 
@@ -362,6 +369,8 @@ Listed in the order of call index in the runtime.
 
 Anyone can initiate a channel to `dst_chain` given both `dst_chain` and `src_chain` allow other chain to open channel.
 User would need to deposit fee to initiate channel open and the deposit is reversed once the channel is closed.
+Currently, for each channel, we set 10_000 maximum outgoing messages. 
+Once the channel reaches 10_000 pending XDM, it will not accept further messages until the pending XDMs are executed.
 
 Once the channel is initiated, `dst_chain` gets a message to open channel and reverts back to `src_chain` to confirm the 
 channel open. It would 2 challenge periods to open channel on both the chains. Once, both chains open channels, xdm messages can be sent through the channel.
