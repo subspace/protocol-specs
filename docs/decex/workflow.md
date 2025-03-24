@@ -158,10 +158,6 @@ All consensus nodes will perform the following verification when a new bundle is
     3. Based on `parent_domain_receipt_hash`, verify the `parent_domain_block` exists at the specified `parent_domain_height` within the `BlockTree` on the operator client. If the ER is beyond the `BlockTreePruningDepth` it is too old and will simply be ignored.
     4. Verify all `block_extrinsics_roots` exist within the `execution_inbox` of the `parent_domain_block`.
 
-### Bundle Equivocation
-
-A dishonest operator may produce multiple bundles on the same slot with the same proof-of-election. Similar to [how consensus block equivocation is addressed](https://github.com/paritytech/substrate/blob/689da495a0c0c0c2466fe90a9ea187ce56760f2d/client/consensus/slots/src/aux_schema.rs#L53), consensus chain nodes perform a check to determine if a bundle has been equivocated when verifying its validity. If an equivocation is detected, then this bundle is invalid, and is not included in the block.
-
 ## Consensus Block Verification
 
 On receipt of a new consensus block, each consensus node now needs to check to ensure all included bundle headers were pre-validated locally. If they see a new bundle, they will request and run validation. If that bundle is invalid or any previously invalidated bundles are included in the farmer block, it is simply discarded and ignored. 
