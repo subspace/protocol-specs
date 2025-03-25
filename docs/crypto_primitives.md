@@ -20,7 +20,7 @@ Hashes provide succinct commitments to arbitrary data.
 
 `keyed_hash(key, message)` denotes keyed BLAKE2b-256 hash.
 
-Substrate primitives (i.e., block hashing) use BLAKE2b-256 as well. 
+Substrate primitives (i.e., block hashing) use BLAKE2b-256 as well.
 
 Proof-of-Space primitives use BLAKE3.
 
@@ -56,7 +56,7 @@ The leaf data for the Merkle Mountain Range contains the following fields:
 
 Fetches parent consensus block number and hash from the frame-system and fetch state root and extrinsic root through host function.
 
-### on_new_root 
+### on_new_root
 
 `on_new_root(mmr_root_hash)`
 
@@ -75,7 +75,7 @@ Returns the on-chain MMR root hash.
 
 Return the number of MMR blocks in the chain.
 
-### generate_proof 
+### generate_proof
 
 `generate_proof(block_numbers, best_known_block_number: Option)` -> `(Vec<Leaf>, Proof)`
 
@@ -90,11 +90,11 @@ same position in both the `leaves` vector and the leaf indices contained in the 
 
 ## Digital Signature
 
-Digital signatures secure different parts of consensus by providing a means of authentication. 
+Digital signatures secure different parts of consensus by providing a means of authentication.
 
 We currently use Schnorr/Ristretto x25519 (also known as sr25519) as the key derivation and signing algorithm (with the [schnorrkel](https://github.com/w3f/schnorrkel) library).
 
-Non-canonical Schnorr signatures are used to sign rewards for a newly forged block (as defined in Substrate) and votes by farmers, as well as transactions and transaction bundles by domain operators. 
+Non-canonical Schnorr signatures are used to sign rewards for a newly forged block (as defined in Substrate) and votes by farmers, as well as transactions and transaction bundles by domain operators.
 Canonical (deterministic) signatures are used as a verifiable random function (VRF) in the slot leader election among domain operators. A canonical scheme is necessary for these cases to prevent attackers from repeatedly signing until they produce an election solution that meets the threshold (as part of a grinding attack).
 
 ### sign
@@ -157,7 +157,7 @@ For a visual representation please see the figure below:
 
 <div align="center">
 
-![ETH KZG Ceremony](/img/Multi_Participants.png)
+![ETH KZG Ceremony](/static/img/Multi_Participants.png)
 
 </div>
 Further exploration of trusted setups can be found in [Vitalik Buterin's comprehensive post on trusted setups](https://vitalik.eth.limo/general/2022/03/14/trustedsetup.html).
@@ -229,7 +229,7 @@ Extends `source_commitments` vector so that the result is `1/rate` larger than t
 2. read from `aux` an evaluation domain of size double the `source_commitments` length
 3. evaluate that polynomial over that larger domain to obtain `extended_commitments` vector
 
-In the extended data (for both records and commitments), the values with even indices (i.e., (0,2,…,254)) correspond to the source values and the values with odd indices (i.e.,(1,3,…,255)) correspond to parity values. The source data is effectively contained only in values with an even index, making it sufficient to obtain only those for direct recovery. 
+In the extended data (for both records and commitments), the values with even indices (i.e., (0,2,…,254)) correspond to the source values and the values with odd indices (i.e.,(1,3,…,255)) correspond to parity values. The source data is effectively contained only in values with an even index, making it sufficient to obtain only those for direct recovery.
 
 ### recover_poly
 
@@ -247,13 +247,13 @@ The resulting `polynomial` is suitable for use with the KZG primitives `commit` 
 
 ## Encoding Mapping
 
-Encoding provides a means to make arbitrary useful data (i.e. chunks of blockchain history) look like random data through encoding, while allowing to retrieve the useful data through decoding. 
+Encoding provides a means to make arbitrary useful data (i.e. chunks of blockchain history) look like random data through encoding, while allowing to retrieve the useful data through decoding.
 
 `encode(data, key)` → `encoding`
 
 `decode(encoding, key)`  → `data`
 
-We currently use `XOR` as encoding function. The `key` in general may or may not depend on farmer public or private key. 
+We currently use `XOR` as encoding function. The `key` in general may or may not depend on farmer public or private key.
 
 ## Proof-of-Space
 
@@ -267,15 +267,15 @@ For the more detailed specification of these primitives see [Dilithium PoS Speci
 
 Initializes an amount of space larger than `PIECE_SIZE` by generating a [Chia plot table](https://www.chia.net/assets/Chia_Proof_of_Space_Construction_v1.1.pdf) from `seed` after forward propagation phase.
 
-Currently, the space parameter `k` is set to 20 with resulting in 160-byte *proofs-of-space*. 
+Currently, the space parameter `k` is set to 20 with resulting in 160-byte *proofs-of-space*.
 
 The plot seed is obtained from farmer public key, current sector and piece offset within the sector.
 
 
 <div align="center">
 
-![PoS Table Light](/img/PoS_Table-light.svg#gh-light-mode-only)
-![PoS Table Dark](/img/PoS_Table-dark.svg#gh-dark-mode-only)
+![PoS Table Light](/static/img/PoS_Table-light.svg#gh-light-mode-only)
+![PoS Table Dark](/static/img/PoS_Table-dark.svg#gh-dark-mode-only)
 
 </div>
 <center>Figure 1: Structure of Chia PoS table</center>
@@ -288,8 +288,8 @@ For a given `challenge_index` samples the `pos_table` for a valid full *proof-of
 
 <div align="center">
 
-![PoS Lookup Light](/img/PoS_Lookup-light.svg#gh-light-mode-only)
-![PoS Lookup Dark](/img/PoS_Lookup-dark.svg#gh-dark-mode-only)
+![PoS Lookup Light](/static/img/PoS_Lookup-light.svg#gh-light-mode-only)
+![PoS Lookup Dark](/static/img/PoS_Lookup-dark.svg#gh-dark-mode-only)
 
 </div>
 <center>Figure 2: Querying the PoS table at a challenge index. On average 37% of indices are missing a proof.</center>
