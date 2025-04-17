@@ -7,8 +7,8 @@ keywords:
     - rewards
     - WIP
 last_update:
-  date: 01/09/2025
-  author: Saeid Yazdinejad
+  date: 04/17/2025
+  author: Teor
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -31,7 +31,7 @@ import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
 <div align="center">
 
-![Fees & Rewards Specification Stack and Flow](/static/img/Fees_&_Rewards_Specification_Stack_and_flow.png)
+![Fees & Rewards Specification Stack and Flow](/img/Fees_&_Rewards_Specification_Stack_and_flow.png)
 
 </div>
 
@@ -233,7 +233,7 @@ If the operator or nominator withdraws below minimum stake (or deregisters) they
 
 <div align="center">
 
-![Bundle Storage Fees](/static/img/Fees_&_Rewards_Specification_Bundle-st-fee.png)
+![Bundle Storage Fees](/img/Fees_&_Rewards_Specification_Bundle-st-fee.png)
 
 </div>
 

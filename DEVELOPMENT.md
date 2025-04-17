@@ -45,7 +45,15 @@ yarn build
 ```
 > This command generates static content into the `build` directory and will optimize any links, content, & documents.
 
-3. Deploy `main` to `gh-pages` branch with the below command.
+3. Deploy `main` to `gh-pages` branch with one of the commands below:
+
+HTTPS remote:
+(Supply your personal access token when asked for your password.)
 ```
 GIT_USER=<Your GitHub username> yarn deploy
+```
+
+SSH remote:
+```
+USE_SSH=true yarn deploy
 ```

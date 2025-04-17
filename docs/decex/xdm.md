@@ -10,8 +10,8 @@ keywords:
     - cross-chain messaging
     - cross-domain messaging
 last_update:
-  date: 03/24/2025
-  author: Vedhavyas Singareddi
+  date: 04/17/2025
+  author: Teor
 ---
 
 This document describes the current messaging protocol between domains in a trusted code environment (permissioned runtime instantiation). This protocol describes messaging between the consensus chain and any domain and between two domains.
@@ -233,7 +233,7 @@ The following describes the generic message from one domain to another. This mes
 12. Next Message response nonce is submitted to the endpoint and message is removed from the outbox of `src_chain_id`.
 13. When the `src_chain_id` prepares the next message, it will include the latest message nonce that was successful as part of the payload to notify `dst_chain_id` of message response acknowledgement.
 
-![XDM](/static/img/XDM.png)
+![XDM](/img/XDM.png)
 
 ## Networking
 

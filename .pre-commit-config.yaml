@@ -6,3 +6,4 @@ repos:
         entry: scripts/update_last_update.sh
         language: script
         files: '\.md$'
+        stages: [pre-commit]

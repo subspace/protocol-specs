@@ -37,9 +37,16 @@ AUTHOR_NAME="Your Name"
 The pre-commit package is used to run scripts before each commit automatically, allowing us to update the documentation's `last_update` section seamlessly.
 
 1. Install pre-commit on your system. If you're using pip (Python's package manager), you can install it by running:
+(On some systems, `pip3` is just called `pip`.)
 
 ```bash
-pip install pre-commit
+pip3 install pre-commit
+```
+
+Or on macOS, you can use Homebrew:
+
+```bash
+brew install pre-commit
 ```
 
 2. Make sure the update_last_update.sh script is present in the scripts/ directory at the root of your repository and is executable. You may need to run `chmod +x scripts/update_last_update.sh` to make it executable.

@@ -7,8 +7,8 @@ keywords:
     - timekeeper
     - randomness
 last_update:
-  date: 01/09/2025
-  author: Saeid Yazdinejad
+  date: 04/17/2025
+  author: Teor
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -65,8 +65,8 @@ Takes a `seed` and number of iterations `pot_iterations` and repeatedly evaluate
 
 <div align="center">
 
-![Proof of Time Light](/static/img/Proof_of_Time_light.svg#gh-light-mode-only)
-![Proof of Time Dark](/static/img/Proof_of_Time_dark.svg#gh-dark-mode-only)
+![Proof of Time Light](/img/Proof_of_Time_light.svg#gh-light-mode-only)
+![Proof of Time Dark](/img/Proof_of_Time_dark.svg#gh-dark-mode-only)
 
 
 </div>
@@ -100,7 +100,7 @@ Verifies that the `proof_of_time` was computed correctly for `pot_iterations` nu
 5. For each pair of `checkpoints[i]` and `checkpoints[i+1]`run:
 
 
-    ![Subspace v2 Master - Consensus (2).png](/static/img/PoT_Verification.png)
+    ![Subspace v2 Master - Consensus (2).png](/img/PoT_Verification.png)
 
     1. Loop evaluation of `aes_encrypt(key, checkpoints[i])` encryption routine for `checkpoint_iterations/2` iterations.
     2. Loop evaluation of `aes_decrypt(key, checkpoint[i+1])` decryption routine for `checkpoint_iterations/2` iterations.
@@ -169,7 +169,7 @@ Occasionally, we may update the number of iterations per slot, which will take e
 2. Gossip the `ProofOfTime:{slot_number, seed, pot_slot_iterations, checkpoints}`  ([definition](#pot-gossipping)) to other nodes.
 
 
-![Subspace v2 Master - Consensus.png](/static/img/PoT_Evaluation.png)
+![Subspace v2 Master - Consensus.png](/img/PoT_Evaluation.png)
 
 
 Note for [Randomness Updates](proof_of_archival_storage.md#randomness-updates): The `global_randomness` that farmers will use for the slot `next_slot` is computed as `derive_global_randomness(new_proof_of_time.output())`
@@ -290,12 +290,12 @@ Generate a random number `n` in the range `0..=(diff)` and if `n<sample_size` re
 
     Here’s a plot of verification probability of each block until example target 500 000 (Sep 19 2023 Gemini3f)
 
-    ![PoT_Explanation_SC_1.png](/static/img/PoT_Explanation_SC_1.png)
+    ![PoT_Explanation_SC_1.png](/img/PoT_Explanation_SC_1.png)
 
 
     Close-up to last 15k blocks
 
-    ![PoT_Explanation_SC_2.png](/static/img/PoT_Explanation_SC_2.png)
+    ![PoT_Explanation_SC_2.png](/img/PoT_Explanation_SC_2.png)
 
 
 </Collapsible>
