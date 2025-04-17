@@ -8,8 +8,8 @@ keywords:
     - plotting
     - auditing
 last_update:
-  date: 01/09/2025
-  author: Saeid Yazdinejad
+  date: 04/17/2025
+  author: Teor
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -120,7 +120,7 @@ This extra data is added to the end of the [SCALE-encoded](https://docs.substrat
     The pieces with even indices ((0, 2, …, 254) of this segment) correspond to source records and the pieces with odd indices ((1, 3, …, 255)of this segment) correspond to parity records. The blockchain history data is effectively contained only in pieces with an even `piece_index`.
 
 
-![Figure 3: Piece Building Process corresponds to steps 5-12 of Archiving.](/static/img/Archiving_Process.png)
+![Figure 3: Piece Building Process corresponds to steps 5-12 of Archiving.](/img/Archiving_Process.png)
 
 <center>Figure 3: Piece Building Process corresponds to steps 5-12 of Archiving.</center>
 
@@ -153,8 +153,8 @@ This extra data is added to the end of the [SCALE-encoded](https://docs.substrat
 
 <div align="center">
 
-![Raw Sector Light](/static/img/Raw_Sector-light.svg#gh-light-mode-only)
-![Raw Sector Dark](/static/img/Raw_Sector-dark.svg#gh-dark-mode-only)
+![Raw Sector Light](/img/Raw_Sector-light.svg#gh-light-mode-only)
+![Raw Sector Dark](/img/Raw_Sector-dark.svg#gh-dark-mode-only)
 
 </div>
 
@@ -207,7 +207,7 @@ For each piece in the sector:
     Each `encoded_chunks_used` indicator vector has bit set to `1` at places corresponding to the record positions whose chunks are encoded in this s-bucket and are eligible for farming.
 
 
-![Figure 5: Complete Plotting process for an example sector of 4 pieces](/static/img/Plotting_Process.png)
+![Figure 5: Complete Plotting process for an example sector of 4 pieces](/img/Plotting_Process.png)
 
 <center>Figure 5: Complete Plotting process for an example sector of 4 pieces</center>
 

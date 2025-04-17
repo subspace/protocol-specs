@@ -7,8 +7,8 @@ keywords:
     - tables
     - plotting
 last_update:
-  date: 10/03/2024
-  author: Dariia Porechna
+  date: 04/17/2025
+  author: Teor
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -83,7 +83,7 @@ Computes the 7 PoS tables.
 
 The resulting `pos_tables` is a vector containing the 7 tables in order.
 
-![Steps 4.ii-iv in generate function definition. Numbers and matching function $M$ are solely illustrative. Since the `entry.y` is sorted, Chia does this sequentially on portions of the table as their tables don’t fit in memory.  Notice that 235 and 380 appear in multiple matches, while some numbers don’t have a match.](/static/img/Proof_of_space_plotting.png)
+![Steps 4.ii-iv in generate function definition. Numbers and matching function $M$ are solely illustrative. Since the `entry.y` is sorted, Chia does this sequentially on portions of the table as their tables don’t fit in memory.  Notice that 235 and 380 appear in multiple matches, while some numbers don’t have a match.](/img/Proof_of_space_plotting.png)
 
 <center>Steps 4.ii-iv in generate function definition. Numbers and matching function $M$ are solely illustrative. Since the `entry.y` is sorted, Chia does this sequentially on portions of the table as their tables don’t fit in memory.  Notice that 235 and 380 appear in multiple matches, while some numbers don’t have a match.</center>
 

@@ -7,8 +7,8 @@ keywords:
     - rewards
     - WIP
 last_update:
-  date: 01/09/2025
-  author: Saeid Yazdinejad
+  date: 04/17/2025
+  author: Teor
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -120,7 +120,7 @@ Once an issuance component has been initialized, the issued reward for each indi
 
 <div align="center">
 
-![](/static/img/dynamic-issuance-1.png)
+![](/img/dynamic-issuance-1.png)
 
     Figure 1
 </div>
@@ -244,7 +244,7 @@ The total issuance curve (green) is a sum of 2 exponential components: component
 
 <div align="center">
 
-![](/static/img/dynamic-issuance-2.png)
+![](/img/dynamic-issuance-2.png)
 Figure 2
 
 </div>
