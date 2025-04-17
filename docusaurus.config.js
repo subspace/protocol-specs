@@ -6,6 +6,10 @@ const darkCodeTheme = require('prism-react-renderer').themes.dracula;
 const math = require('remark-math');
 const katex = require('rehype-katex');
 
+export default {
+  presets: ['@docusaurus/preset-classic'],
+};
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Subspace Protocol',
@@ -40,9 +44,9 @@ const config = {
 
   presets: [
     [
-      'classic',
+      '@docusaurus/preset-classic',
       /** @type {import('@docusaurus/preset-classic').Options} */
-      ({
+      {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
@@ -61,7 +65,7 @@ const config = {
           changefreq: 'weekly',
           priority: 0.5,
         },
-      }),
+      },
     ],
   ],
   stylesheets: [
