@@ -1,6 +1,6 @@
 # Arithmetic dust
 
-When doing floating number arithmetic, dust is inevitable due to limited accuracy.
+When doing fixed point fractional arithmetic, dust is inevitable due to limited accuracy.
 
 In [the staking protocol](staking.md), fractional arithmetic is used for conversion between the stake and the share. We need to carefully choose the rounding direction in every calculation to ensure the dust always favours the protocol, instead of the user. If we favour the user, it can potentially lead to exploitation.
 
@@ -20,7 +20,7 @@ NOTE: Even during slashing, the operator's stake is fully slashed (not partially
 
 ## INVARIANT_2: `current_total_shares >= sum(nominator.shares)`
 
-The `current_total_shares` is expected to be the sum of all the nominator's shares in the pool (excluding pending deposits and withdrawals in the current epoch).
+The `current_total_shares` is expected to be the sum of all the nominator's shares in the pool (excluding pending deposits and withdrawals in the current epoch). But in practical, there is arithmetic dust, so the best we can do is to ensure the dust always flavors the protocol i.e. `current_total_shares >= sum(nominator.shares)`.
 
 If this invariant is broken, i.e. `current_total_shares < sum(nominator.shares)`, it means there is a nominator that is entitled to more shares than it should be. By withdrawing the extra shares before other nominators, it essentially steals stake from other nominators, because there is a check to reject withdraw requests after `current_total_shares` becomes zero.
 
@@ -57,7 +57,7 @@ The unlock and slash can be seen as a variant of the nominator withdraw:
 
 ## Arithmetic rounding direction
 
-Arithmetic dust is inevitable for stake-share conversion since the share price is a floating number. Assume `stake_to_share` and `share_to_stake` are perfect arithmetics with no dust, but wherever they show up there must be an associated dust `D`, e.g. `stake_to_share(x) - D` means convert `x` stake to share with rounding down. 
+Arithmetic dust is inevitable for stake-share conversion since the share price is a fixed point number. Assume `stake_to_share` and `share_to_stake` are perfect arithmetics with no dust, but wherever they show up there must be an associated dust `D`, e.g. `stake_to_share(x) - D` means convert `x` stake to share, rounding down the result.
 
 ### The operator pool convert `deposits_in_epoch` to share: rounding down
 
