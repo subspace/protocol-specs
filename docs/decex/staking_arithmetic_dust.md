@@ -87,16 +87,16 @@ If:
 
 ### Deposit: stake-to-share conversion
 
-Within a given epoch, assuming there are `n` nominators deposited `stake_0, .., stake_n` respectively. So:
+Within a given epoch, assuming there are `n` nominators deposited `stake_1, .., stake_n` respectively. So:
 ```rust
 // For individual nominator:
-for stake_i in  stake_0, .., stake_n {
-    nominator.balance -= stake_i
+for stake_i in  stake_1, .., stake_n {
+    nominator_i.balance -= stake_i
     nominator_i.shares += stake_to_share(stake_i) - D_i
 }
 
 // For the operator pool:
-deposits_in_epoch = sum(stake_0, .., stake_n)
+deposits_in_epoch = sum(stake_1, .., stake_n)
 
 operator.current_total_stake += deposits_in_epoch
 operator.current_total_shares += stake_to_share(deposits_in_epoch) - D
@@ -119,17 +119,17 @@ So the sum of the dust of all the individual nominator's stake-to-share conversi
 
 ### Withdraw: share-to-stake conversion
 
-Within a given epoch, assuming there are `n` nominators withdraw `share_0, .., share_n` respectively:
+Within a given epoch, assuming there are `n` nominators withdraw `share_1, .., share_n` respectively:
 
 ```rust
 // For individual nominator:
-for share_i in  share_0, .., share_n {
-    nominator.shares -= share_i;
-    nominator.balance += share_to_stake(share_i) - D_i
+for share_i in  share_1, .., share_n {
+    nominator_i.shares -= share_i;
+    nominator_i.balance += share_to_stake(share_i) - D_i
 }
 
 // For the operator pool:
-withdrawals_in_epoch = sum(share_0, .., share_n)
+withdrawals_in_epoch = sum(share_1, .., share_n)
 
 operator.current_total_shares -= withdrawals_in_epoch
 operator.current_total_stake -= share_to_stake(withdrawals_in_epoch) - D
@@ -150,4 +150,4 @@ D <= sum(D_i)
 
 So the sum of the dust of all the individual nominator's share-to-stake conversion must be larger or equal to the dust of the operator's share-to-stake conversion, otherwise, `INVARIANT_3` will be broken. For `D <= sum(D_i)`, the stake `sum(D_i) - D` is burnt.
 
-NOTE: The nominator unlock and slash can be seen as a variant of full withdrawal where `n = 1` and `withdrawals_in_epoch = share_1 = nominator.shares` so `D = D_1`, `INVARIANT_3` always holds in these cases.
+NOTE: The nominator unlock and slash can be seen as a variant of full withdrawal where `n = 1` and `withdrawals_in_epoch = share_1` so `D = D_1`, `INVARIANT_3` always holds in these cases.
