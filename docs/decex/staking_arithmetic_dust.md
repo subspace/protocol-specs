@@ -20,7 +20,7 @@ NOTE: Even during slashing, the operator's stake is fully slashed (not partially
 
 ## INVARIANT_2: `current_total_shares >= sum(nominator.shares)`
 
-The `current_total_shares` is expected to be the sum of all the nominator's shares in the pool (excluding pending deposits and withdrawals in the current epoch). But in practical, there is arithmetic dust, so the best we can do is to ensure the dust always flavors the protocol i.e. `current_total_shares >= sum(nominator.shares)`.
+`current_total_shares` is expected to be the sum of all the nominator's shares in the pool (excluding pending deposits and withdrawals in the current epoch). But in practice, there is arithmetic dust, so the best we can do is to ensure the dust always favours the protocol i.e. `current_total_shares >= sum(nominator.shares)`.
 
 If this invariant is broken, i.e. `current_total_shares < sum(nominator.shares)`, it means there is a nominator that is entitled to more shares than it should be. By withdrawing the extra shares before other nominators, it essentially steals stake from other nominators, because there is a check to reject withdraw requests after `current_total_shares` becomes zero.
 
