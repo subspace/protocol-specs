@@ -6,8 +6,8 @@ description: Subspace runtime configuration
 keywords:
     - runtime
 last_update:
-  date: 04/16/2024
-  author: Dariia Porechna
+  date: 01/28/2025
+  author: Teor
 ---
 A runtime in Subspace refers to the runtime logic that defines the state transition function of the chain.
 
@@ -38,3 +38,9 @@ The `Runtime` struct defines the runtime configuration and pallets for the Subsp
 - `Transporter`: A custom pallet to transfer funds between consensus chain and domains.
 - `Sudo`: A pallet that allows superuser access.
 
+EVM runtimes can also contain these pallets:
+- `Ethereum`: Ethereum-compatible transactions.
+- `EVM`: An EVM hosted on Substrate, using a Substrate-specific transaction format.
+- `EVMChainId`: Storage for the Ethereum chain ID.
+- `BaseFee`: Ethereum-specific fee changes.
+- `EVMNoncetracker`: A custom pallet used to track EVM nonces, and the EVM contract creation allow list. The crate is called `pallet-evm-tracker`, but existing runtimes keep the `EVMNoncetracker` name to preserve their storage.

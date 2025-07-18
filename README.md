@@ -1,16 +1,16 @@
 <img src="./static/img/subspace-network.svg" align="center" />
 
-This repository contains the formal specifications of the Subspace Network protocol. For a more approachable description of the protocol, check out the [Subnomicon](https://subnomicon.subspace.network), which provides a comprehensive overview of the current state of protocol.
+This repository contains the formal specifications of the Subspace protocol. For a more approachable description of the protocol, check out the [Autonomys Academy](https://academy.autonomys.xyz), which provides a comprehensive overview of the current state of protocol as implemented by Autonomys Network.
 
 Ideally, the specification in this repository should be considered the canonical source of truth for the Subspace Network protocol. Currently, the specifications do not cover the full stack, but it is one of the goals of the project to do so.
 
-New developments to the [protocol code](https://github.com/subspace/subspace/pulls) should be preceded by a pull request to this repository, accompanied by a discussion in the [Forum](https://forum.subspace.network) to ensure that the stakeholders are aligned on the changes. If there is not yet a relevant section in the specifications, consider adding it to help cover the new (or updated) functionality.
+New developments to the [protocol code](https://github.com/subspace/subspace/pulls) should be preceded by a pull request to this repository, accompanied by a discussion in the [Forum](https://forum.autonomys.xyz) to ensure that the stakeholders are aligned on the changes. If there is not yet a relevant section in the specifications, consider adding it to help cover the new (or updated) functionality.
 When the existing implementation is found to diverge from the specifications, the implementation should be considered a bug. 
 If you have any additions or corrections, please submit a pull request.
 
 ### Contributing
 
-If you would like to contribute check out the following materials, and feel free to ask questions in our [Discord](https://discord.gg/subspace-network)
+If you would like to contribute check out the following materials, and feel free to ask questions in Autonomys Network [Discord](https://autonomys.xyz/discord)
 
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Contributing Guide](CONTRIBUTING.md)
@@ -37,9 +37,16 @@ AUTHOR_NAME="Your Name"
 The pre-commit package is used to run scripts before each commit automatically, allowing us to update the documentation's `last_update` section seamlessly.
 
 1. Install pre-commit on your system. If you're using pip (Python's package manager), you can install it by running:
+(On some systems, `pip3` is just called `pip`.)
 
 ```bash
-pip install pre-commit
+pip3 install pre-commit
+```
+
+Or on macOS, you can use Homebrew:
+
+```bash
+brew install pre-commit
 ```
 
 2. Make sure the update_last_update.sh script is present in the scripts/ directory at the root of your repository and is executable. You may need to run `chmod +x scripts/update_last_update.sh` to make it executable.

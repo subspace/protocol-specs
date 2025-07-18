@@ -6,12 +6,16 @@ const darkCodeTheme = require('prism-react-renderer').themes.dracula;
 const math = require('remark-math');
 const katex = require('rehype-katex');
 
+export default {
+  presets: ['@docusaurus/preset-classic'],
+};
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Subspace Network Protocol',
-  tagline: 'Formal specifications of the Subspace Network scalable blockchain protocol',
-  url: 'https://protocol.subspace.network',
-  baseUrl: '/',
+  title: 'Subspace Protocol',
+  tagline: 'Formal specifications of the Subspace scalable blockchain protocol',
+  url: 'https://subspace.github.io',
+  baseUrl: '/protocol-specs/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
@@ -20,7 +24,7 @@ const config = {
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'subspace', // Usually your GitHub org/user name.
   projectName: 'protocol-specs', // Usually your repo name.
-
+  trailingSlash: false,
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
   // to replace "en" with "zh-Hans".
@@ -40,9 +44,9 @@ const config = {
 
   presets: [
     [
-      'classic',
+      '@docusaurus/preset-classic',
       /** @type {import('@docusaurus/preset-classic').Options} */
-      ({
+      {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
@@ -61,7 +65,7 @@ const config = {
           changefreq: 'weekly',
           priority: 0.5,
         },
-      }),
+      },
     ],
   ],
   stylesheets: [

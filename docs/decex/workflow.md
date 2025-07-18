@@ -7,7 +7,7 @@ keywords:
     - decex
     - instantiation
 last_update:
-  date: 05/23/2024
+  date: 10/03/2024
   author: Dariia Porechna
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -59,9 +59,9 @@ The `domain_config` contains:
 2. `runtime_id`: domain runtime type that exists in `RuntimeRegistry`.
 3. `domain_id`: identifier assigned to an instance of the domain.
 4. specific configuration items, such as:
-    - `max_block_size`: the max block size for this domain; may not exceed the system-wide `MaxDomainBlockSize` limit; used to compute [bundle size limit](bundles_blocks.md#bundle-limits).
-    - `max_block_weight`: the max block weight for this domain; may not exceed the system-wide `MaxDomainBlockWeight` limit; used to compute [bundle weight limit](bundles_blocks.md#bundle-limits).
-    - `bundle_slot_probability`: the probability of successful bundle in a slot (active slots coefficient); defines the expected bundle production rate, which must be `> 0` .
+    - `bundle_slot_probability`: the number of successful bundle expected to be produced in a slot (active slots coefficient); defines the expected number of bundles in the consensus block. Must be `> 0` and `<= 1`, recommended value `1` .
+    - `max_bundle_size`: the max bundle size for this domain; may not exceed the system-wide `MaxDomainBlockSize` limit; The average domain block size is then expected to be below `bundle_slot_probability * max_bundle_size / SLOT_PROBABILITY` on average.
+    - `max_bundle_weight`: the max bundle weight for this domain; may not exceed the system-wide `MaxDomainBlockWeight` limit; The average domain block weight is then expected to be below `bundle_slot_probability * max_bundle_weight / SLOT_PROBABILITY` on average.
 5. `allowlist`: list of addresses allowed to run operators on this domain
 6. `initial_balances`: list of initial balances on domain accounts
 7. Any further genesis config details can be included as required and be passed down. These specific genesis details ensure the `genesis_state_root` is unique for each instantiated domain and thereby making `genesis_er_hash` unique across different instances of the same domain runtime. 
@@ -86,7 +86,7 @@ For each time slot, each operator denoted with `operator_id` participates in the
     2. Generate a VRF signature by applying the VRF to the `global_challenge` and the operator's private key as `vrf_signature = vrf_sign(secret_key, transcript)`. The VRF signature contains a `vrf_signature.proof`, which can be used by others to verify that the VRF `vrf_signature.output` was correctly generated without knowing the operator’s private key.
 3. **Threshold Check**
     1. Compute the `threshold` based on the operators `operator_stake = current_total_stake` in `Operators` registry for this domain proportionally to the `total_domain_stake = current_total_stake` of all operators of this domain in `stake_summary` of the `DomainRegistry` as 
-    `threshold = MAX * (operator_stake / total_domain_stake) * target_bundles_per_slot`  
+    `threshold = MAX * (operator_stake / total_domain_stake) * bundle_slot_probability`  
         - Example
             
             If `threshold` is stored in `u128`, then `MAX` is $2^{128}-1$. If the operator has $1/10$ of total stake in this domain, according to the formula above they should check whether their VRF output numeric values is below $2^{128}/10$.
@@ -137,26 +137,26 @@ The operator may only include as many transactions within this range as fit with
 
 All consensus nodes will perform the following verification when a new bundle is received over the network. All valid bundles are added to the local extrinsics pool and propagated to all peers on the network. Any invalid bundles are not added to the pool (no fraud proofs for invalid bundles received, only fraud proofs for invalid bundles that are included in a block).
 
-1. Verify the `domain_id` is in the `DomainRegistry`.
-2. Verify the `ProofOfElection` for this domain and operator.
+1. Ensure `HeadDomainNumber - HeadReceiptNumber = 1` otherwise `submit_receipt` is expected instead of `submit_bundle`
+2. Verify the `domain_id` is in the `DomainRegistry`.
+3. Verify the `ProofOfElection` for this domain and operator.
     1. Ensure the `slot_number` is no older than the slot of the block `current_block_number - BundleLongevity`.
     2. Verify the `slot_number` and the `proof_of_time` is correctly computed.
     3. Verify the `vrf_signature` based on the operator signing key and the global challenge that is derived from the `slot_number` and the `proof_of_time`.
     4. Verify the `vrf_signature` is below the threshold that is derived from the `operator_stake / total_domain_stake` and the `bundle_slot_probability`.
-3. Verify the bundle header `signature` for the registered domain operator.
-4. Ensure the bundle does not exceed the bundle `max_bundle_weight` and `max_bundle_size` [limits](bundles_blocks.md#bundle-limits) for this domain.
-5. Ensure the bundle is well-formed:
+4. Verify the bundle header `signature` for the registered domain operator.
+5. Ensure the bundle does not exceed the bundle `max_bundle_weight` and `max_bundle_size` [limits](bundles_blocks.md#bundle-limits) for this domain.
+6. Ensure the bundle is well-formed:
     1. Verify the `execution_trace_root` is correctly computed for the `execution_trace`.
     2. Verify the `bundle_extrinsics_root` is correctly computed for all included extrinsics.
     3. Verify the `bundle_size` and `estimated_bundle_weight` were correctly computed for the bundle body.
-6. Ensure the `ExecutionReceipt` builds on the current `BlockTree` for this domain.
-    1. Verify the `consensus_block_hash` exists at the specified `consenus_block_height` on the consensus client.
-    2. Based on `parent_domain_receipt_hash`, verify the `parent_domain_block` exists at the specified `parent_domain_height` within the `BlockTree` on the operator client. If the ER is beyond the `BlockTreePruningDepth` it is too old and will simply be ignored.
-    3. Verify all `block_extrinsics_roots` exist within the `execution_inbox` of the `parent_domain_block`.
-
-### Bundle Equivocation
-
-A dishonest operator may produce multiple bundles on the same slot with the same proof-of-election. Similar to [how consensus block equivocation is addressed](https://github.com/paritytech/substrate/blob/689da495a0c0c0c2466fe90a9ea187ce56760f2d/client/consensus/slots/src/aux_schema.rs#L53), consensus chain nodes perform a check to determine if a bundle has been equivocated when verifying its validity. If an equivocation is detected, then this bundle is invalid, and is not included in the block.
+7. Ensure the `ExecutionReceipt` builds on the head of current `BlockTree` for this domain.
+    1. Verify `domain_block_number` is equal to:
+        - `HeadReceiptNumber + 1` if this is the first bundle of the domain in the block
+        - or `HeadReceiptNumber` since `HeadReceiptNumber` is increased by the previous bundle in the block
+    2. Verify the `consensus_block_hash` exists at the specified `consenus_block_height` on the consensus client.
+    3. Based on `parent_domain_receipt_hash`, verify the `parent_domain_block` exists at the specified `parent_domain_height` within the `BlockTree` on the operator client. If the ER is beyond the `BlockTreePruningDepth` it is too old and will simply be ignored.
+    4. Verify all `block_extrinsics_roots` exist within the `execution_inbox` of the `parent_domain_block`.
 
 ## Consensus Block Verification
 
@@ -334,3 +334,48 @@ In Substrate, there is a trait [`Hooks`](https://paritytech.github.io/substrate/
     After executing `finalize_block()`, we calculate the state root as $Root_{ n+1 }$.
     
 Therefore, the execution trace for a block with  $n$ extrinsics is $[Root_{0}, Root_{1}, …, Root_{n+1}]$
+
+## Domain Sudo
+Domains have a modified pallet to provide sudo call. The Sudo is triggerred from the Consensus chain and then executed in the Domain block.
+`pallet_domain_sudo` has a inherent extrinsic that is created and imported into Domain block if the Consensus block from which Domain block is created
+from contains a Sudo Call for the targetted Domain. Only one sudo call is allowed per domain block. Multiple Call can be achieved using `pallet_utility::BatchAll`.
+
+### Flow to execute a Sudo call on Domain.
+- Sudo on Consensus chain will submit an encoded unsigned domain extrinsic to `pallet_domains::Call::send_domain_sudo_call`
+- If the targetted domain has the `pallet_domain_sudo` enabled, then the encoded call is stored.
+  - Note: This storage is cleared on Consensus chain when there is a Successful bundle submission from the Domain.
+- When domain operators are deriving a Domain Block from a given Consensus block, they check `pallet_domains::domain_sudo_call(domain_id)` if there is any sudo call.
+- If so, they will inject this Domain sudo Call as an Inherent extrinsic and executes the Domain block.
+  - Note: `pallet_domain_sudo` executed the provided the encoded domain call with `Root` origin.
+
+Since `pallet_domain_sudo` provides an Unsigned extrinsic, if this extrinsic is manually constructed and included in the Domain Block, it will trigger
+`FraudProof::InherentExtrinsic` from the honest operators.
+
+This inherent extrinsic also affects the `FraudProof::InvalidDomainExtrinsicRoot` if any malicious operator does not include this inherent while importing Domain block.
+Honest operators will submit above FraudProof variant with all the necessary storage proofs to construct the Domain Extrinsic root.
+
+## Lagging operator protection
+
+In a distributed system, it is inevitable that some nodes may be lagging (e.g. due to network partition or slow hardware). This is critical for the operator node because when it produces a bundle, it needs to verify and guarantee all the extrinsic included in the bundle is valid. When the domain node tries to derive a new domain block from the bundles included in the consensus block, it will also verify all the extrinsic against the latest domain block (i.e. the parent domain block of the new block), if there is any invalid extrinsic found the whole bundle will be marked as invalid and the operator who produced this bundle will be slashed.
+
+For a lagging operator, it is possible that when producing a bundle it verifies the extrinsic against an old domain block, and the extrinsic turns out to be invalid when other domain nodes verify it against the latest domain block, as a result, an honest but lagging operator will be slashed.
+
+To protect the lagging operator, the consensus node when verifying the bundle will check the bundle contains an execution receipt that is derived from the latest domain block, which means the producer is not lagging, if it is not then the bundle will not be included in the consensus block so the operator won't be slashed.
+
+The consensus node when performing this check also needs to ensure the execution receipt is extending the previous head receipt, this means if there is a gap between the latest domain block (i.e. `HeadDomainNumber`) and the latest receipt on chain (i.e. `HeadReceiptNumber`), which usually happen after a fraud proof is accepted and bad receipts were pruned, any bundle will be rejected. In this case, the operator needs to produce `submit_receipt` to fill up the gap and after that they can resume producing `submit_bundle`.
+
+## Domain Freeze, Unfreeze, and Prune Execution Receipt by Consensus Sudo
+Generally, malicious activity from a domain operator is handled through Fraud proofs where honest operators verify the bundles before importing domain block and submit
+Fraud proof targeted at given bad Execution receipt. In a particular case where Fraud proof could not be verified automatically or included in the
+Consensus block, the bad ER never gets pruned and given enough time, it may even go out of challenge period.
+
+In order to safe-guard against such an attack, Sudo on Consensus has the ability to Freeze, Unfreeze, and prune execution receipt of a domain.
+```
+pallet_domains::Call::freeze_domain(domain_id)
+pallet_domains::Call::unfreeze_domain(domain_id)
+pallet_domains::Call::prune_execution_receipt(domain_id, bad_er_hash)
+```
+The prune execution receipt dispatch makes an assumption that Sudo has validated the invalidity of the bad ER by verifying it offchain and/or through social consensus
+if the Governance is at play.
+
+Note: Domain must be frozen to stop accepting new bundles before pruning a execution receipt.

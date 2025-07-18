@@ -6,8 +6,8 @@ keywords:
     - execution
     - decex
 last_update:
-  date: 05/23/2024
-  author: Dariia Porechna
+  date: 01/09/2025
+  author: Saeid Yazdinejad
 ---
 
 ## Terminology
@@ -32,7 +32,7 @@ last_update:
     
     Given a genesis block and at least one genesis farmer, we will have block production on the consensus chain. On its own, the consensus chain will only issue rewards to farmers and allow for balance transfers of SSC. 
     
-    <!-- TODO verify the page is up to date For more information, see **[SSC Transfers](Domains%20v2%20Specification%203fb0ec6e4d204c4881a7df50ef58da8f.md)**. -->
+    <!-- TODO verify the page is up to date For more information, see **Link TBD**. -->
     
 2. **Domain Creation**
     
@@ -52,7 +52,7 @@ last_update:
     
 5. **VRF Election**
     
-    For each time slot, the registered operator will attempt to solve the VRF puzzle with the success probability determined by the `target_bundles_per_slot` defined in the genesis `domain_config`. To do so, they sign the slot challenge and check if it is below the desired threshold. When elected, they will produce a new domain bundle. 
+    For each time slot, the registered operator will attempt to solve the VRF puzzle with the success probability determined by the `bundle_slot_probability` defined in the genesis `domain_config`. To do so, they sign the slot challenge and check if it is below the desired threshold. When elected, they will produce a new domain bundle. 
     
     For more details, see [Bundle Producer Election](workflow.md#bundle-producer-election) 
     
@@ -85,3 +85,9 @@ last_update:
     Any node who observes an `ExecutionReceipt` within any bundle for any consensus chain block that differs from what they produced locally has detected fraud. To handle the fraud they will produce a `submit_fraud_proof` extrinsic, which includes a proof. If the proof is valid, it will be included in the consensus chain, which will prune the `ExecutionReceipt` (and all children) from the `BlockTree` and slash all related operators. 
     
     For more details, see [Slashing Stake](staking.md#slashing-stake) and [Fraud Proofs](fraud_proofs.md).
+
+11. **Submit Missing Receipt**
+
+    After a fraud proof is accepted, the targetted bad receipt and all its descendant receipts will be pruned, this will create a gap between the latest domain block (i.e. `HeadDomainNumber`) and the latest receipt on chain (i.e. `HeadReceiptNumber`), when this happen the operator will start producing the `submit_receipt` extrinsic to fill up this gap, and after `HeadDomainNumber - HeadReceiptNumber = 1` the operator will resume producing `submit_bundle` extrinsic.
+
+    For more details, see [`submit_receipt`](interfaces.md#submit_receipt) and [Lagging operator protection](workflow.md#lagging-operator-protection).
