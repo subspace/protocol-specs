@@ -7,8 +7,8 @@ keywords:
     - timekeeper
     - randomness
 last_update:
-  date: 04/17/2025
-  author: Teor
+  date: 07/18/2025
+  author: Jeremy Frank
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -309,7 +309,12 @@ Generate a random number `n` in the range `0..=(diff)` and if `n<sample_size` re
 
 (Extends [Verification](proof_of_archival_storage.md#verification))
 
-When a new block is received, in addition to PoS and consensus log checks, compare the PoT values in the header to the local view of the PoT chain.
-If the proof-of-time included in the block header covers local proofs that have already been verified, the block’s PoT passes validation.
+When a new block is received, in addition to PoS and consensus log checks, validate the PoT relative to the parent block:
+
+1. Retrieve the parent block's PoT parameters and derive the expected PoT input for the current slot.
+2. Verify that the current block's proof-of-time output is valid according to the parent-derived input and parameters.
+3. Compare the PoT values in the header to the local view of the PoT chain.
+
+If the proof-of-time included in the block header covers local proofs that have already been verified, the block's PoT passes validation.
 
 If the proof-of-time is not consistent with local view or the local view is missing some required slots — do necessary verification, including proving.
