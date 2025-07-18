@@ -1,6 +1,6 @@
 ---
 title: Proof-of-Archival-Storage
-sidebar_position: 2
+sidebar_position: 3
 description: Proof-of-Archival-Storage Dilithium Consensus
 keywords:
     - archiving

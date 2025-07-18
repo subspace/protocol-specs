@@ -1,6 +1,6 @@
 ---
 title: Consensus Chain
-sidebar_position: 1
+sidebar_position: 2
 description: General sub-protocols of the consensus chain operation. 
 keywords:
     - consensus
@@ -9,10 +9,9 @@ keywords:
     - transaction
     - synchronization
 last_update:
-  date: 10/03/2024
-  author: Dariia Porechna
+  date: 07/18/2025
+  author: Saeid Yazdinejad
 ---
-
 Unless specified otherwise below, consensus chain primitives are inherited from Substrate.
 
 ## Public Parameters

@@ -1,6 +1,6 @@
 ---
 title: Proof-of-Time
-sidebar_position: 4
+sidebar_position: 5
 description: Proof-of-Time Dilithium Consensus component
 keywords:
     - pot

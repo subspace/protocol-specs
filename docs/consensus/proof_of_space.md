@@ -1,6 +1,6 @@
 ---
 title: Proof-of-Space
-sidebar_position: 3
+sidebar_position: 4
 description: Proof-of-Space Dilithium Consensus component
 keywords:
     - pos
