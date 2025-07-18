@@ -6,13 +6,13 @@ keywords:
     - genesis
     - initial configuration
 last_update:
-  date: 06/08/2024
+  date: 07/18/2025
   author: Saeid Yazdinejad
 ---
 
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
-<!-- ## Genesis Configuration -->
+## Genesis Configuration
 
 This section details the genesis configuration process for the Subspace network, establishing the foundational state of the blockchain with critical operational and network-specific parameters.
 
@@ -30,14 +30,21 @@ let wasm_binary = WASM_BINARY.ok_or_else(|| "Wasm binary must be built for Gemin
 Specifies the type of network, highlighting its use in a development or mainnet environment.
 
 
-<!-- ## Subspace Genesis Config -->
+## Subspace Genesis Config
 
-<!-- ### sudo_account
+### sudo_account and council_members
 Specifies the account with administrative privileges, enabling essential governance functionalities.
 
 ```rust
-let sudo_account = get_account_id_from_seed("Alice");
-``` -->
+let sudo_account = AccountId::from_ss58check("5CK2tVhvWUBnbRGsPBgQ31QDEgcEFgT7KU7FT22YLcp5A1jC").expect("Wrong root account address");
+let council_members = [
+    "5EhEcKAfGXzEkEqYdN9Ntc4f2KJrVvabWTUceCVtDPTYxVit",
+    "5G9GUNK2Vp1jgpENPmcy9TLoprkmHBTSg9bgvMa8er5ZLYjb",
+    "5CAtkaN1tDiaiuaYbxeDNNnix2WhAQxu5RobMFaiaStiCcTx",
+    "5CJ8ezmRwcNJmutA92ZmRpaL8e6BCPSdfnt3e6kZZWLAVUZK",
+    "5CiFrTxvxmehJ7okLdEc8z3cxvWfrMpShPJy9GKymRqEgF7T",
+]
+```
 
 
 

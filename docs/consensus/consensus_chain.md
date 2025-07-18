@@ -9,7 +9,7 @@ keywords:
     - transaction
     - synchronization
 last_update:
-  date: 07/18/2024
+  date: 07/18/2025
   author: Saeid Yazdinejad
 ---
 Unless specified otherwise below, consensus chain primitives are inherited from Substrate.
