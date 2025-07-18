@@ -8,8 +8,8 @@ keywords:
     - plotting
     - auditing
 last_update:
-  date: 04/17/2025
-  author: Teor
+  date: 07/18/2025
+  author: Jeremy Frank
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
@@ -297,33 +297,34 @@ Otherwise, submit a vote extrinsic with `solution`.
 4. Verify that `solution_range` and `global_randomness` are correct for the `slot_number` of the block.
 5. Compute the `global_challenge = hash(global_randomness||slot_number)`.
 6. Verify that current chain history size in segments is greater than winning `piece_index / NUM_PIECES`.
-7. Verify that `piece_offset ≤ max_pieces_in_sector`
-8. Re-derive `sector_id`
+7. Verify that the `history_size` in the solution is not greater than the current chain `history_size`.
+8. Verify that `piece_offset ≤ max_pieces_in_sector`
+9. Re-derive `sector_id`
     1. Compute `public_key_hash = hash(public_key)`
-    2. Re-derive the `sector_id = keyed_hash(public_key_hash, sector_index || history_size)`
-9. Verify that the `sector_id` submitted has not expired:
+   2. Re-derive the `sector_id = keyed_hash(public_key_hash, sector_index || history_size)`
+10. Verify that the `sector_id` submitted has not expired:
     1. Compute `sector_expiration_check_history_size = history_size + MIN_SECTOR_LIFETIME` and `sector_max_lifetime = MIN_SECTOR_LIFETIME + 4 * history_size`.
     2. Take the archived segment `segment_commitment` at `sector_expiration_check_history_size`.
     3. Compute `expiration_history_size = hash(sector_id||segment_commitment) mod (sector_max_lifetime - sector_expiration_check_history_size) + sector_expiration_check_history_size`
     4. Check that `expiration_history_size` is smaller than current history size of the chain.
-10. Re-derive the `sector_slot_challenge = global_challenge XOR sector_id`
-11. Re-derive the `s_bucket_audit_index = sector_slot_challenge mod NUM_S_BUCKETS`
-12. Re-derive the `evaluation_seed` for the record from the `sector_id` and `piece_offset` as `hash(sector_id || piece_offset)`
-13. Verify `proof_of_space` with `Is_Proof_Valid(K, evaluation_seed, s_bucket_audit_index, proof_of_space)`
-14. Ensure the `chunk` satisfies the challenge criteria:
+11. Re-derive the `sector_slot_challenge = global_challenge XOR sector_id`
+12. Re-derive the `s_bucket_audit_index = sector_slot_challenge mod NUM_S_BUCKETS`
+13. Re-derive the `evaluation_seed` for the record from the `sector_id` and `piece_offset` as `hash(sector_id || piece_offset)`
+14. Verify `proof_of_space` with `Is_Proof_Valid(K, evaluation_seed, s_bucket_audit_index, proof_of_space)`
+15. Ensure the `chunk` satisfies the challenge criteria:
     1. Compute the `masked_chunk` as `Encode(chunk, hash(proof_of_space))`
     2. Compute the keyed hash `keyed_hash(sector_slot_challenge, masked_chunk)` truncated to `audit_chunk` size
     3. Ensure the result falls within +/- `solution_range/2` of the `global_challenge`
-15. Ensure the provided `chunk` was correctly extended from a history piece for the assigned record commitment:
+16. Ensure the provided `chunk` was correctly extended from a history piece for the assigned record commitment:
     1. Verify the `chunk_witness` for the given `chunk`, `record_commitment`, and `s_bucket_audit_index`
-16. Ensure the encoded record belongs to the assigned slot and that record also belongs to the history:
+17. Ensure the encoded record belongs to the assigned slot and that record also belongs to the history:
     1. Re-derive the `piece_index` from the `piece_offset` and `history_size` the same way as during [pre-plotting](#pre-plotting-initialization) (as described in Verifiable Sector Construction)
     2. Retrieve the `segment_commitment` of the segment that contains the assigned `piece_index`
     3. Hash the `record_commitment` to obtain the `record_commitment_hash`
     4. Verify the `record_witness` for the `piece_index` , `record_commitment_hash` and `segment_commitment`
-17. Ensure the farmer did not outsource solving to a third-party without revealing their private keys by verifying the `farmer_signature` with the `public_key` and `chunk`.
-18. Verify the signature on the block content.
-19. If another block signed with the solution with same solution (`public_key`, `sector_index`, `piece_offset`,`chunk`, `chunk_audit_index` and `slot_number`) had already been received, report an equivocation by `public_key` and ignore the block.
+18. Ensure the farmer did not outsource solving to a third-party without revealing their private keys by verifying the `farmer_signature` with the `public_key` and `chunk`.
+19. Verify the signature on the block content.
+20. If another block signed with the solution with same solution (`public_key`, `sector_index`, `piece_offset`,`chunk`, `chunk_audit_index` and `slot_number`) had already been received, report an equivocation by `public_key` and ignore the block.
 
 The above steps assume standard block and transaction verification.
 
