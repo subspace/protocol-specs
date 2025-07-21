@@ -8,7 +8,7 @@ keywords:
     - plotting
     - auditing
 last_update:
-  date: 07/18/2025
+  date: 07/21/2025
   author: Jeremy Frank
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -297,7 +297,7 @@ Otherwise, submit a vote extrinsic with `solution`.
 4. Verify that `solution_range` and `global_randomness` are correct for the `slot_number` of the block.
 5. Compute the `global_challenge = hash(global_randomness||slot_number)`.
 6. Verify that current chain history size in segments is greater than winning `piece_index / NUM_PIECES`.
-7. Verify that the `history_size` in the solution is not greater than the current chain `history_size`.
+7. Verify that the `history_size` in the solution is not greater than the current chain `history_size` + 1. The +1 allows for rare situations where a sector is plotted between the production of two blocks, causing the history size in the solution to appear one segment in the future relative to the parent block.
 8. Verify that `piece_offset ≤ max_pieces_in_sector`
 9. Re-derive `sector_id`
     1. Compute `public_key_hash = hash(public_key)`
