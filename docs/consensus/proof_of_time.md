@@ -7,7 +7,7 @@ keywords:
     - timekeeper
     - randomness
 last_update:
-  date: 07/18/2025
+  date: 07/22/2025
   author: Jeremy Frank
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
@@ -313,8 +313,6 @@ When a new block is received, in addition to PoS and consensus log checks, valid
 
 1. Retrieve the parent block's PoT parameters and derive the expected PoT input for the current slot.
 2. Verify that the current block's proof-of-time output is valid according to the parent-derived input and parameters.
-3. Compare the PoT values in the header to the local view of the PoT chain.
+3. If the proof-of-time verification passes, the block's PoT is considered valid.
 
-If the proof-of-time included in the block header covers local proofs that have already been verified, the block's PoT passes validation.
-
-If the proof-of-time is not consistent with local view or the local view is missing some required slots — do necessary verification, including proving.
+Some proofs may be cached locally from previous gossip or evaluation, allowing nodes to skip redundant verification for already-validated PoT values.
