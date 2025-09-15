@@ -6,8 +6,8 @@ keywords:
     - execution
     - decex
 last_update:
-  date: 01/28/2025
-  author: Teor
+  date: 09/15/2025
+  author: Vedhavyas Singareddi
 ---
 
 ## Global Parameters
@@ -141,6 +141,20 @@ If the previous allowed list is set to specific operators and new allowlist is s
 
 Initiates an epoch transition immediately, without waiting for a `StakeEpochDuration` blocks to be created. 
 This operation can only be initiated by a root user. It is used to ensure domain liveness under circumstances when, for example, a large amount of stake went offline, and a domain can’t produce blocks frequently enough.
+
+### deactivate_operator  
+  
+`deactivate_operator(operator_id)`  
+  
+Sudo or Governance can deactivate a given operator from the Registered status. This can be done if the operator is  
+offline for any given reason and the block production on Domains significantly reduced due to the stake deposited for the given operator. By deactivating the operator, the operator status is moved from `Registered` to `Deactiavted` and operator is removed from the Domain operator set and next Operator set along with their Stake in the Domain. Rest of the operators will continue producing bundles and Domain block production can be restored since the offline operator's stake is not pledged to Domain anymore.
+
+
+### reregister_operator
+
+`reregister_operator(operator_id)`
+
+Sudo or Governance can reactivate a given deactivate operator, given the cooldown period in Epochs has passed for re-registration. Once the operator is reregisterd, the operator is added to the next operator set and will be able to produce bundles from next epoch.
 
 ## Runtime Storage Items
 
