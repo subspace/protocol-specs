@@ -6,7 +6,7 @@ keywords:
     - execution
     - decex
 last_update:
-  date: 09/15/2025
+  date: 09/17/2025
   author: Vedhavyas Singareddi
 ---
 
@@ -147,14 +147,14 @@ This operation can only be initiated by a root user. It is used to ensure domain
 `deactivate_operator(operator_id)`  
   
 Sudo or Governance can deactivate a given operator from the Registered status. This can be done if the operator is  
-offline for any given reason and the block production on Domains significantly reduced due to the stake deposited for the given operator. By deactivating the operator, the operator status is moved from `Registered` to `Deactiavted` and operator is removed from the Domain operator set and next Operator set along with their Stake in the Domain. Rest of the operators will continue producing bundles and Domain block production can be restored since the offline operator's stake is not pledged to Domain anymore.
+offline for any given reason and the block production on Domains is significantly reduced due to the stake deposited for the given operator. By deactivating the operator, the operator status is moved from `Registered` to `Deactiavted` and operator is removed from the Domain operator set and next Operator set along with their stake in the Domain. The rest of the operators will continue producing bundles and expected Domain block production can be restored since the offline operator's stake is not pledged to Domain anymore.
+While in the deactivated state, operator deregistration and withdraw will not be accepted and requires operator reactivation to enable them.
 
+### reactivate_operator
 
-### activate_operator
+`reactivate_operator(operator_id)`
 
-`activate_operator(operator_id)`
-
-Sudo or Governance can activate a given deactivate operator, given the cooldown period in Epochs has passed for re-registration. Once the operator is activated, the operator is added to the next operator set and will be able to produce bundles from next epoch.
+Sudo or Governance can reactivate a given deactivate operator, given the `reactivation_delay` period in Epochs has passed for reactivation. Once the operator is activated, the operator is added to the next operator set and will be able to produce bundles from the next epoch.
 
 ## Runtime Storage Items
 
