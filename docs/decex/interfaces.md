@@ -6,7 +6,7 @@ keywords:
     - execution
     - decex
 last_update:
-  date: 09/17/2025
+  date: 09/18/2025
   author: Vedhavyas Singareddi
 ---
 
@@ -149,6 +149,8 @@ This operation can only be initiated by a root user. It is used to ensure domain
 Sudo or Governance can deactivate a given operator from the Registered status. This can be done if the operator is  
 offline for any given reason and the block production on Domains is significantly reduced due to the stake deposited for the given operator. By deactivating the operator, the operator status is moved from `Registered` to `Deactiavted` and operator is removed from the Domain operator set and next Operator set along with their stake in the Domain. The rest of the operators will continue producing bundles and expected Domain block production can be restored since the offline operator's stake is not pledged to Domain anymore.
 While in the deactivated state, operator deregistration and withdraw will not be accepted and requires operator reactivation to enable them.
+
+Sudo/Governance can deactivate all the current operators from operator set due to being offline. If such situation arises, a new operator should be registered and Sudo/Governance should use `force_staking_epoch_transition` extrinsic to do a manual epoch transition and resume domain bundle production.
 
 ### reactivate_operator
 
