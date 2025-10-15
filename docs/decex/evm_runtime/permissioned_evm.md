@@ -1,7 +1,7 @@
 ---
 title: Permissioned Auto EVM
 hide_title: false
-sidebar_position: 8
+sidebar_position: 1
 description: Autonomys permissioned Ethereum runtimes
 keywords:
     - runtime
