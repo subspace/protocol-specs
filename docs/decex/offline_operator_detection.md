@@ -6,7 +6,7 @@ keywords:
   - operators
   - decex
 last_update:
-  date: 10/14/2025
+  date: 10/15/2025
   author: Vedhavyas Singareddi
 ---
 
@@ -19,14 +19,14 @@ matter.
 - Maintain continuous throughput by enforcing that throughput-relevant operators produce enough bundles relative to
   their stake in the epoch.
 - Keep runtime cost low: O(1) math per operator at epoch end
-- Ignore small-stake/low-expectation operators(they remain eligible to produce) but do not cause throughput halt
+- Ignore small-stake/low-expectation operators (they remain eligible to produce) but do not cause throughput halt
 
 ## Definitions
 
 - Epoch (domain): Ends when N domain blocks have finalized since the previous epoch boundary.
 - Slot: Consensus scheduling unit. An operator can submit at most one bundle per slot. A domain block may aggregate
   bundles from multiple slots.
-- Bundle-slot probability: θ = bundle_slot_probability = (theta_num, theta_den). Typically θ = 1/1.
+- Bundle-slot probability: θ = bundle_slot_probability = (theta_num, theta_den). Typically θ = 1/1 for domains.
 - Operator stake:
     - operator_stake_i: operator i’s stake at epoch start.
     - total_domain_stake: sum of operator_stake over all operators in the eligible set at epoch start.
@@ -34,7 +34,7 @@ matter.
 - VRF threshold (as implemented):
     - threshold_i = (u128::MAX / theta_den) × theta_num / total_domain_stake × operator_stake_i
     - Selection (win) if VRF_u128 < threshold_i
-    - Exact per-slot win probability: p_slot_i_exact = threshold_i / 2^128
+    - Exact per-slot win probability: p_slot_i_exact = threshold_i / (2^128 - 1)
 - Per-epoch counters:
     - epoch_start_slot: slot index at epoch start
     - epoch_end_slot: slot of latest consensus block where epoch is transitioned.
@@ -47,7 +47,7 @@ matter.
       bundles).
     - throughput_relevance_base_minimum (E_relevance): the enforced minimum expected bundles for Chernoff to be
       meaningful:
-        - E_relevance = ceil(max(E_check_base, 2 × ln(1/τ)))
+        - E_relevance = ceil(max(E_base, 2 × ln(1/τ)))
         - Example: τ = 1% → 2 ln(100) ≈ 9.21 → E_relevance = 10.
 
 ## Process
@@ -75,12 +75,13 @@ matter.
                     - Guarantee: P_honest[X_i < r_i] ≤ τ.
                 - Decision:
                     - If x_i < r_i: mark operator i as underperforming, potentially offline
-                    - Else: operator i performed well and produces at least lower bound number of bundles in the epoch.
+                    - Else: operator i met expectations, producing at least the lower bound number of bundles in the
+                      epoch.
     - Reset per-epoch counters:
         - bundles_in_epoch_i = 0 for all operators.
     - Start next epoch:
         - Snapshot stakes, recompute eligibility and stake_share_i, set epoch_start_slot = current slot, and clear
-          exclusion flags by not including excluded operators in the new eligible set.
+          exclusion flags by not including underperforming operators in the new eligible set.
 
 ## Chernoff Threshold Details
 
@@ -94,8 +95,12 @@ We test X_i ~ Binomial(S, p_slot_i) at lower tail level τ without scanning a CD
     - This ensures an honest operator fails with probability at most τ.
 - Throughput relevance floor:
     - When μ_i < 2 ln(1/τ), the bound becomes trivial (r_i ≤ 0). To avoid meaningless checks, enforce:
-        - E_relevance = ceil(max(E_check_base, 2 ln(1/τ))).
+        - E_relevance = ceil(max(E_base, 2 ln(1/τ))).
         - Only operators with μ_i ≥ E_relevance are checked in the epoch.
+        - If k operators are “throughput-relevant” and each uses a Chernoff threshold calibrated at τ, then the
+          probability that all k honest operators fail in the same epoch is at most τ^k. For 4 operators, our current
+          operator set on mainnet, and τ = 1%,
+          that’s ≤ 10^-8 per epoch.
 
 Notes:
 
