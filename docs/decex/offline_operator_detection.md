@@ -6,7 +6,7 @@ keywords:
   - operators
   - decex
 last_update:
-  date: 10/15/2025
+  date: 10/16/2025
   author: Vedhavyas Singareddi
 ---
 
@@ -100,7 +100,7 @@ We test X_i ~ Binomial(S, p_slot_i) at lower tail level τ without scanning a CD
         - If k operators are “throughput-relevant” and each uses a Chernoff threshold calibrated at τ, then the
           probability that all k honest operators fail in the same epoch is at most τ^k. For 4 operators, our current
           operator set on mainnet, and τ = 1%,
-          that’s ≤ 10^-8 per epoch.
+          assuming all operators are running correctly, that’s ≤ 10^-8 per epoch.
 
 Notes:
 
