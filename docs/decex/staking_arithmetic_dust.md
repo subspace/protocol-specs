@@ -1,3 +1,13 @@
+---
+title: Staking Arithmetic Dust
+sidebar_position: 6
+description: Arithmetic dust in the staking protocol.
+keywords:
+  - staking
+  - arithmetic
+  - dust
+---
+
 # Arithmetic dust
 
 When doing fixed point fractional arithmetic, dust is inevitable due to limited accuracy.
@@ -37,12 +47,14 @@ The arithmetic in staking happens in 3 parts:
 ### The individual nominator
 
 Within an epoch, when a nominator deposits or withdraws, it keeps track of the deposited stake and the withdrawn shares. After the epoch transition, when the share price is available, it can:
+
 - Convert the deposited stake to shares, which it is entitled to withdraw later
 - Convert the withdrawn shares to stake, which it is entitled to unlock later
 
 ### The operator pool
 
 Within an epoch, the operator pool accumulates all the deposited stake in `deposits_in_epoch` and all the withdrawn shares in `withdrawals_in_epoch`. During epoch transition, it will add the reward (if any) to `current_total_stake` and then calculate a new share price as `current_total_shares / current_total_stake`. With this share price, it:
+
 - Converts the `deposits_in_epoch` to shares, and adds `deposits_in_epoch` and these shares to `current_total_stake` and `current_total_shares` respectively
 - Converts the `withdrawals_in_epoch` to stake, and adds `withdrawals_in_epoch` and this stake to `current_total_shares` and `current_total_stake` respectively
 
@@ -51,6 +63,7 @@ Within an epoch, the operator pool accumulates all the deposited stake in `depos
 NOTE: The unlock here refers to the nominator unlock after the operator is de-registered, this is different from the `unlock_funds` after withdraw.
 
 The unlock and slash can be seen as a variant of the nominator withdraw:
+
 - The nominator is fully withdrawing all its shares.
 - The shares are converted to stake based on the latest share price, and the shares and stake are removed from the operator pool's `current_total_shares` and `current_total_stake` directly (not through epoch transition).
 - For unlock, the stake is transferred to the nominator account. For slash, the stake is transferred to the treasury.
@@ -62,24 +75,28 @@ Arithmetic dust is inevitable for stake-share conversion since the share price i
 ### The operator pool convert `deposits_in_epoch` to share: rounding down
 
 If:
+
 - Rounding up, there are `D` more shares added to `current_total_shares`, essentially breaking `INVARIANT_1`.
 - Rounding down, there are `D` less shares added to `current_total_shares`, essentially giving out the dust as a reward to the pool and increasing the share price.
 
 ### The operator pool convert `withdrawals_in_epoch` to stake: rounding down
 
 If:
+
 - Rounding up, there are `D` more stakes removed from `current_total_stake`, essentially breaking `INVARIANT_1`.
 - Rounding down, there are `D` less stakes removed to `current_total_stake`, essentially leaving the dust as a reward to the pool and increasing the share price.
 
 #### The individual nominator converts deposited stake to share: rounding down
 
 If:
+
 - Rounding up, there are `D` more shares given out to the nominator, essentially breaking `INVARIANT_2`.
 - Rounding down, there are `D` less shares the nominator is entitled to withdraw, essentially leaving dust in the pool that will never be withdrawn, but will be given to the treasury after all nominators are unlocked.
 
 #### The individual nominator converts the withdrawn share to stake: rounding down
 
 If:
+
 - Rounding up, there are `D` more stake the nominator can unlock, essentially minting `D` stake out of thin air.
 - Rounding down, there are `D` less stake the nominator can unlock, essentially burning `D` stake.
 
@@ -88,6 +105,7 @@ If:
 ### Deposit: stake-to-share conversion
 
 Within a given epoch, assuming there are `n` nominators deposited `stake_1, .., stake_n` respectively. So:
+
 ```rust
 // For individual nominator:
 for stake_i in  stake_1, .., stake_n {
@@ -105,6 +123,7 @@ operator.current_total_shares += stake_to_share(deposits_in_epoch) - D
 Updating the deposited stake on both the individual nominator and the operator pool is pure addition, with no arithmetic dust. But updating shares is based on stake-to-share conversion, so the only connection between the nominator share and the `operator.current_total_shares` is that they use the same share price to convert deposited stake.
 
 For `INVARIANT_2` to hold:
+
 ```rust
 stake_to_share(deposits_in_epoch) - D >= sum(stake_to_share(stake_i)) - D_i)
 
@@ -138,6 +157,7 @@ operator.current_total_stake -= share_to_stake(withdrawals_in_epoch) - D
 Updating the withdrawn shares on both the individual nominator and the operator pool are pure subtraction, with no arithmetic dust. But updating the stake is based on the share-to-stake conversion, so the only connection between the nominator unlocked stake and the `operator.current_total_stake` is that they use the same share price to convert withdrawn shares.
 
 For `INVARIANT_3` to hold:
+
 ```rust
 share_to_stake(withdrawals_in_epoch) - D >= sum(share_to_stake(share_i)) - D_i)
 

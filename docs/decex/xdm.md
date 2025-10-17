@@ -1,6 +1,6 @@
 ---
 title: Cross-Domain Messaging (XDM)
-sidebar_position: 7
+sidebar_position: 8
 description: Communication between domains and consensus chain
 keywords:
     - xdm
@@ -10,8 +10,8 @@ keywords:
     - cross-chain messaging
     - cross-domain messaging
 last_update:
-  date: 04/17/2025
-  author: Teor
+  date: 10/15/2025
+  author: Jeremy Frank
 ---
 
 This document describes the current messaging protocol between domains in a trusted code environment (permissioned runtime instantiation). This protocol describes messaging between the consensus chain and any domain and between two domains.

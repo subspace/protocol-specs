@@ -1,7 +1,7 @@
 ---
 title: Permissioned Auto EVM
 hide_title: false
-sidebar_position: 8
+sidebar_position: 1
 description: Autonomys permissioned Ethereum runtimes
 keywords:
     - runtime
@@ -9,8 +9,8 @@ keywords:
     - ethereum
     - permissioned
 last_update:
-  date: 04/14/2025
-  author: Teor
+  date: 10/15/2025
+  author: Jeremy Frank
 ---
 
 A "permissioned" Auto EVM instance uses an allow list to limit which users can create contracts.

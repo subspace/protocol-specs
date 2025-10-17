@@ -1,6 +1,6 @@
 ---
 title: Fraud Proofs
-sidebar_position: 6
+sidebar_position: 7
 description: Proving fraudulent behavior on domains
 keywords:
     - execution
@@ -8,8 +8,8 @@ keywords:
     - fraud proof
     - challenge period
 last_update:
-  date: 10/03/2024
-  author: Dariia Porechna
+  date: 10/15/2025
+  author: Jeremy Frank
 ---
 import Collapsible from '@site/src/components/Collapsible/Collapsible';
 
