@@ -285,14 +285,18 @@ This generates an unbiased and deterministic permutation, while relative orderin
 
 ### Fork Choice Rule
 
-The consensus chain uses [the heaviest chain rule](https://github.com/subspace/subspace/blob/b72d865aa776f3088e37808c02c1468333e213d8/crates/sc-consensus-subspace/src/lib.rs#L1154-L1155) (i.e., smallest solution range) if forks have the same weight go with the longest one, while the domain chain always follows the fork choice of the consensus chain regardless of whether the domain fork is the longest fork or not.
+The consensus chain uses [the heaviest chain rule](https://github.com/autonomys/subspace/blob/fcf603e4cb0cebdfea1997db41b015a37671eefe/crates/sc-consensus-subspace/src/block_import.rs#L640-L724) (i.e., smallest total solution range). This is a globally consistent rule. If the selected fork and another fork have the same weight, each node locally keeps the fork it previously selected.
+
+This usually means that nodes follow the longest chain. But if the fork is over an epoch transition, two forks can have different solution ranges, so a shorter fork can have a larger total chain weight.
+
+The domain chain always follows the fork choice of the consensus chain on the local node, regardless of whether the domain fork is currently the longest or heaviest fork.
 
 Consensus chain (assume every block has the same weight):
 
 ```jsx
      b2 → b3 → b4
     /
-→ a1 → a2 → a3 → a4 → a5 
+→ a1 → a2 → a3 → a4 → a5
 ```
 
 Given domain chain, the consensus block `a3` and `a4` don’t contain bundles thus there is no domain block driving from them:
@@ -303,7 +307,7 @@ Given domain chain, the consensus block `a3` and `a4` don’t contain bundles th
 → domain_a1 → domain_a2 → domain_a5
 ```
 
-The best fork of the consensus chain is fork A as it is the longest fork, and the domain chain always follows the fork choice of the consensus chain thus its best fork is also fork A even though it is not the longest fork.
+The best fork of the consensus chain is fork `A` as it is the longest fork, and the domain chain always follows the fork choice of the consensus chain. Therefore its best fork is also fork `A`, even though it is not the longest fork.
 
 ## Domain Block Execution on the Operator Node
 
